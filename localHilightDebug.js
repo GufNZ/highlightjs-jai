@@ -2166,7 +2166,7 @@ var hljs = (function () {
 						const match = top.matcher.exec(codeToHighlight);
 						// console.log("match", match[0], match.rule && match.rule.begin)
 						if (!match) break;
-//_sel(match.index, Math.max(1, match[0].length));console.log(matchMode(match))//debugger;
+_sel(match.index, Math.max(1, match[0].length));console.log(matchMode(match));
 						const beforeMatch = codeToHighlight.substring(index, match.index);
 						const processedCount = processLexeme(beforeMatch, match);
 						index = match.index + processedCount;

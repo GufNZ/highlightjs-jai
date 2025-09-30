@@ -1,0 +1,25 @@
+{
+	"name": "highlightjs-jai",
+	"version": "0.9",
+	"description": "Highlight.JS syntax definition for jai files.",
+	"main": "jai.js",
+	"scripts": {
+		"test": "echo 'Error: no tests specified!' && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/GufNZ/highlightjs.jai.git"
+	},
+	"keywords": [
+		"jai",
+		"highlight.js",
+		"highlightjs",
+		"syntax"
+	],
+	"author": "J.Chris Findlay <j.chris.findlay@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/highlightjs.jai/issues"
+	},
+	"homepage": "https://github.com/highlightjs.jai"
+}

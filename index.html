@@ -13,6 +13,8 @@
 </head>
 <body>
 	<pre id="it"><code class="language-jai">
+for :positive_vibes_only v, n: holder print("[%] %\n", n, v);
+
 atomic_or :: (dest: *$T, value: T)
 #modify { return IsAtomicScalar(T); }
 {
@@ -34,7 +36,7 @@ Fr\ ed :: enum_flags {
 	B;
 };
 
-makeBucket\  Allocator :: () -&gt; Alloc\ ator {
+makeBucket\  Allocator :: inline #no_abc () -&gt; Alloc\ ator {
 	ba := New(BucketAllocator);
 	init(ba);
 	return .{ pr\ oc = bucket_allocator_proc, data = xx ba };
@@ -557,6 +559,9 @@ BucketItemRef :: struct {
 	}
 }
 		</code></pre>
-	<script>hljs.highlightAll();</script>
+	<script type="text/javascript" src="debug.js"></script>
+	<!--<script type="text/javascript">
+		hljs.highlightAll();
+	</script>-->
 </body>
 </html>
