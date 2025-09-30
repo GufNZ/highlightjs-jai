@@ -1,0 +1,59 @@
+#notIt { display: none; }
+body,pre { margin: 0; padding: 0;display: grid; height: 100vh; font-weight: bold; font-size: 11px; }
+.language-jai { background-color: black; color: white; tab-size: 4; }
+.hljs-keyword { color: #00F; }
+.hljs-built_in { color: #80F; }
+.hljs-built_in.special { color: #8F0; }
+.hljs-built_in.stdLib_ { color: #C8F; }
+.hljs-variable.stdLib_ { color: #CF8; }
+.hljs-variable.stdLib_.constant___ { color: #0DD; }
+.hljs-variable.stdLib_.context___ { color: #C63; }
+.hljs-variable.stdLib_.moduleParam___ { color: #FCC; }
+.hljs-variable.stdLib_.programParam___ { color: #CCF; }
+.hljs-variable.context_ { color: #C43; }
+.hljs-variable.context_.constant__ { color: #CC0; }
+.hljs-type { color: #088; }
+.hljs-type.enum_ { color: #0AC; }
+.hljs-literal { color: #FF0; }
+.hljs-number { color: #88F; }
+.hljs-operator { color: #F00; }
+.hljs-punctuation { color: #666; }
+.hljs-punctuation.quote_ { color: #C6C; }
+.hljs-property { color: purple; }
+/*regexp*/
+.hljs-string { color: #F0F; }
+.hljs-string.here_ { background-color: #303; }
+.hljs-string.path_ { text-decoration: underline; }
+.hljs-string.path_.import__ { text-decoration: underline; }
+.hljs-char.escape_ { background-color: #660; }
+.hljs-subst { color: #0FF; }
+/*.hljs-symbol { }*/
+.hljs .declaration__:not(.enum_), .hljs-type.enum_:not(.declaration__) { font-style: italic; }
+.hljs-variable  { color: #CCC; }
+.hljs-variable.language_ { color: #C8C; }
+.hljs-variable.constant_ { color: #8FF; }
+.hljs-variable.constant_.enum__ { font-style: italic; }
+/*.hljs-title { color: green; }*/
+.hljs-title.class_ { color: #880; }
+.hljs-title.class_.inherited__ { text-decoration: underline; }
+.hljs-title.function_ { color: #F80; }
+.hljs-params { background-color: #400; }
+
+/* Module Parameters: */
+.hljs-params.moduleOrProgram_ { background-color: #044; }
+/* Program Parameters: */
+.hljs-params.moduleOrProgram_ > .hljs-_BalancedParens:nth-of-type(2) { background-color: #004; }
+
+.hljs-comment { color: #080; font-weight: normal; }
+.hljs-doctag { background-color: #008; font-weight: bold; }
+.hljs-doctag.no_checkin_ { color: red; }
+.hljs-meta { background-color: #660; color: #F68; }
+
+.hljs-meta.directive_ { background-color: #440; color: #FFA; }
+.hljs-meta.directive_.modifier__ { color: #CCC; }
+.hljs-meta.directive_.import__ { color: #CC0;}
+.hljs-meta.stringTerminator_ { background-color: #808; color: white; }
+.hljs-meta.note_ { background-color: #CCC; color: #000; }
+/*meta.prompts
+.hljs-meta .hljs-keyword  //TODO: use these?
+.hljs-meta .hljs-string*/
