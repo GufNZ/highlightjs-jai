@@ -190,8 +190,7 @@ var hljs = (function () {
 		openNode(node) {
 			if (!emitsWrappingTags(node)) return;
 
-			const className = scopeToCSSClass(node.scope,
-				{ prefix: this.classPrefix });
+			const className = scopeToCSSClass(node.scope, { prefix: this.classPrefix });
 			this.span(className, node._id);
 		}
 

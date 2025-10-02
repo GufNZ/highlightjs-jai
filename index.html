@@ -8,11 +8,15 @@
 		<script type="text/javascript" src="jai.min.js"></script>
 	-->
 	<link rel="stylesheet" type="text/css" href="jaiEverything.css"/>
+    <style type="text/css">
+        #notIt { display: none; }
+        body, pre { margin: 0; padding: 0;display: grid; height: 100vh; font-weight: bold; font-size: 11px; }
+    </style>
 	<script type="text/javascript" src="localHilightDebug.js"></script>
 	<script type="text/javascript" src="jai.js"></script>
 </head>
 <body>
-	<pre id="it"><code class="language-jai">
+	<pre id="notIt"><code class="language-jai">
 for :positive_vibes_only v, n: holder print("[%] %\n", n, v);
 
 atomic_or :: (dest: *$T, value: T)
@@ -62,7 +66,527 @@ Fruit_\ Transaction :: struct {
 	quantity: u64;
 }
 		</code></pre>
-	<pre id="it"><code class="language-jai">#import "Basic";
+	<pre id="it"><code class="language-jai">
+// Instead of the intrinsics you'd find in other compilers, we provide functionality for robust inline assembly that
+// tightly integrates with the rest of the high level language. The compiler will produce the same output for your
+// asm code bit-for-bit every time.
+//
+// Note that we currently only target x86-64, so it is implied that you are working in that instruction set. This is
+// not necessarily true and when the time comes other instruction sets will be added.
+
+basics :: () {
+    // Let's start with some basic usage...
+
+    // We tell the compiler that we are going to be writing assembly with the #asm directive as follows:
+    #asm {
+        // All statements in this block are in the familiar 'mnemonic operand, operand, operand, ...' form.
+
+        // Here is our first instruction, a 64-bit immediate (imm) to general purpose register (gpr) move. The 'apple'
+        // is our named gpr. We do automatic register mapping, so you can use familiar high level names just like you do
+        // in regular programming.
+        mov apple:, 10;
+
+        // We can actually write that a bit more verbose, since 'apple:' is actually an inferred declaration in the same
+        // way that 'apple := 10' is in the high level langauge. The instruction selector finds a match, and in this
+        // case we got a gpr.
+
+        // There is also an implicit size being used here. In traditional assembly you specifiy operand sizes through
+        // the names of the registers (ax/eax/rax). Since we don't use those names, the size is appened onto the
+        // mnemonic.
+        //
+        // Since we are in 64-bit mode, a 64-bit operand size is the default implicit size being used with scalar ops.
+        // When dealing with vector ops, either 128, 256, or 512 is used depending on your feature set (we'll talk about
+        // that later).
+
+        // Here is the version that declares the register up front and uses an explicit operand size:
+        banana: gpr;
+        mov.64  banana, 17;
+    }
+
+    // In order to make use of our hard work done in #asm, we have to interop with the high level language a bit.
+
+    // Here is our high level variable. This variable has space on the stack, and is also moved in and out of gpr's by
+    // the high level code generator. With respect to #asm blocks, any variable referred to will be moved into the right
+    // gpr for you. In a release build you can expect your variables to always be in the right registers, though it is
+    // a good idea to double check code gen if you care.
+    count := 10;
+
+    #asm {
+        // Here we add 17 to our count. Remember that 'add' is implicitly using a 64-bit operand size, and count is
+        // mapped and loaded into the right gpr.
+        add count, 17;
+    }
+
+    {
+        // If we print 'count', its address gets taken (because it is cast to Any, which is a data
+        // structure that points at 'count'); which causes the compiler to enforce
+        // that 'count' is stored in memory, which means you can't use it as a register.
+        // (Yes this is a complicated issue to try to explain so early on, but, you're likely
+        // to run into this, so let's get it out of the way.) Here we just assign to a new variable
+        // to_print, which has *its* address taken, and then count is fine.
+
+        to_print := count;
+        print("count is %\n", to_print);
+    }
+
+    // Another thing to note is that #asm blocks aren't actually new scopes. The registers declared in them are visible
+    // in whatever scope the #asm block itself is in. It is possible for registers declared in #asm blocks to spill to
+    // the stack before being used again in a later block. This is up to the code generator. In practice this only
+    // happens when there is contention with other high level code (i.e. you are doing floating point math which uses
+    // vector registers, or there is a call and registers need to be saved).
+
+    // Let's make use of apple and banana...
+    #asm {
+        sub banana, apple;
+        add count, banana;
+    }
+
+    to_print := count;
+    print("count with apple and banana is %\n", to_print);
+
+    // Instructions are selected based on the mnemonic and operands provided. Instruction mnemonics are intentionally
+    // identical to the official mnemonic provided by Intel and AMD. This is so you can refer to official manuals when
+    // programming rather than have to indirectly go through something like the intrinsics guide. This also means we
+    // don't provide a listing ourselves. If an instruction is not being recognized by us, either we haven't implemented
+    // it yet or we missed it.
+
+    // Each instruction mnemonic has a set of forms where different operand combinations can be used. The compiler will
+    // print out the potential set of forms when an instruction isn't quite matching what you gave it.
+    //
+    // Here are some basic examples of what you might see from the compiler...
+    //
+    //     gpr, gpr/mem     - first operand gpr, second operand gpr or memory
+    //     gpr, imm8        - first operand gpr, second operand 8-bit immediate
+    //     gpr.a, gpr/mem   - first operand gpr pinned to a, second operand gpr or memory
+
+    // One difference you will find with the official documentation is that there are not 'v' prefixes on our mnemonics.
+    // In traditional assemblers, you use the 'v' prefix to indicate that you want VEX encoding for the instruction.
+    // Here, we determine if we use VEX encoding based on the feature set. If VEX is supported in the feature set (AVX
+    // and up), you will get the VEX encoded version of the instruction, otherwise you'll get the legacy version. More
+    // on feature sets later.
+}
+
+immediates :: () {
+    // As you know, immediate operands are encoded directly into the instruction stream. Different instructions use
+    // different sized immediates. Let's look at some basic examples...
+    #asm {
+        // The byte size variant of mov has a form that takes an 'imm8'. Signed and unsigned values are allowed here
+        // since from the perspective of the instruction, the value is opaque. It just needs to fit in 8 bits.
+        mov.8 b1:,  255;
+        mov.8 b2:, -127;
+
+        // If you tried a value too large, the compiler would tell you that you are trying to use an 'imm16' and there
+        // are no matches on the mov.8 instruction, as you'd expect.
+        // mov.8 b3:, 256; // This line will error.
+
+        // Here are the other mov's for the different sizes...
+        mov.16 w1:,  65535;
+        mov.16 w2:, -32768;
+        mov.32 d1:,  4294967295;
+        mov.32 d2:, -2147483648;
+        mov.64 q3:,  18446744073709551615;
+        mov.64 q4:, -9223372036854775808;
+
+        // For the 64-bit 'mov.64', there is an additional form that takes a sign-extended imm32. This is a pretty common
+        // form in the instruction set. Most instructions do sign extensions, the previous mov forms we've seen are an
+        // exception. The implication of the sign-extension is that the biggest positive value is now the signed max,
+        // not the unsigned max.
+        mov.64 q1:,  2147483647;
+        mov.64 q2:, -2147483648;
+
+        // It is ambiguous if you want the 32-bit sign-extended version or the 64-bit version when your value is valid
+        // in both cases. The instruction selector priortizes the 32-bit sign-extended version since the instruction is
+        // smaller (4 byte vs 8 byte immediate). The 64-bit immediate version also doesn't support mov's to memory.
+
+        // We can also do float immediates when the operand is opaque to the instruction. This limits it to instructions
+        // that don't do sign-extensions. The 32-bit immediate form gets a single (float32) and the 64-bit immediate
+        // form gets a double (float64).
+        mov.32 f1:, 133.247;
+        mov.64 f2:, 133.247;
+
+        // If we tried to use a double in an imm32, the compiler will let us know 64-bits is required.
+        // mov.32 f3:, 133.247247247247247247247247247247247; // This line will error.
+    }
+}
+
+allocation_and_pinning :: () {
+    // The register allocator has some smarts and takes things like lifetimes into account. This lets you use new names
+    // to convey data flow the same way you would in high level code. As a result, register management is turned into a
+    // working set size problem rather than an annoying book-keeping one. If you ever exceed the maximum number of alive
+    // registers, you will get an error from the compiler. There is no automatic spilling or other magic going on here.
+    #asm {
+        mov a:, 32; // alloc a
+        mov b:, 64; // alloc b, free b
+        add a,  10;
+        mov c:, 16; // alloc c
+        add a,  c;  // free  a, free c
+    }
+
+    // So far we have only seen gpr's, but there are other register classes, each with a separate pool for allocation.
+    // Here they all are:
+    //
+    //     gpr - general purpose register,  pool: 8 in 32-bit mode, 16 in 64-bit mode
+    //     str - stack register,            pool: 8 (mostly legacy, used by fpu and mmx instructions)
+    //     vec - vector register,           pool: 8 in 32-bit mode, 16 in 64-bit mode pre AVX512, 32 in 64-bit mode post AVX512
+    //     omr - op-mask register,          pool: 8, only with AVX512
+
+    // Sometimes you need to be a bit more explicit about which location registers get mapped to. Let's see some
+    // examples...
+    #asm {
+        t: gpr === a; // 't' is pinned to gpr 'a' (0/al/ax/eax/rax)
+        u: gpr === c; // 'u' is pinned to gpr 'c' (1/cl/cx/ecx/rcx)
+        v: vec === 9; // 'v' is pinned to vec '9' (xmm9/ymm9/zmm9)
+
+        // You can also write these inline. This is the verbose version of the inferred operands we saw earlier. You can
+        // specify the entire declaration explicitly if you want.
+        mov w: gpr === 15, 10;
+    }
+
+    // Certain instructions use implicit registers. In traditional assemblers, the onus is on the programmer to make
+    // sure that those registers are available and have the right value before the instruction executes. Here, we
+    // reframe it slightly. All registers used by an instruction are explicitly listed as operands, and any registers
+    // that would have been implicitly referenced are required to be pinned.
+    //
+    // Let's see an example using the multiply instruction. This instruction looks like 'op1:op2 = op2 * op3', meaning
+    // our 64-bit multiply gives us back a 128-bit result. In Traditional assemblers you'd only specify the third
+    // operand explicitly. Here, we pass all three but the first two must be pinned to the correct locations.
+    x: u64 = 197589578578;
+    y: u64 = 895173299817;
+    z: u64 = ---;
+    #asm {
+        x === a; // We pin the high level var 'x' to gpr 'a' as required by mul.
+        z === d; // We pin the high level var 'z' to gpr 'd' as required by mul.
+        mul z, x, y;
+    }
+
+    print_z := z;
+    print_x := x;
+    print("x * y = %:%\n", print_z, print_x);
+}
+
+memory :: () {
+    // In x86 there are also memory operands in the form 'base + index * scale + displacement'. To indicate a memory
+    // operand you wrap it in brackets, just like you would in a traditional assembler. The ordering of the expression
+    // is considered rigid in that you cannot place the displacement first, or the base second, etc. This is to reduce
+    // confusion since most of the fields are usually ambiguous identifiers.
+
+    // Here are some rules on the different components:
+    //     base  - required, must be a gpr
+    //     index - optional, usually a gpr but can also be a vec in some instructions (more on that later)
+    //     scale - only valid when there is an index, can be 1, 2, 4, or 8, when omitted it is default 1
+    //     disp  - optional, a signed 8 or 32 bit integer byte offset
+
+    dummy_array: [512] u8;
+    dummy_array_pointer := dummy_array.data + 128;
+    dummy_array_index := 10;
+
+    DUMMY_SCALE :: size_of(u64);
+    DUMMY_DISP  :: -10 * 2 + 13;
+
+    // Let's enumerate some of the possible combinations...
+    #asm {
+        // We load 'b' and 'i' with some valid data since we don't want to crash the how-to when running through the
+        // following instructions.
+        mov b:, dummy_array_pointer;
+        mov i:, dummy_array_index;
+
+        mov t:, [b];
+        mov t, [b + 10];
+        mov t, [b - 10];
+        mov t, [b + i];
+        mov t, [b + i*1];
+        mov t, [b + i*2];
+        mov t, [b + i*4 + 10];
+        mov t, [b + i*8 - 10];
+
+        // We can also refer to high level vars directly in all of these slots. The scale and displacement must be
+        // constant.
+        mov t, [dummy_array_pointer + dummy_array_index*DUMMY_SCALE + DUMMY_DISP];
+
+        // Taking that a step further, we can put these expressions inline by wrapping them in parens. The parens help
+        // to distinguish between the components of the memory operand itself and whatever is being done in the constant
+        // expressions.
+        mov t, [dummy_array_pointer + dummy_array_index*(size_of(u64)) + (-10 * 2 + 13)];
+    }
+
+    // There are a few limitations with the current system. The first is stack addressing. You cannot directly access
+    // variables that only exist on the stack via a memory operand. You also cannot access variables in global scope
+    // via a rip-rel memory operand. These limitations are due to the current architecture and integration issues with
+    // LLVM. This is not much of a functional problem in practice, it just means you have to manually load a raw pointer
+    // variable with whatever you are trying to access before hand.
+}
+
+feature_flags :: () {
+    // x86 doesn't have a single set of instructions. Instead, there are feature flags which say whether or not some
+    // instruction or some set of instructions are present. #asm blocks only let you use instructions that you have
+    // said are in your target feature set. This can be specified on a global build level, or on a per-block level.
+
+    // To specifiy flags on a global build level, you setup the flags you want and pass them with the build options
+    // during your build step. The flags are binary compatible with the feature bits specified by CPUID. See
+    // Machine_X64.jai for a list of these. Set feature bits on build_options.machine_options.x86_features.leaves via
+    // the enable_feature function in Machine_X64.jai.
+
+    // In addition to the global build flags, you can specifiy additional features to enable for a specific #asm block.
+    // The names match with the x86_Feature_Flag enum in Machine_X64.jai.
+
+    // You do this by listing the feature flags like so...
+    #asm AVX, AVX2 {
+        // We can use AVX and AVX2 instructions here, even though our global build feature set didn't include them.
+    }
+
+    // To make use of this, you'll have to do a runtime check and branch on the feature flags. So in our example, we'd
+    // have to check for AVX and AVX2 support on the current hardware, and branch to an older feature set if it isn't
+    // available.
+
+    // There is a helper function in Machine_X64.jai that can query the full set of relevant feature flags for you. It
+    // is generally a good idea to do this once and cache the flags for testing later.
+    cpu_info := get_cpu_info();
+
+    if check_feature(cpu_info.feature_leaves, x86_Feature_Flag.AVX2) {
+        #asm AVX2 {
+            // Here the pxor gets the 256-bit .y version, since that is the default operand size with AVX. In an AVX512
+            // block, the default operand size would be the 512-bit .z.
+            pxor v1:, v1, v1;
+        }
+    }
+    else {
+        // AVX2 is not available on this processor, we have to run our fallback path...
+    }
+}
+
+macros :: () {
+    // While you can't pass registers to other procedures, you can #expand a macro that takes registers as arguments.
+    // No additional mov's or other instructions will be generated as a result of this. The names are simply bound to
+    // one another by the compiler and the same underlying register allocation is used.
+
+    // The compiler currently defines __reg, but in the future will define reg, so we do that ourselves for now.
+    reg :: __reg;
+
+    // Here is our macro, it takes two regs. Any user can pass any two regs here and the add will get expanded at the
+    // usage site with the correct mappings.
+    add_the_two_regs :: (left: reg, right: reg) #expand {
+        #asm {
+            add left, right;
+        }
+    }
+
+    // Setup some registers.
+    #asm {
+        mov a:, 12;
+        mov b:, 18;
+    }
+
+    // Pass to the macro in any order.
+    add_the_two_regs(b, a);
+
+    // Print out the result.
+    c: u64 = ---;
+    #asm {
+        mov c, b;
+    }
+
+    print_c := c;
+    print("c: %\n", print_c);
+}
+
+compile_time_execution :: () {
+    // #asm blocks can also be ran at compile time, just like any other code. The code is compiled to machine code once
+    // and ran at native speed, so you can expect it to be just as fast.
+
+    do_some_work :: (a: int, b: int) -> int {
+        #asm {
+            add a, b;
+        }
+        return a;
+    }
+
+    A :: #run do_some_work(10, 13);
+    print("A: %\n", A);
+}
+
+advanced_features :: () {
+    cpu_info := get_cpu_info();
+
+    // We are going to bail out early if your processor doesn't support AVX2 to avoid crashing the how-to.
+    if !check_feature(cpu_info.feature_leaves, x86_Feature_Flag.AVX2) {
+        print("Looks like you don't have AVX2 on this machine...\n");
+        return;
+    }
+
+    // There are a handful of instructions that support a memory operand with a vector index. This is known as a VSIB
+    // in the documentation. The only instructions that actually use it are scatters and gathers. Let's see an example
+    // of this...
+
+    // For demonstration, we'll gather from the original_float_array using the gather_indices. In practice you wouldn't
+    // do something like this (it is just a shuffle), but we'd need some large set of actual data to demonstrate the
+    // instruction otherwise.
+    original_float_array := float.[ 1, 2, 3, 4, 5, 6, 7, 8 ];
+    gather_indices := u32.[ 7, 6, 5, 4, 3, 2, 1, 0 ];
+    gathered_float_array: [8] float;
+
+    original_float_array_pointer := original_float_array.data;
+    gather_indices_pointer := gather_indices.data;
+    gathered_float_array_pointer := gathered_float_array.data;
+
+    #asm AVX, AVX2 {
+        // Load the register we are going to use for indexing from the gather_indices array, to keep things simple.
+        movdqu vindex:, [gather_indices_pointer];
+
+        // Get all 1's in our gather mask, we want to just let all lanes through.
+        pcmpeqd gather_mask:, gather_mask, gather_mask;
+
+        // Note that we scale our indices by 4. That is because these are byte offsets and we need to step in multiples
+        // of the element size (32-bits), like any other memory operand. Also note that we don't use a displacement, but
+        // it is supported and behaves just like a normal memory operand.
+        gatherdps gather_dest:, [original_float_array_pointer + vindex*4], gather_mask;
+        movdqu [gathered_float_array_pointer], gather_dest;
+    }
+
+    print("gather result: %\n", gathered_float_array);
+
+    // AVX512 introduced a new encoding called EVEX that supports a number of new features. We support these features
+    // and all instructions in the feature set. Let's go over some of them here...
+
+    // We are going to bail out early if your processor doesn't support AVX512 to avoid crashing the how-to.
+    if !check_feature(cpu_info.feature_leaves, x86_Feature_Flag.AVX512F) {
+        print("Looks like you don't have AVX512F on this machine...\n");
+        return;
+    }
+
+    // We use this array for printing out vector register contents.
+    array: [16] s32;
+    array_pointer := array.data;
+
+    // We use this value for demonstrating memory broadcasting and rounding modes. Taking the address of the variable
+    // gives us a pointer to a location on the stack we can use for reading.
+    value: float = 127.53;
+    value_pointer := *value;
+
+    // One of the EVEX features is the 'broadcasting' flag. When this flag is set (and the instruction supports it), the
+    // memory operand will only load a single value and duplicate it to each lane in the vector register. An instruction
+    // form that accepts a broadcasting memory operand will look something like 'mem!' in the compiler print out for
+    // supported forms. The broadcast is optional in these cases, when not supplied the memory operand behaves normally.
+    #asm AVX512F {
+        // The broadcast '!' gets rid of the extra broadcastss instruction we otherwise need (see the following examples).
+        cvtps2dq v1:, [value_pointer]!;
+        movdqu [array_pointer], v1;
+    }
+
+    print("% broadcasted and converted to %\n", value, array);
+
+    // Another EVEX feature has to do with floating point operations. Some instructions take an operand that supports
+    // either SAE (suppress all exceptions) or an ER (explicit rounding mode). Here are the different combinations:
+    //
+    //     !  - SAE
+    //     !n - SAE + round to nearest (even)
+    //     !d - SAE + round down (toward -inf)
+    //     !u - SAE + round up (toward +inf)
+    //     !z - SAE + round towards zero (truncate)
+    //
+    // You can only use the stand-alone SAE flag when the instruction doesn't support the full explicit rounding modes.
+    // The form print-out from the compiler shows this as 'vec!'. When the form print-out shows 'vec!r', the rounding
+    // mode is required (replace r with whatever rounding mode you want).
+
+    // Here is an example using an explicit rounding mode...
+    #asm AVX512F {
+        broadcastss v2:, [value_pointer];
+        cvtps2dq v3:, v2 !z;
+        movdqu [array_pointer], v3;
+    }
+
+    print("% broadcasted and truncated to %\n", value, array);
+
+    // A more well known feature in the EVEX encoding is masking. Mask registers can be applied to the first operand of
+    // an instruction that supports it. When an operand can be masked, the form print-out will show something like
+    // 'vec&' or 'vec&*'. The & version is the merging operator while the &* version is the zeroing operator. Not all
+    // instructions support both, and some instructions actually require the zeroing flag to be set.
+
+    // Let's run that same example but this time we'll mask off some of the elements...
+    #asm AVX512F {
+        // We init our bitmask by just loading an immediate and kicking it over to a mask register.
+        mov mask_init:, 0b0101_0101_0101_0101;
+
+        // We want the 16-bit version of kmov here since we are masking 32-bit elements (a 512-bit vector has 16 elements).
+        // There are also b/d/q versions of the k-instructions for when you are doing operations on different element
+        // sizes. For example, a byte sized mask can be used with 64-bit elements (requires AVX512DQ), a qword sized
+        // mask can be used with 8-bit elements (requires AVX512BW), etc.
+        kmovw mask:, mask_init;
+
+        broadcastss v4:, [value_pointer];
+        cvtps2dq v5: &* mask, v4 !z;
+        movdqu [array_pointer], v5;
+    }
+
+    print("% broadcasted and truncated with masking to %\n", value, array);
+}
+
+polymorphic_sizes :: () {
+    // Way up above we discussed tagging instruction mnemonics with explicit sizes
+    // like 8 or 32 or 128.
+
+    // Sizes can also be determined by variables from the higher-level language,
+    // which can help make polymorphic functions terse (among other advantages).
+
+    // Here's a function that counts bits in an integer (it's copied from modules/Bit_Operations.jai,
+    // with some modifications):
+
+    my_popcount :: (value: $T) -> s32 #expand {
+        BITS :: size_of(T)*8;
+
+        result: s32;
+
+        #if BITS == 8 #asm {
+            // There is no popcnt.8, so we need to move into 16 bits.
+            // We will explicitly specify the 16 as above.
+            movzxbw      two_bytes:, value;
+            popcnt.16    result, two_bytes;
+        } else #asm {
+            // We can say ?BITS at the end of the mnemonic
+            // to specify that the size is BITS.
+            popcnt?BITS  result, value;
+
+            // Or, we can just use T; if we put a Type after ?
+            // we'll get the size of T in bits.
+
+            popcnt?T     result, value;
+
+            // (Yes, we just redundantly computed 'result', but
+            // we wanted to show both ways of sizing the operation!)
+        }
+
+        return result;
+    }
+
+    // Because my_popcount is polymorphic, it will work on values
+    // of size 8, 16, 32, and 64. (If you pass something bigger,
+    // you'll get an error that there's no variant of popcnt at that size.)
+
+    a: u32 = 0xcafe;
+    b: s64 = 0xcafebabe00c0ffee;
+
+    a_result := my_popcount(a);
+    b_result := my_popcount(b);
+
+    print("a_result: %\n", a_result);
+    print("b_result: %\n", b_result);
+}
+
+main :: () {
+    basics();
+    immediates();
+    allocation_and_pinning();
+    memory();
+    feature_flags();
+    macros();
+    compile_time_execution();
+    advanced_features();
+    polymorphic_sizes();
+}
+
+#import "Basic";
+#import "Machine_X64";
+		</code></pre>
+	<pre id="notIt"><code class="language-jai">#import "Basic";
 /*
 	Jai Bucket Allocator
 	====================
