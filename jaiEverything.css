@@ -1,6 +1,7 @@
 .language-jai { background-color: black; color: white; tab-size: 4; }
 
 .hljs-keyword { color: #00F; }
+.hljs-keyword.cast_ { color: #FFF; }
 
 .hljs-variable  { color: #BBB; }
 .hljs-variable.language_ { color: #C8C; }
@@ -18,7 +19,6 @@
 .hljs-built_in { color: #80F; }
 .hljs-built_in.special { color: #8F0; }
 .hljs-built_in.stdLib_ { color: #FC8; }
-
 
 .hljs-type { color: #088; }
 .hljs-type.enum_ { color: #0AC; }
@@ -66,7 +66,7 @@
 
 .hljs-comment { color: #080; font-weight: normal; }
 /*.hljs-comment.line { }*/
-/*.hljs-comment.block { }*/
+.hljs-comment.block_ { background-color: #222; }
 .hljs-doctag { background-color: #008; font-weight: bold; }
 .hljs-doctag.no_checkin_ { color: red; }
 
@@ -79,15 +79,17 @@
 .hljs-meta.directive_.module_parameters__ { color: #0CC;}
 
 /* #asm */
+.hljs-punctuation.asm__.size___ { color: #FF0; }
 .hljs-symbol { color: #FDA; }
 .hljs-symbol.size_ { color: #FAA; }
-.hljs-symbol.size_.type__ { color: #FAA; }
-.hljs-symbol.size_.var__ { color: #FAA; }
+.hljs-symbol.size_.const__ { color: #8FF; }
+.hljs-symbol.size_.type__ { color: #6AA; }
 .hljs-meta.directive_.asm__ { color: #0CC; }
 .hljs-meta.directive_.asm__.flags___ { background-color: #066; }
 .hljs-meta.directive_.asm__.flags___ .comma_ { color: #FFF; }
 .hljs-meta.directive_.asm__.flag___ { color: #6C6; }
 .hljs-meta.directive_.asm__.block___ { background-color: #030; }
+.hljs-meta.directive_.asm__.block___ .hljs-comment { color: #0A0; }
 .hljs-meta.keyword_.asm__.register___ { background-color: #80F; }
 
 .hljs-meta.stringTerminator_ { background-color: #808; color: white; }

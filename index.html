@@ -67,12 +67,20 @@ Fruit_\ Transaction :: struct {
 }
 		</code></pre>
 	<pre id="it"><code class="language-jai">
+f :: () -> int {
+	return cast//
+	,//
+	force(u8)11;
+}
+
+/*
 // Instead of the intrinsics you'd find in other compilers, we provide functionality for robust inline assembly that
 // tightly integrates with the rest of the high level language. The compiler will produce the same output for your
 // asm code bit-for-bit every time.
 //
 // Note that we currently only target x86-64, so it is implied that you are working in that instruction set. This is
 // not necessarily true and when the time comes other instruction sets will be added.
+*/
 
 basics :: () {
     // Let's start with some basic usage...
@@ -405,7 +413,7 @@ compile_time_execution :: () {
 }
 
 advanced_features :: () {
-    cpu_info := get_cpu_info();
+    cpu_info := #ifx true get_cpu_info() else .{};
 
     // We are going to bail out early if your processor doesn't support AVX2 to avoid crashing the how-to.
     if !check_feature(cpu_info.feature_leaves, x86_Feature_Flag.AVX2) {
@@ -531,19 +539,19 @@ polymorphic_sizes :: () {
     // with some modifications):
 
     my_popcount :: (value: $T) -> s32 #expand {
-        BITS :: size_of(T)*8;
+        Bits :: size_of(T)*8;
 
         result: s32;
 
-        #if BITS == 8 #asm {
+        #if Bits == 8 #asm {
             // There is no popcnt.8, so we need to move into 16 bits.
             // We will explicitly specify the 16 as above.
             movzxbw      two_bytes:, value;
             popcnt.16    result, two_bytes;
         } else #asm {
-            // We can say ?BITS at the end of the mnemonic
-            // to specify that the size is BITS.
-            popcnt?BITS  result, value;
+            // We can say ?Bits at the end of the mnemonic
+            // to specify that the size is Bits.
+            popcnt?Bits  result, value;
 
             // Or, we can just use T; if we put a Type after ?
             // we'll get the size of T in bits.

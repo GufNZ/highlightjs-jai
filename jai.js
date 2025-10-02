@@ -1,5 +1,12 @@
-const register_jai = (hljs, scope) => {
-	function fixDocTags(mode) {
+/*
+Language: jai
+Author: J.Chris Findlay <j.chris.findlay@gmail.com>
+Description: highlightjs language definition for jai files
+Category: config
+*/
+
+const register_jai = (hljs) => {
+	function fixDocTags(mode, scope) {
 		const doctags = [/TODO/, /NOTE/, /FIXME/, /BUG/, /HACK/, /MAYBE/, /LATER/, /QUESTION/, /TEST/, /NO_?CHECKIN/i, /OPTIMISE/, /OPTIMIZE/, /XXX/];
 
 		mode.scope = 'comment' + (scope ? `.${scope}` : '');
@@ -37,7 +44,7 @@ const register_jai = (hljs, scope) => {
 	}
 
 	const identifierRE = '\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
-	const constRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b';
+	const constIdentifierRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b';
 	const typeIdentifierRE = '\\b[A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const noteRE = '@(?:"[^"]+"|\\S+)';
 	const skipCommentsRE = `(?:(?://.*\\n|/\\*[\\s\\S]*\\*/)\\s*)*`;
@@ -21268,10 +21275,6 @@ const register_jai = (hljs, scope) => {
 			'break',
 			'for'
 		],
-		'keyword.cast': [
-			'cast',
-			'xx|10'
-		],
 		'keyword.enum': [
 			'enum_flags|10',
 			'enum'
@@ -21345,6 +21348,10 @@ const register_jai = (hljs, scope) => {
 		'type.context': [
 			'#Context|10'
 		],
+		'type.asm': [
+			'__reg',	// Deprecated, will go away sometime in favour of:
+			'reg'
+		],
 		'literal.bool': 'true false',
 		literal: 'null',
 		...STDLIB
@@ -21416,31 +21423,10 @@ const register_jai = (hljs, scope) => {
 		]
 	};
 
-	const ALIGNMENT_WS = {
-		scope: 'punctuation.backslash',
-		begin: /\\\s*/
-	};
-
-	const VAR_DECLARATION = {
-		scope: 'variable.declaration',
-		begin: `${identifierRE}(?=\\s*${skipCommentsRE}:)`,
-		returnBegin: true,
-		keywords,
-		contains: [
-			ALIGNMENT_WS,
-			...COMMENTS
-		],
-		end: /(?=\W)/
-	};
-
 	const OPERATOR = {
 		scope: 'operator',
 		begin: /[-+*/%=^&|<>.]/,
 		variants: [
-			{
-				scope: 'operator.cast',
-				begin: /\.\(/
-			},
 			{
 				scope: 'operator.backtick',
 				begin: /`/
@@ -21508,6 +21494,8 @@ const register_jai = (hljs, scope) => {
 		]
 	};
 
+	const DEFINE = OPERATOR.variants.find(v => v.scope === 'operator.define');
+
 	const STRING_ESCAPE = {
 		scope: 'char.escape',
 		begin: /\\(?:[0tenr%\\"]|d\d{3}|x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})|%%/  //LATER: once %% is deprecated & removed, remove it from here too.
@@ -21557,9 +21545,14 @@ const register_jai = (hljs, scope) => {
 		begin: noteRE
 	};
 
+	const ALIGNMENT_WS = {
+		scope: 'punctuation.backslash',
+		begin: /\\\s*/
+	};
+
 	const CONST = {
 		scope: 'variable.constant',
-		begin: constRE,
+		begin: constIdentifierRE,
 		returnBegin: true,
 		contains: [ALIGNMENT_WS],
 		end: /(?=\W)/
@@ -21628,7 +21621,7 @@ const register_jai = (hljs, scope) => {
 		scope: 'meta',
 		begin: [
 			/#/,
-			/(?:add_context|align|as(?:sert|)|bake(?:_arguments|)|bytes|c_call|caller_location|char|code|compile_time|compiler|complete|cpp_method|define|deprecated|dump|else|endif|exists|expand|file(?:path|)|foreign(?:(?:_system)?_library|)|if(?:n?def|)|insert|intrinsic|library|load|location|modify|must|no_(?:abc|alias|aoc|context|debug|padding|reset)|place(?:holder|)|poke_name|procedure_name|program_export|run(?:time_support|)|scope_(?:export|file|module)|specified|sy(?:mmetric|stem_library)|th(?:is|rough)|type(?:_info_(?:procedures_are_void_pointers|none|v2)|))/,
+			/(?:add_context|align|as(?:sert|)|bake(?:_arguments|)|bytes|c_call|caller_location|char|code|compile_time|compiler|complete|cpp_method|define|deprecated|dump|else|endif|exists|expand|file(?:path|)|foreign(?:(?:_system)?_library|)|if(?:n?def|x|)|insert|intrinsic|library|load|location|modify|must|no_(?:abc|alias|aoc|context|debug|padding|reset)|place(?:holder|)|poke_name|procedure_name|program_export|run(?:time_support|)|scope_(?:export|file|module)|specified|sy(?:mmetric|stem_library)|th(?:is|rough)|type(?:_info_(?:procedures_are_void_pointers|none|v2)|))/,
 		],
 		beginScope: {
 			1: 'punctuation.hash.directive',
@@ -21637,17 +21630,39 @@ const register_jai = (hljs, scope) => {
 		contains: [
 			...COMMENTS,
 			{
-				begin: [
-					/,/,
-					/[A-Za-z]+/
-				],
-				beginScope: {
-					1: 'punctuation.comma',
-					2: 'meta.directive.modifier'
-				}
+				begin: `,\\s*${skipCommentsRE}[A-Za-z]+`,
+				returnBegin: true,
+				contains: [
+					...COMMENTS,
+					COMMA,
+					{
+						scope: 'meta.directive.modifier',
+						begin: /[A-Za-z]+/
+					}
+				]
 			}
 		],
 	};
+
+	const CASTS = [
+		{	// Option 1
+			scope: 'keyword.cast',
+			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}[A-Za-z]+)?`,
+			returnBegin: true,
+			contains: [
+				...COMMENTS,
+				COMMA,
+				{
+					scope: 'meta.directive.modifier',
+					begin: /\b(trunc,force,FORCE,no_check)+\b/
+				}
+			],
+			end: /(?!cast|xx|trunc|force|FORCE,no_check)\S/,	//BUG: Ends early!
+			returnEnd: true
+		},
+		//TODO: Option 2
+		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ },
+	];
 
 	const AS_REF = {
 		scope: 'title.class.inherited',
@@ -21696,12 +21711,36 @@ const register_jai = (hljs, scope) => {
 		returnEnd: true
 	}
 
+	const TYPE_DECLARATION = {
+		scope: 'type.declaration',
+		begin: `${typeIdentifierRE}(?=\\s*${skipCommentsRE}:)`,
+		returnBegin: true,
+		keywords,
+		contains: [
+			ALIGNMENT_WS,
+			...COMMENTS
+		],
+		end: /(?=\W)/
+	};
+
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		begin: `${identifierRE}(?=\\s*${skipCommentsRE}::(?!\\s*${skipCommentsRE}(?:\\(|enum)))`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
+		end: /(?=\W)/
+	};
+
+	const VAR_DECLARATION = {
+		scope: 'variable.declaration',
+		begin: `${identifierRE}(?=\\s*${skipCommentsRE}:)`,
+		returnBegin: true,
+		keywords,
+		contains: [
+			ALIGNMENT_WS,
+			...COMMENTS
+		],
 		end: /(?=\W)/
 	};
 
@@ -21745,7 +21784,7 @@ const register_jai = (hljs, scope) => {
 			{
 				...CONST,
 				scope: 'type.enum.value.declaration',
-				begin: `${constRE}(?=\\s*${skipCommentsRE};)`,
+				begin: `${constIdentifierRE}(?=\\s*${skipCommentsRE};)`,
 				end: /;/,
 			},
 			{
@@ -21767,6 +21806,7 @@ const register_jai = (hljs, scope) => {
 				end: /;/,
 				returnEnd: true
 			},
+			...CASTS,
 			DIRECTIVE,
 			SEMICOLON
 		],
@@ -21783,10 +21823,24 @@ const register_jai = (hljs, scope) => {
 		end: /(?=\s*::)/
 	};
 
+	function balancedParen(contents) {
+		return {
+			scope: '_BalancedParens',
+			begin: /\(/,
+			keywords: {
+				...keywords,
+				$pattern: /\b(?:#Context|[A-Za-z][_\dA-Za-z]+|[()])\b/,
+				'punctuation.paren': /[()]/
+			},
+			contains: [
+				'self',
+				...contents
+			],
+			end: /\)/
+		};
+	}
+
 	const asmKeywords = {
-		'meta.keyword.asm.register': [
-			'gpr'
-		],
 		"symbol": [
 			'adc',
 			'add',
@@ -22483,9 +22537,10 @@ const register_jai = (hljs, scope) => {
 		},
 		contains: [
 			...COMMENTS,
-			{
+			{	// feature flag guards
 				scope: 'meta.directive.asm.flags',
 				begin: /\w/,
+				returnBegin: true,
 				keywords: {
 					'meta.directive.asm.flag': [
 						'FPU',
@@ -22696,14 +22751,14 @@ const register_jai = (hljs, scope) => {
 				],
 				end: /(?=\s*\{)/
 			},
-			{
+			{	// {...}
 				scope: 'meta.directive.asm.block',
-				begin: /\{/,
+				begin: `\\s*${skipCommentsRE}\\{`,
 				returnBegin: true,
 				keywords: asmKeywords,
 				contains: [
 					...COMMENTS,
-					{
+					{	// .32 etc
 						begin: [
 							/\./,
 							/\s*/,
@@ -22712,60 +22767,77 @@ const register_jai = (hljs, scope) => {
 							/\b/
 						],
 						beginScope: {
-							1: 'punctuation.dot',
+							1: 'punctuation.dot.asm.size',
 							4: 'symbol.size'
 						},
 						contains: [...COMMENTS]
 					},
-					{
+					{	// ?CONST
 						begin: [
-							/\./,
+							/\?/,
+							/\s*/,
+							skipCommentsRE,
+							constIdentifierRE,
+						],
+						beginScope: {
+							1: 'punctuation.clue.asm.size',
+							4: 'symbol.size.const'
+						},
+						contains: [...COMMENTS]
+					},
+					{	// ?T
+						begin: [
+							/\?/,
 							/\s*/,
 							skipCommentsRE,
 							typeIdentifierRE,
 						],
 						beginScope: {
-							1: 'punctuation.dot',
+							1: 'punctuation.clue.asm.size',
 							4: 'symbol.size.type'
 						},
 						contains: [...COMMENTS]
 					},
-					{
-						begin: [
-							/\./,
-							/\s*/,
-							skipCommentsRE,
-							identifierRE,
-						],
-						beginScope: {
-							1: 'punctuation.dot',
-							4: 'symbol.size.var'
-						},
-						contains: [...COMMENTS]
-					},
 					VAR_DECLARATION,
-					{
+					{	// ===
 						scope: 'operator.pinRegister',
 						begin: /===/
 					},
-					{
+					{	// var
 						...VAR,
 						keywords: asmKeywords
 					},
 					COMMA,
 					NUMBER,
+					DEFINE,
 					SEMICOLON,
 					{
-						begin: /(?!)/,
-						/* //TODO: offsetBlock:
-						`[` base:gpr [ `+` index:gpr|vec [ `*` ()scale(2^n) ] ] [ `+` ()disp{s8|s32} ] `]`
-						// Here are some rules on the different components:
-							//     base  - required, must be a gpr
-							//     index - optional, usually a gpr but can also be a vec in some instructions (more on that later)
-							//     scale - only valid when there is an index, can be 1, 2, 4, or 8, when omitted it is default 1
-							//     disp  - optional, a signed 8 or 32 bit integer byte offset
-							//NOTE: () can be general parenthesied expressions, including proc/builtin calls etc.
-						 */
+						begin: /\[/,
+						returnBegin: true,
+						keywords: {
+							'keyword.if': [
+								'then|5',
+								'else',
+							],
+							'keyword.meta': [
+								'size_of|10',
+							],
+						},
+						contains: [
+							{
+								...OPERATOR,
+								variants: OPERATOR.variants.filter(
+									v => [
+										'operator.math',
+										'operator.bitwise',
+										'operator.shift'
+									].includes(v.scope)
+								)
+							},
+							...CASTS
+						],
+						end: /\]/,
+						returnEnd: true
 					}
 				],
 				end: /\}/
@@ -22774,10 +22846,13 @@ const register_jai = (hljs, scope) => {
 	};
 
 	const COMMON_EXCEPT_STRING = [
+		...CASTS,
 		FUNCTION_CALL,
 		PROC_DECLARATION,
 		ENUM_DECLARATION,
 		STRUCT_DECLARATION,
+		TYPE_DECLARATION,
+		CONST_DECLARATION,
 		VAR_DECLARATION,
 		...ATOMIC,
 		ASM,
@@ -22833,21 +22908,6 @@ const register_jai = (hljs, scope) => {
 				}
 		);
 
-	const BALANCED_PAREN = {
-		scope: '_BalancedParens',
-		begin: /\(/,
-		keywords: {
-			...keywords,
-			$pattern: /#Context|\w+|[()]/,
-			'punctuation.paren': /[()]/
-		},
-		contains: [
-			'self',
-			COMMON_EXCEPT_IMPORT_AND_PAREN
-		],
-		end: /\)/
-	}
-
 	const MODULE_PARAMETERS_DIRECTIVE = {
 		scope: 'meta.directive',
 		begin: [
@@ -22866,7 +22926,7 @@ const register_jai = (hljs, scope) => {
 				returnBegin: true,
 				keywords,
 				contains: [
-					BALANCED_PAREN,
+					balancedParen([COMMON_EXCEPT_IMPORT_AND_PAREN]),
 					...COMMON_EXCEPT_IMPORT_AND_PAREN
 				],
 				end: /;/,
@@ -22900,7 +22960,7 @@ const register_jai = (hljs, scope) => {
 				returnBegin: true,
 				keywords,
 				contains: [
-					BALANCED_PAREN,
+					balancedParen([COMMON_EXCEPT_IMPORT_AND_PAREN]),
 					...COMMON_EXCEPT_IMPORT_AND_PAREN
 				],
 				end: /;/,
