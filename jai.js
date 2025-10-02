@@ -43,6 +43,18 @@ const register_jai = (hljs) => {
 		return mode;
 	}
 
+	function pick(obj, keysRE) {
+		const result = {};
+
+		for (const entry of Object.entries(obj)) {
+			if (entry[0].match(keysRE)) {
+				result[entry[0]] = entry[1];
+			}
+		}
+
+		return result;
+	}
+
 	const identifierRE = '\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const constIdentifierRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b';
 	const typeIdentifierRE = '\\b[A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
@@ -21303,6 +21315,10 @@ const register_jai = (hljs) => {
 		'keyword.context': [
 			'push_context|10'
 		],
+		'keyword.cast': [
+			'cast',
+			'xx|7'
+		],
 		'variable.language': [
 			'it_index|10',
 			'context|10',
@@ -21498,7 +21514,7 @@ const register_jai = (hljs) => {
 
 	const STRING_ESCAPE = {
 		scope: 'char.escape',
-		begin: /\\(?:[0tenr%\\"]|d\d{3}|x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})|%%/  //LATER: once %% is deprecated & removed, remove it from here too.
+		begin: /\\(?:[0tenr%\\"]|d\d{3}|x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})|%%/	//LATER: once %% is deprecated & removed, remove it from here too.
 	}
 
 	const STRING = {
@@ -21644,26 +21660,6 @@ const register_jai = (hljs) => {
 		],
 	};
 
-	const CASTS = [
-		{	// Option 1
-			scope: 'keyword.cast',
-			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}[A-Za-z]+)?`,
-			returnBegin: true,
-			contains: [
-				...COMMENTS,
-				COMMA,
-				{
-					scope: 'meta.directive.modifier',
-					begin: /\b(trunc,force,FORCE,no_check)+\b/
-				}
-			],
-			end: /(?!cast|xx|trunc|force|FORCE,no_check)\S/,	//BUG: Ends early!
-			returnEnd: true
-		},
-		//TODO: Option 2
-		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ },
-	];
-
 	const AS_REF = {
 		scope: 'title.class.inherited',
 		begin: /#as\b/,
@@ -21806,9 +21802,9 @@ const register_jai = (hljs) => {
 				end: /;/,
 				returnEnd: true
 			},
-			...CASTS,
 			DIRECTIVE,
 			SEMICOLON
+			//...CASTS - :forwardRef
 		],
 		end: /\}/,
 		returnEnd: true
@@ -21840,6 +21836,60 @@ const register_jai = (hljs) => {
 		};
 	}
 
+	const COMMON_EXCEPT_STRING = [
+		FUNCTION_CALL,
+		PROC_DECLARATION,
+		ENUM_DECLARATION,
+		STRUCT_DECLARATION,
+		TYPE_DECLARATION,
+		CONST_DECLARATION,
+		VAR_DECLARATION,
+		...ATOMIC,
+		DIRECTIVE
+	];
+
+	const CASTS = [
+		{	// Option 1; numeric
+			scope: 'keyword.cast',
+			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:trunc|no_check))?\\s*${skipCommentsRE}\\((?:[us](?:8|16|32|64)|int|float(?:64)?|bool)\\)`,
+			returnBegin: true,
+			keywords: pick(keywords, /type\.(?:integer|float|bool)/),
+			contains: [
+				...COMMENTS,
+				COMMA,
+				{
+					scope: 'meta.directive.modifier',
+					begin: /\b(trunc|no_check)+\b/
+				},
+				PUNCTUATION.variants.find(v => v.scope === 'punctuation.paren')
+			],
+			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		},
+		{	// Option 1; retyping
+			scope: 'keyword.cast',
+			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:force|FORCE)\\s*${skipCommentsRE})?\\(`,
+			returnBegin: true,
+			keywords,
+			contains: [
+				...COMMENTS,
+				COMMA,
+				{
+					scope: 'meta.directive.modifier',
+					begin: /\b(force|FORCE)+\b/
+				},
+				balancedParen(COMMON_EXCEPT_STRING)
+			],
+			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		},
+		//TODO: Option 2; numeric
+		//TODO: Option 2; retyping
+		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; numeric
+		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; retyping
+	];
+
+	ENUM_DECLARATION.contains.push(...CASTS);	// :forwardRef
+
+	//TODO: fill this out with everything..:
 	const asmKeywords = {
 		"symbol": [
 			'adc',
@@ -22811,7 +22861,7 @@ const register_jai = (hljs) => {
 					NUMBER,
 					DEFINE,
 					SEMICOLON,
-					{
+					{	// [ base + index * scale + offset ]
 						begin: /\[/,
 						returnBegin: true,
 						keywords: {
@@ -22845,20 +22895,6 @@ const register_jai = (hljs) => {
 		],
 	};
 
-	const COMMON_EXCEPT_STRING = [
-		...CASTS,
-		FUNCTION_CALL,
-		PROC_DECLARATION,
-		ENUM_DECLARATION,
-		STRUCT_DECLARATION,
-		TYPE_DECLARATION,
-		CONST_DECLARATION,
-		VAR_DECLARATION,
-		...ATOMIC,
-		ASM,
-		DIRECTIVE
-	];
-
 	const PRINTLIKE = {
 		$name: 'PrintLike',
 		begin: /(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)(?=\()/,
@@ -22890,14 +22926,15 @@ const register_jai = (hljs) => {
 		returnEnd: true
 	}
 
-	const COMMON_EXCEPT_IMPORT = [
+	const COMMON_EXCEPT_IMPORT_AND_CAST = [
+		ASM,
 		PRINTLIKE,
 		...COMMON_EXCEPT_STRING,
 		STRING,
 		HERESTRING
 	];
 
-	const COMMON_EXCEPT_IMPORT_AND_PAREN = COMMON_EXCEPT_IMPORT
+	const COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN = COMMON_EXCEPT_IMPORT_AND_CAST
 		.map(
 			r => r.scope !== 'punctuation'
 				? r
@@ -22907,6 +22944,11 @@ const register_jai = (hljs) => {
 					variants: r.variants.filter(v => v.scope !== 'punctuation.paren')
 				}
 		);
+
+	const COMMON_EXCEPT_IMPORT = [
+		...CASTS,
+		...COMMON_EXCEPT_IMPORT_AND_CAST
+	];
 
 	const MODULE_PARAMETERS_DIRECTIVE = {
 		scope: 'meta.directive',
@@ -22926,13 +22968,13 @@ const register_jai = (hljs) => {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([COMMON_EXCEPT_IMPORT_AND_PAREN]),
-					...COMMON_EXCEPT_IMPORT_AND_PAREN
+					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN]),
+					...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
 				],
 				end: /;/,
 				returnEnd: true
 			},
-			...COMMON_EXCEPT_IMPORT_AND_PAREN
+			...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
 		],
 		end: /;/,
 		returnEnd: true
@@ -22960,13 +23002,13 @@ const register_jai = (hljs) => {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([COMMON_EXCEPT_IMPORT_AND_PAREN]),
-					...COMMON_EXCEPT_IMPORT_AND_PAREN
+					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN]),
+					...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
 				],
 				end: /;/,
 				returnEnd: true
 			},
-			...COMMON_EXCEPT_IMPORT_AND_PAREN
+			...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
 		],
 		end: /;/,
 		returnEnd: true

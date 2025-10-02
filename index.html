@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>Jai for highlight.js</title>
 	<!--
@@ -7,14 +8,26 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 		<script type="text/javascript" src="jai.min.js"></script>
 	-->
-	<link rel="stylesheet" type="text/css" href="jaiEverything.css"/>
-    <style type="text/css">
-        #notIt { display: none; }
-        body, pre { margin: 0; padding: 0;display: grid; height: 100vh; font-weight: bold; font-size: 11px; }
-    </style>
+	<link rel="stylesheet" type="text/css" href="jaiEverything.css" />
+	<style type="text/css">
+		#notIt {
+			display: none;
+		}
+
+		body,
+		pre {
+			margin: 0;
+			padding: 0;
+			display: grid;
+			height: 100vh;
+			font-weight: bold;
+			font-size: 11px;
+		}
+	</style>
 	<script type="text/javascript" src="localHilightDebug.js"></script>
 	<script type="text/javascript" src="jai.js"></script>
 </head>
+
 <body>
 	<pre id="notIt"><code class="language-jai">
 for :positive_vibes_only v, n: holder print("[%] %\n", n, v);
@@ -70,8 +83,12 @@ Fruit_\ Transaction :: struct {
 f :: () -> int {
 	return cast//
 	,//
-	force(u8)11;
+	trunc(u8)11;
 }
+
+z := cast//
+,//
+FORCE(*Table(string, bool))*f;
 
 /*
 // Instead of the intrinsics you'd find in other compilers, we provide functionality for robust inline assembly that
@@ -1096,4 +1113,5 @@ BucketItemRef :: struct {
 		hljs.highlightAll();
 	</script>-->
 </body>
+
 </html>
