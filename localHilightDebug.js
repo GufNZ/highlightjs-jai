@@ -1801,7 +1801,7 @@ var hljs = (function () {
 							buf += match[0];
 						} else {
 							const cssClass = language.classNameAliases[kind] || kind;
-							emitKeyword(match[0], cssClass);
+							emitKeyword(match[0], cssClass);console.info(`'${match[0]}': ${cssClass}`);
 						}
 					} else {
 						buf += match[0];

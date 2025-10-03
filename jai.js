@@ -21825,8 +21825,11 @@ const register_jai = (hljs) => {
 			begin: /\(/,
 			keywords: {
 				...keywords,
-				$pattern: /\b(?:#Context|[A-Za-z][_\dA-Za-z]+|[()])\b/,
-				'punctuation.paren': /[()]/
+				$pattern: /(?:\b(?:#Context|[A-Za-z][_\dA-Za-z]+)\b)|[()]/,
+				'punctuation.paren': [
+					'(',
+					')'
+				]
 			},
 			contains: [
 				'self',
@@ -21847,6 +21850,17 @@ const register_jai = (hljs) => {
 		...ATOMIC,
 		DIRECTIVE
 	];
+
+	const COMMON_EXCEPT_STRING_AND_PAREN = COMMON_EXCEPT_STRING
+		.map(
+			r => r.scope !== 'punctuation'
+				? r
+				: {
+					...r,
+					begin: r.begin.source.replace('()', ''),
+					variants: r.variants.filter(v => v.scope !== 'punctuation.paren')
+				}
+		)
 
 	const CASTS = [
 		{	// Option 1; numeric
@@ -21877,7 +21891,7 @@ const register_jai = (hljs) => {
 					scope: 'meta.directive.modifier',
 					begin: /\b(force|FORCE)+\b/
 				},
-				balancedParen(COMMON_EXCEPT_STRING)
+				balancedParen(COMMON_EXCEPT_STRING_AND_PAREN)
 			],
 			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
