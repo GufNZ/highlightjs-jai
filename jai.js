@@ -21863,9 +21863,9 @@ const register_jai = (hljs) => {
 		)
 
 	const CASTS = [
-		{	// Option 1; numeric
+		{	// Option 1,2; numeric
 			scope: 'keyword.cast',
-			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:trunc|no_check))?\\s*${skipCommentsRE}\\((?:[us](?:8|16|32|64)|int|float(?:64)?|bool)\\)`,
+			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:trunc|no_check))?\\s*${skipCommentsRE}\\((?:[us](?:8|16|32|64)|int|float(?:64)?|bool)\\s*${skipCommentsRE}[),]`,
 			returnBegin: true,
 			keywords: pick(keywords, /type\.(?:integer|float|bool)/),
 			contains: [
@@ -21877,11 +21877,11 @@ const register_jai = (hljs) => {
 				},
 				PUNCTUATION.variants.find(v => v.scope === 'punctuation.paren')
 			],
-			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+			end: /(?<=[),])|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
-		{	// Option 1; retyping
+		{	// Option 1,2; retyping
 			scope: 'keyword.cast',
-			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:force|FORCE)\\s*${skipCommentsRE})?\\(`,
+			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:force|FORCE)\\s*${skipCommentsRE})?[),]`,
 			returnBegin: true,
 			keywords,
 			contains: [
@@ -21893,11 +21893,9 @@ const register_jai = (hljs) => {
 				},
 				balancedParen(COMMON_EXCEPT_STRING_AND_PAREN)
 			],
-			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+			end: /(?<=[),])|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
-		//TODO: Option 2; numeric
-		//TODO: Option 2; retyping
-		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; numeric
+		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; numeric	//QUESTION: where do modifiers live in this one?
 		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; retyping
 	];
 
