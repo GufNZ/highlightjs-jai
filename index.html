@@ -79,16 +79,34 @@ Fruit_\ Transaction :: struct {
 	quantity: u64;
 }
 		</code></pre>
-	<pre id="it"><code class="language-jai">
-f :: () -> int {
-	return cast//
+	<pre id="it"><code class="language-jai">42;
+cast//
 	,//
-	trunc(u8)11;
-}
+	FORCE//
+	(//
+	*Table//
+	(string, bool)//
+	)//
+	*f;
 
-z := cast//
-,//
-FORCE(*Table(string, bool))*f;
+cast//
+	(//
+	*Table//
+	(string, bool)//
+	,//
+	*f//
+	,//
+	FORCE//
+	)//
+	;
+
+1//
+	.(//
+	u8//
+	,//
+	no_check//
+	)//
+	;
 
 /*
 // Instead of the intrinsics you'd find in other compilers, we provide functionality for robust inline assembly that

@@ -21477,7 +21477,7 @@ const register_jai = (hljs) => {
 			},
 			{
 				scope: 'operator.dot',
-				begin: /\./
+				begin: /\.(?!\()/	// Not .( as that's cast v3.
 			},
 			{
 				scope: 'operator.comparison',
@@ -21819,7 +21819,7 @@ const register_jai = (hljs) => {
 		end: /(?=\s*::)/
 	};
 
-	function balancedParen(contents) {
+	function balancedParen(contents, options) {
 		return {
 			scope: '_BalancedParens',
 			begin: /\(/,
@@ -21832,10 +21832,22 @@ const register_jai = (hljs) => {
 				]
 			},
 			contains: [
-				'self',
+				options?.endsParent
+					? balancedParen(contents)
+					: 'self',
 				...contents
+					.map(
+						r => r.scope !== 'punctuation'
+							? r
+							: {
+								...r,
+								begin: r.begin.source.replace('()', ''),
+								variants: r.variants.filter(v => v.scope !== 'punctuation.paren')
+							}
+					)
 			],
-			end: /\)/
+			end: /\)/,
+			...options
 		};
 	}
 
@@ -21851,52 +21863,50 @@ const register_jai = (hljs) => {
 		DIRECTIVE
 	];
 
-	const COMMON_EXCEPT_STRING_AND_PAREN = COMMON_EXCEPT_STRING
-		.map(
-			r => r.scope !== 'punctuation'
-				? r
-				: {
-					...r,
-					begin: r.begin.source.replace('()', ''),
-					variants: r.variants.filter(v => v.scope !== 'punctuation.paren')
-				}
-		)
+	const CAST_MODIFIER = {
+		scope: 'meta.directive.modifier',
+		begin: /\b(trunc|no_check|force|FORCE)\b/
+	};
 
 	const CASTS = [
-		{	// Option 1,2; numeric
-			scope: 'keyword.cast',
-			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:trunc|no_check))?\\s*${skipCommentsRE}\\((?:[us](?:8|16|32|64)|int|float(?:64)?|bool)\\s*${skipCommentsRE}[),]`,
-			returnBegin: true,
-			keywords: pick(keywords, /type\.(?:integer|float|bool)/),
-			contains: [
-				...COMMENTS,
-				COMMA,
-				{
-					scope: 'meta.directive.modifier',
-					begin: /\b(trunc|no_check)+\b/
-				},
-				PUNCTUATION.variants.find(v => v.scope === 'punctuation.paren')
-			],
-			end: /(?<=[),])|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-		},
-		{	// Option 1,2; retyping
-			scope: 'keyword.cast',
-			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:force|FORCE)\\s*${skipCommentsRE})?[),]`,
+		{	// Option 1: cast[,modifier...](type)value
+			scope: 'keyword.cast.v1',
+			begin: `\\b(?:cast|xx)(?:\\s*${skipCommentsRE},\\s*${skipCommentsRE}(?:trunc|no_check|force|FORCE)\\s*${skipCommentsRE})?\\(`,
 			returnBegin: true,
 			keywords,
 			contains: [
-				...COMMENTS,
+				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
+				CAST_MODIFIER,
 				COMMA,
-				{
-					scope: 'meta.directive.modifier',
-					begin: /\b(force|FORCE)+\b/
-				},
-				balancedParen(COMMON_EXCEPT_STRING_AND_PAREN)
+				...COMMON_EXCEPT_STRING
 			],
-			end: /(?<=[),])|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
-		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; numeric	//QUESTION: where do modifiers live in this one?
-		//TODO: Option 3: { scope: 'operator.cast', begin: /\.\(/ }; retyping
+		{	// Option 2: cast(type, value[,modifier...])
+			scope: 'keyword.cast.v2',
+			begin: `\\b(?:cast|xx)\\s*${skipCommentsRE}\\(`,
+			returnBegin: true,
+			keywords,
+			contains: [
+				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
+				CAST_MODIFIER,
+				COMMA,
+				...COMMON_EXCEPT_STRING
+			],
+			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		},
+		{	// Option 3: value.(type[,modifier...])
+			scope: 'operator.cast.v3',
+			begin: /\.(?=\()/,
+			keywords,
+			contains: [
+				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
+				CAST_MODIFIER,
+				COMMA,
+				...COMMON_EXCEPT_STRING,
+			],
+			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		}
 	];
 
 	ENUM_DECLARATION.contains.push(...CASTS);	// :forwardRef
@@ -22946,17 +22956,6 @@ const register_jai = (hljs) => {
 		HERESTRING
 	];
 
-	const COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN = COMMON_EXCEPT_IMPORT_AND_CAST
-		.map(
-			r => r.scope !== 'punctuation'
-				? r
-				: {
-					...r,
-					begin: r.begin.source.replace('()', ''),
-					variants: r.variants.filter(v => v.scope !== 'punctuation.paren')
-				}
-		);
-
 	const COMMON_EXCEPT_IMPORT = [
 		...CASTS,
 		...COMMON_EXCEPT_IMPORT_AND_CAST
@@ -22980,13 +22979,13 @@ const register_jai = (hljs) => {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN]),
-					...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
+					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST]),
+					...COMMON_EXCEPT_IMPORT_AND_CAST
 				],
 				end: /;/,
 				returnEnd: true
 			},
-			...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
+			...COMMON_EXCEPT_IMPORT_AND_CAST
 		],
 		end: /;/,
 		returnEnd: true
@@ -23014,13 +23013,13 @@ const register_jai = (hljs) => {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN]),
-					...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
+					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST]),
+					...COMMON_EXCEPT_IMPORT_AND_CAST
 				],
 				end: /;/,
 				returnEnd: true
 			},
-			...COMMON_EXCEPT_IMPORT_AND_CAST_AND_PAREN
+			...COMMON_EXCEPT_IMPORT_AND_CAST
 		],
 		end: /;/,
 		returnEnd: true

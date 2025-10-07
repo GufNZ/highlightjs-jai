@@ -1,7 +1,23 @@
 .language-jai { background-color: black; color: white; tab-size: 4; }
 
+/*
+//TODO: vars
+//TODO: moar nesting!
+*/
+
 .hljs-keyword { color: #00F; }
-.hljs-keyword.cast_ { color: #FFF; }
+.hljs-keyword.cast_,
+	.hljs-keyword.cast_ > .hljs-_BalancedParens {
+		& > .hljs-punctuation.paren_,
+		& > .hljs-punctuation.comma_ { color: #FFF; }
+	}
+.hljs-keyword.cast_.v1__ { background-color: #222; }
+.hljs-keyword.cast_.v2__ { background-color: #300; }
+.hljs-operator.cast_.v3__ { background-color: #003; }
+.hljs-operator.cast_.v3__ > .hljs-_BalancedParens {
+	& > .hljs-punctuation.paren_,
+	& > .hljs-punctuation.comma_ { color: #F00; }
+}
 
 .hljs-variable  { color: #BBB; }
 .hljs-variable.language_ { color: #C8C; }
