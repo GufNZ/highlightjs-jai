@@ -21354,6 +21354,9 @@ const register_jai = (hljs) => {
 		'type.any': [
 			'Any|10',
 		],
+		'type.code': [
+			'Code|10',
+		],
 		'type.type': [
 			'Type_Info',
 			'Type'
@@ -21637,7 +21640,8 @@ const register_jai = (hljs) => {
 		scope: 'meta',
 		begin: [
 			/#/,
-			/(?:add_context|align|as(?:sert|)|bake(?:_arguments|)|bytes|c_call|caller_location|char|code|compile_time|compiler|complete|cpp_method|define|deprecated|dump|else|endif|exists|expand|file(?:path|)|foreign(?:(?:_system)?_library|)|if(?:n?def|x|)|insert|intrinsic|library|load|location|modify|must|no_(?:abc|alias|aoc|context|debug|padding|reset)|place(?:holder|)|poke_name|procedure_name|program_export|run(?:time_support|)|scope_(?:export|file|module)|specified|sy(?:mmetric|stem_library)|th(?:is|rough)|type(?:_info_(?:procedures_are_void_pointers|none|v2)|))/,
+			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|har|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|file(?:path|)|foreign(?:(?:_system)?_library|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|o(?:ad|cation))|modify|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
+			/\b/
 		],
 		beginScope: {
 			1: 'punctuation.hash.directive',
