@@ -150,7 +150,10 @@
 	font-weight: normal;
 
 	/*&.line { }*/
-	&.block_ { background-color: #222; }
+	&.block_ {
+		color: #090;
+		background-color: #030;
+	}
 }
 .hljs-doctag {
 	background-color: #008;
@@ -202,9 +205,7 @@
 	}
 	&.flag___ { color: #6C6; }
 	&.block___ {
-		background-color: #030;
-
-		& .hljs-comment { color: #0A0; }
+		background-color: #222;
 	}
 }
 .hljs-meta.keyword_.asm__.register___ { background-color: #80F; }

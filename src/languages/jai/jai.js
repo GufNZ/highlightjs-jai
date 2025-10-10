@@ -5,7 +5,7 @@ Description: highlightjs language definition for jai files
 Category: config
 */
 
-const register_jai = (hljs) => {
+export default function(hljs) {
 	function fixDocTags(mode, scope) {
 		const doctags = [/TODO/, /NOTE/, /FIXME/, /BUG/, /HACK/, /MAYBE/, /LATER/, /QUESTION/, /TEST/, /NO_?CHECKIN/i, /OPTIMISE/, /OPTIMIZE/, /XXX/];
 
@@ -41,18 +41,6 @@ const register_jai = (hljs) => {
 		});
 
 		return mode;
-	}
-
-	function pick(obj, keysRE) {
-		const result = {};
-
-		for (const entry of Object.entries(obj)) {
-			if (entry[0].match(keysRE)) {
-				result[entry[0]] = entry[1];
-			}
-		}
-
-		return result;
 	}
 
 	const identifierRE = '\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
@@ -23540,16 +23528,11 @@ const register_jai = (hljs) => {
 		SEMICOLON
 	];
 
-	hljs.registerLanguage('jai', hljs => ({
+	return {
 		name: 'jai',
 		case_sensitive: true,
 		aliases: ['theLanguage', 'the_language'],
 		keywords,
 		contains: ALL
-	}));
-}
-if (typeof exports === 'object' && typeof module !== 'undefined') {
-	module.exports = register_jai;
-} else {
-	register_jai(hljs);
+	};
 }

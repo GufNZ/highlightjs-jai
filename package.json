@@ -1,14 +1,14 @@
 {
 	"name": "highlightjs-jai",
-	"version": "0.9",
+	"version": "1.0",
 	"description": "Highlight.JS syntax definition for jai files.",
-	"main": "jai.js",
+	"main": "src/languages/jai.js",
 	"scripts": {
-		"test": "echo 'Error: no tests specified!' && exit 1"
+		"test": "./node_modules/.bin/mocha --reporter spec"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/GufNZ/highlightjs.jai.git"
+		"url": "https://github.com/GufNZ/highlightjs-jai.git"
 	},
 	"keywords": [
 		"jai",
@@ -19,7 +19,16 @@
 	"author": "J.Chris Findlay <j.chris.findlay@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/highlightjs.jai/issues"
+		"url": "https://github.com/highlightjs-jai/issues"
 	},
-	"homepage": "https://github.com/highlightjs.jai"
+	"homepage": "https://github.com/highlightjs-jai",
+	"devDependencies": {
+		"highlight.js": "^11.11.1",
+		"mocha": "^11.7.4",
+		"should": "^13.2.3"
+	},
+	"dependencies": {
+		"minimist": ">=1.2.8",
+		"mkdirp": "^3.0.1"
+	}
 }
