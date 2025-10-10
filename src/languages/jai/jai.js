@@ -5,7 +5,7 @@ Description: highlightjs language definition for jai files
 Category: config
 */
 
-export default function(hljs) {
+const jai = function(hljs) {
 	function fixDocTags(mode, scope) {
 		const doctags = [/TODO/, /NOTE/, /FIXME/, /BUG/, /HACK/, /MAYBE/, /LATER/, /QUESTION/, /TEST/, /NO_?CHECKIN/i, /OPTIMISE/, /OPTIMIZE/, /XXX/];
 
@@ -21269,10 +21269,8 @@ export default function(hljs) {
 			'if'
 		],
 		'keyword.for': [
-			'continue',
 			'remove|10',
 			'while',
-			'break',
 			'for'
 		],
 		'keyword.enum': [
@@ -21280,7 +21278,9 @@ export default function(hljs) {
 			'enum'
 		],
 		'keyword.flowCtrl': [
+			'continue',
 			'return',
+			'break',
 			'defer|7'
 		],
 		'keyword.struct': [
@@ -21305,7 +21305,7 @@ export default function(hljs) {
 		],
 		'keyword.cast': [
 			'cast',
-			'xx|7'
+			'xx|7'	//TEST: the 3 options re auto-cast.
 		],
 		'variable.language': [
 			'it_index|10',
@@ -21368,10 +21368,6 @@ export default function(hljs) {
 		scope: 'punctuation',
 		begin: /,,|[:{}\[\](),`]/,
 		variants: [
-			{
-				scope: 'punctuation.colon',
-				begin: /:/
-			},
 			{
 				scope: 'punctuation.brace',
 				begin: /[{}]/
@@ -21628,7 +21624,7 @@ export default function(hljs) {
 		scope: 'meta',
 		begin: [
 			/#/,
-			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|har|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|file(?:path|)|foreign(?:(?:_system)?_library|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|o(?:ad|cation))|modify|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
+			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|har|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|file(?:path|)|foreign(?:(?:_system)?_library|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
 			/\b/
 		],
 		beginScope: {
@@ -21732,7 +21728,7 @@ export default function(hljs) {
 		end: /(?=\W)/
 	};
 
-	const PROC_DECLARATION = {
+	const PROC_DECLARATION = {//FIXME: add #modify handling
 		scope: 'title.function.declaration',
 		begin: `${identifierRE}(?=\\s*${skipCommentsRE}::\\s*${skipCommentsRE}(?:(?:#no_a[bo]c|(?:no_)?inline)\\s*${skipCommentsRE})*\\()`,
 		returnBegin: true,
@@ -23521,10 +23517,32 @@ export default function(hljs) {
 		returnEnd: true
 	};
 
+	const LOAD_DIRECTIVE = {
+		scope: 'meta.directive',
+		begin: [
+			/#/,
+			/load/
+		],
+		beginScope: {
+			1: 'punctuation.hash.directive',
+			2: 'meta.directive.load'
+		},
+		contains: [
+			...COMMENTS,
+			{
+				...STRING,
+				scope: 'string.path.load',
+			},
+		],
+		end: /;/,
+		returnEnd: true
+	};
+
 	const ALL = [
 		...COMMON_EXCEPT_IMPORT,
 		MODULE_PARAMETERS_DIRECTIVE,
 		IMPORT_DIRECTIVE,
+		LOAD_DIRECTIVE,
 		SEMICOLON
 	];
 
@@ -23535,4 +23553,8 @@ export default function(hljs) {
 		keywords,
 		contains: ALL
 	};
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+	module.exports = jai;
 }

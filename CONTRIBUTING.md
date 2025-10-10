@@ -2,24 +2,20 @@
 
 ## Setup
 
-To build highlightjs-jai, you'll need the latest long term support (LTS) release of Node and yarn/npm.
+To build highlightjs-jai, you'll need the latest long term support (LTS) release of Node and npm.
 We recommend volta or nvm to manage multiple active Node versions.
 
 Start by cloning the source from GitHub:
 
     $ git clone https://github.com/GufNZ/highlightjs-jai.git
 
-Next, install the dependencies using `yarn` or `npm`:
-
-    $ yarn
+Next, install the dependencies using `npm`:
 
     $ npm i
 
 ## Test
 
 To execute the tests, open a terminal and type:
-
-    $ yarn run test
 
     $ npm t
 
@@ -35,8 +31,6 @@ Since the tooling is not yet merged on master (see https://github.com/highlightj
     $ git checkout squash_build_pipeline
 
 Then, install the dependencies:
-
-    $ yarn
 
     $ npm i
 

@@ -25,7 +25,10 @@
 		}
 	</style>
 	<script type="text/javascript" src="localHilightDebug.js"></script>
-	<script type="text/javascript" src="src/languages/jai.js"></script>
+	<script type="text/javascript" src="src/languages/jai/jai.js"></script>
+	<script type="text/javascript">
+		hljs.registerLanguage('jai', jai);
+	</script>
 </head>
 
 <body>
@@ -152,7 +155,7 @@ basics :: () {
     // the high level code generator. With respect to #asm blocks, any variable referred to will be moved into the right
     // gpr for you. In a release build you can expect your variables to always be in the right registers, though it is
     // a good idea to double check code gen if you care.
-    count := 10;
+    count : int = 10;
 
     #asm {
         // Here we add 17 to our count. Remember that 'add' is implicitly using a 64-bit operand size, and count is
