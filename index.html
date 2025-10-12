@@ -22,6 +22,7 @@
 			height: 100vh;
 			font-weight: bold;
 			font-size: 11px;
+
 		}
 	</style>
 	<script type="text/javascript" src="localHilightDebug.js"></script>
@@ -83,6 +84,14 @@ Fruit_\ Transaction :: struct {
 }
 		</code></pre>
 	<pre id="it"><code class="language-jai">42;
+x := #string END
+...//,cr
+END
+
+y: := #string/**/,/**/cr/**/X
+...//,cr
+X
+
 cast//
 	,//
 	FORCE//
@@ -110,6 +119,19 @@ cast//
 	no_check//
 	)//
 	;
+
+
+z : float = a.();
+z : float = a.(int);
+1
+1.
+.1
+1.e
+1.E1
+1.e1
+1.1e-1
+.1e+2_0
+1_._1
 
 /*
 // Instead of the intrinsics you'd find in other compilers, we provide functionality for robust inline assembly that

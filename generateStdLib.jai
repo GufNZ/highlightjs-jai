@@ -7,6 +7,8 @@ Mod :: struct {
 	namespaces: [..]string;
 }
 
+JAI_VERSION :: #run compiler_get_version_info(null);
+
 main :: () {
 	if !is_directory("modules") {
 		print("Error: 'modules' directory not found in current working directory!\n");
@@ -16,7 +18,8 @@ main :: () {
 
 	table: Table(string, Mod);
 
-	print("const STDLIB = {\n");
+	print("\t/* Begin generated content [Version: %]: */\n", JAI_VERSION);
+	print("\tconst STDLIB = {\n");
 
 	files: [..]string;
 	visit_files(
@@ -73,49 +76,49 @@ main :: () {
 
 	for keys {
 		name := it;
-		_, mod := table_find_new(*table, name);
+		_, mod := table_find(*table, name);
 		if mod.procs.count {
-			print("  'built_in.stdLib.%': [\n", name);
+			print("\t\t'built_in.stdLib.%': [\n", name);
 			for mod.procs {
-				print("    '%',\n", it);
+				print("\t\t\t'%',\n", it);
 			}
-			print("  ],\n");
+			print("\t\t],\n");
 		}
 		if mod.types.count {
-			print("  'type.stdLib.%': [\n", name);
+			print("\t\t'type.stdLib.%': [\n", name);
 			for mod.types {
-				print("    '%',\n", it);
+				print("\t\t\t'%',\n", it);
 			}
-			print("  ],\n");
+			print("\t\t],\n");
 		}
 		if mod.vars.count {
-			print("  'variable.stdLib.%': [\n", name);
+			print("\t\t'variable.stdLib.%': [\n", name);
 			for mod.vars {
-				print("    '%',\n", it);
+				print("\t\t\t'%',\n", it);
 			}
-			print("  ],\n");
+			print("\t\t],\n");
 		}
 		if mod.const.count {
-			print("  'variable.stdLib.%.constant': [\n", name);
+			print("\t\t'variable.stdLib.%.constant': [\n", name);
 			for mod.const {
-				print("    '%',\n", it);
+				print("\t\t\t'%',\n", it);
 			}
-			print("  ],\n");
+			print("\t\t],\n");
 		}
 		if mod.special.count {
 			for mod.special {
 				found, kind, names := split_from_left(it, #char "|");
-				print("  '%': [\n", kind);
+				print("\t\t'%': [\n", kind);
 				list := split(names, ",");
 				for list {
-					print("    '%',\n", it);
+					print("\t\t\t'%',\n", it);
 				}
-				print("  ],\n");
+				print("\t\t],\n");
 			}
 		}
 	}
 
-	print("}\n");
+	print("\t}\n\t/* :End generated content. */\n");
 }
 
 PRIMITIVES :: string.[
@@ -184,7 +187,7 @@ ModuleParams :: enum {
 parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 	print("  Parsing file '%'\n", path, to_standard_error=true);
 	content, success := read_entire_file(path);
-	if contains(path, "ps5") || ends_with(path, "switch.jai") {
+	if contains(path, "ps5") || ends_with(path, "switch.jai") || contains(path, "intendo") {
 		print("    404 file '%'\n", path, to_standard_error=true);
 		return false;
 	} else {
@@ -545,6 +548,7 @@ parseDeclarations :: (lexer: *Lexer, name: string, mod: *Mod, mode: ModuleParams
 //#run main();
 
 #import "Basic";
+#import "Compiler";
 #import "File";
 #import "File_Utilities";
 #import "Hash_Table";
