@@ -21426,7 +21426,7 @@ function jai(hljs) {
 	};
 
 	const HERESTRING = {
-		scope: 'meta.string.here',
+		scope: 'string.here',
 		begin: `(?=#string(?=\\s|\\/[\\/*])\\s*${skipCommentsRE}(?:,\\s*${skipCommentsRE}cr(?=\\s|\\/[\\/*]))?\\s*${skipCommentsRE}(\\w+)[ \\t]*\\n)`,
 		contains: [
 			{
