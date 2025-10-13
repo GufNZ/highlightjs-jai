@@ -208,7 +208,10 @@
 		background-color: #222;
 	}
 }
-.hljs-meta.keyword_.asm__.register___ { background-color: #80F; }
+.hljs-meta.keyword_.asm__.register___ {
+	color: #FFF;
+	background-color: #80F;
+}
 
 .hljs-meta.note_ {
 	color: #000;

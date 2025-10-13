@@ -21187,7 +21187,9 @@ function jai(hljs) {
 		],
 		'type.float': [
 			'float',
-			'float64'
+			'float64',
+			`f32`,
+			`f64`
 		],
 		'type.bool': [
 			'bool'
@@ -21212,7 +21214,7 @@ function jai(hljs) {
 			'#Context|10'
 		],
 		'type.asm': [
-			'__reg',	// Deprecated, will go away sometime in favour of:
+			'__reg',	//LATER: Deprecated, will go away sometime in favour of:
 			'reg'
 		],
 		'literal.bool': 'true false',
@@ -21650,7 +21652,6 @@ function jai(hljs) {
 			{
 				...CONST,
 				scope: 'type.enum.value.declaration',
-				scope: 'type.enum',
 				end: /;/,
 				returnEnd: true
 			},
@@ -21777,6 +21778,10 @@ function jai(hljs) {
 	ENUM_DECLARATION.contains.push(...CASTS);	// :forwardRef
 
 	const asmKeywords = {
+		"type.asm": [
+			"gpr",
+			"vec"
+		],
 		"symbol.BASELINE_X86_64": [
 			"mov",
 			"push",
@@ -23242,7 +23247,16 @@ function jai(hljs) {
 					VAR_DECLARATION,
 					{	// ===
 						scope: 'operator.pinRegister',
-						begin: /===/
+						begin: /===/,
+						contains: [
+							...COMMENTS,
+							{
+								scope: 'meta.keyword.asm.register',
+								begin: /\b(?:(?:[er]?(?:[abcd]x?|[sd]i|[sb]p|r8[0-9]|r9[0-9]|r1[0-5]|r[0-9]{1,2}|[er]?ip|[er]?flags|e?sp))|3[0-2]|[12]\d|\d)\b/,
+							}
+						],
+						end: /[,;]/,
+						returnEnd: true
 					},
 					{	// var
 						...VAR,
