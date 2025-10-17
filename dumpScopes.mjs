@@ -1,10 +1,11 @@
-const jai = require('./src/languages/jai/jai.js').default;
+/// node dumpScopes.mjs | sort -u >css
+
+import jai from './src/languages/jai/jai.js';
 /*
-const hljs = require('highlight.js');
+import hljs from 'highlight.js';
 /*/
-const hljs = require('./localHilightDebug.js');
+import hljs from './localHilightDebug.js';
 /**/
-//console.log(jai(hljs));
 hljs.registerLanguage('jai', jai);
 
 const seen = new Set();

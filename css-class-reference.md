@@ -1,6 +1,19 @@
 # CSS Class Reference
 ## For the jai language
 
+<!--
+To check we got them all, first run `node dumpScopes.mjs | sort -u >css`, then run
+```bash
+while read -r line; do
+	re="${line//./_*\\.}";
+	if ! grep "$re" css-class-reference.md >/dev/null; then
+		echo $line;
+	fi;
+done < css | grep -v 'stdLib|symbol.'
+```
+and deal with any output.
+-->
+
 ### Comments
 | CSS class | Definition |
 |-|-|
@@ -29,6 +42,10 @@
   |`TEST:`|`.hljs-doctag.test_`|Marks something that still needs to be tested.|
   |`TODO:`|`.hljs-doctag.todo_`|Marks something we need to come back and do.|
   |`XXX:`|`.hljs-doctag.xxx_`|Marks a hack or a bug that needs attention.|
+  ||||
+  |`@Something`|`.hljs-doctag.reminder_`|Reminder tags, e.g. `@Incomplete` or `@Speed`.|
+  ||||
+  |`:Label`|`.hljs-doctag.label`|A label likely used somewhere else near related code.|
 </details>
 
 ### Literals
@@ -40,10 +57,16 @@
 ### Numbers
 | CSS class | Definition |
 |-|-|
-|`.hljs-number`|Numbers of any kind.|
-|`.hljs-number.binary`|Numbers specified in binary via the `0b` prefix.|
-|`.hljs-number.hex`|Numbers specified in hex via the `0x` prefix.|
-|`.hljs-number.hexFloat`|Floats specified in hex via the `0h` prefix.|
+|`.hljs-number`|Numbers literals of any kind.|
+|`.hljs-number.integer_`|Integer values.|
+|`.hljs-number.float_`|Floating point values.|
+|`.hljs-number.float_.exponent__`|Floating point value exponents.|
+|`.hljs-number.binary_`|Numbers specified in binary via the `0b` prefix.|
+|`.hljs-number.binary_.prefix__`|The `0b` prefix.|
+|`.hljs-number.hex_`|Numbers specified in hex via the `0x` prefix.|
+|`.hljs-number.hex_.prefix__`|The `0x` prefix.|
+|`.hljs-number.hexFloat_`|Floats specified in hex via the `0h` prefix.|
+|`.hljs-number.hexFloat_.prefix__`|The `0h` prefix.|
 
 ### Strings
 | CSS class | Definition |
@@ -52,6 +75,7 @@
 |`.hljs-char.escape_`|Any escaped character in a string.|
 |`.hljs-subst`|Only for `@PrintLike` procs, the value substitution `%`.|
 |`.hljs-string.here_`|HereDoc strings.|
+|`.hljs-meta.string.here`|The entire `#string` plus following whitespace/comments.|
 |`.hljs-meta.stringTerminator_`|The terminator of a HereDoc string.|
 
 ### Keywords
@@ -84,6 +108,7 @@
 |`.hljs-operator.comparison_`|Comparison operators.|
 |`.hljs-operator.logical_`|Logical operators.|
 |`.hljs-operator.math_`|Math operators.|
+|`.hljs-operator.math_.unaryNegate__`|The unary `-`.|
 |`.hljs-operator.bitwise_`|Bitwise operators.|
 |`.hljs-operator.shift_`|Bit-shift operators.|
 |`.hljs-operator.define_`|`:`.|
@@ -134,6 +159,7 @@
 |`.hljs-type.type_`|The `Type` and `Type_Info` types.|
 |`.hljs-type.bool_`|The `bool` type.|
 |`.hljs-type.float_`|`float` and `float64`, as well as the common aliases of `f32` and `f64`.|
+|`.hljs-type.integer_`|All integer types.|
 |`.hljs-type.integer_.signed__`|Any signed integer type: `s8`, `s16` etc, and also `int`.|
 |`.hljs-type.integer_.unsigned__`|Any unsigned integer type: `u8`, `u16` etc.|
 |`.hljs-type.string_`|The `string` type.|
@@ -186,6 +212,8 @@
 #### Specifics
 | CSS class | Definition |
 |-|-|
+|`.hljs-meta.directive_.modify__`|Modify directives and their block.|
+|||
 |`.hljs-meta.directive_.load__`|Load directives.|
 |`.hljs-string.path_.load__`|The file-path in the load directive.|
 |||
@@ -204,12 +232,16 @@
 |`.hljs-meta.directive_.asm__.block___`|The block containing the inline assembly.|
 |`.hljs-punctuation.clue_.asm__.size___`|`?` in `#asm` after mnemonics to specify data witdh based on a variable or type.|
 |`.hljs-punctuation.dot_.asm__.size___`|`.` in `#asm` after mnemonics to specify data witdh based a literal number.|
-|`.hljs-meta.keyword_.asm__.register___`||
+|`.hljs-meta.keyword_.asm__.register___`|A register name.|
+|`.hljs-operator.asm_.maskControl__`|The `&` and `&*` masking operators - part of the EVEX encoding available under the AVX512F feature.|
+|`.hljs-operator.asm_.roundingControl__`|The `!n`, `!u`, `!d` and `!z` operators - part of the EVEX encoding available under the AVX512F feature.|
+|`.hljs-operator.asm_.broadcastValueOrSuppressFloatExceptions__`|The `!` operator, either broadcast loads or SuppressAllExceptions - part of the EVEX encoding available under the AVX512F feature.|
 
 ### Other
 | CSS class | Definition |
 |-|-|
 |`.hljs-_BalancedParens`|Used in a few places that need exactly balanced `()`s, such as casts or module/program parameters.|
+|`.hljs-_BalancedBraces`|Used in a few places that need exactly balanced `{}`s, such as the modify directive.|
 
 ## Notes
 ### Recomendations

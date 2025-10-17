@@ -34,6 +34,45 @@
 
 <body>
 	<pre id="notIt"><code class="language-jai">
+#import "Basic";
+
+s :: #string END
+...//,cr
+END
+
+    Fruits_We_Sell :: enum u32 {
+        BANANA :: 5;
+        APPLE;
+        JOHANNISBEEREN;
+        APRICOT :: 12;
+        WATERMELON;
+    }
+
+x : Fruits_We_Sell = .APPLE;
+
+	for_expansion :: (a: My_Array, body: Code, flags: For_Flags) #expand {
+        // Let's not #insert the user's code at all; our objective here is just to show
+        // that we are effectively using 'flags':
+
+        print("flags = %\n", flags);
+        for *=cast(bool)(flags & .POINTER), &gt;=cast(bool)(flags &amp; .REVERSE)  a.data {  // The comma after *= is an aid to parsing; otherwise we would parse as (a) &gt;= (b), a binary comparison operator, which is not what we want. This syntax is likely to change.
+            print("[%] %\n", it_index, it);
+        }
+
+        // Export dummy variables so the compiler doesn't error:
+        `it       := void;
+        `it_index := 0;
+    }
+
+modProc :: (a : $T)
+#modify {
+	T = s64;
+	return true;
+}
+{
+	print("a is %, of type %\n", a, T);
+}
+
 for :positive_vibes_only v, n: holder print("[%] %\n", n, v);
 
 atomic_or :: (dest: *$T, value: T)
@@ -120,18 +159,25 @@ cast//
 	)//
 	;
 
+-0xFF_FF_FF_FF;
+-0b1010_0101_1111_0000;
+-0hDE_AD_BE_EF;
+
+for 0x00FF_FFFF..0b1010_0101_1111_0000 {
+	print("%\n", it);
+}
 
 z : float = a.();
 z : float = a.(int);
-1
-1.
-.1
-1.e
-1.E1
-1.e1
-1.1e-1
-.1e+2_0
-1_._1
+-1
+-1.
+-.1
+-1.e
+-1.E1
+-1.e1
+-1.1e-1
+-.1e+2_0
+-1_._1
 
 /*
 // Instead of the intrinsics you'd find in other compilers, we provide functionality for robust inline assembly that

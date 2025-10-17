@@ -21267,23 +21267,71 @@ function jai(hljs) {
 		variants: [
 			{
 				scope: 'number.binary',
-				begin: /(?:(?=\.\.)|(?<![.\w]))-?0b[01_]+(?:(?=\.\.)|(?![.\w]))/
+				begin: [
+					/(?:(?<=\.\.)|(?<![.\w]))/,
+					/-?/,
+					/0b/,
+					/[01_]+/,
+					/(?:(?=\.\.)|(?![.\w]))/
+				],
+				beginScope: {
+					2: 'operator.math.unaryNegate',
+					3: 'number.binary.prefix'
+				}
 			},
 			{
 				scope: 'number.hex',
-				begin: /(?:(?=\.\.)|(?<![.\w]))-?0x[\dA-Fa-f_]+(?:(?=\.\.)|(?![.\w]))/
+				begin: [
+					/(?:(?<=\.\.)|(?<![.\w]))/,
+					/-?/,
+					/0x/,
+					/[\dA-Fa-f_]+/,
+					/(?:(?=\.\.)|(?![.\w]))/
+				],
+				beginScope: {
+					2: 'operator.math.unaryNegate',
+					3: 'number.hex.prefix'
+				}
 			},
 			{
 				scope: 'number.hexFloat',
-				begin: /(?:(?=\.\.)|(?<![.\w]))-?0h[\dA-Fa-f_]+(?:(?=\.\.)|(?![.\w]))/
+				begin: [
+					/(?:(?<=\.\.)|(?<![.\w]))/,
+					/-?/,
+					/0h/,
+					/[\dA-Fa-f_]+/,
+					/(?:(?=\.\.)|(?![.\w]))/
+				],
+				beginScope: {
+					2: 'operator.math.unaryNegate',
+					3: 'number.hexFloat.prefix'
+				}
 			},
 			{
 				scope: 'number.float',
-				begin: /(?:(?=\.\.)|(?<![.\w]))(?:-?(?:\d[_\d]*\.[_\d]*|\.\d[_\d]*)(?:[Ee][+-]?\d[_\d]*)?)(?:(?=\.\.)|(?![.\w]))/
+				begin: [
+					/(?:(?<=\.\.)|(?<![.\w]))/,
+					/-?/,
+					/(?:\d[_\d]*\.[_\d]*|\.\d[_\d]*)/,
+					/(?:[Ee][+-]?\d[_\d]*)?/,
+					/(?:(?=\.\.)|(?![.\w]))/
+				],
+				beginScope: {
+					2: 'operator.math.unaryNegate',
+					4: 'number.float.exponent'
+				}
 			},
 			{
 				scope: 'number.integer',
-				begin: /(?:(?=\.\.)|(?<![.\w]))-?\d[_\d]*(?:(?=\.\.)|(?![.\w]))/
+				begin: [
+					/(?:(?<=\.\.)|(?<![.\w]))/,
+					/-?/,
+					/\d[_\d]*/,
+					/(?:(?=\.\.)|(?![.\w]))/
+				],
+				beginScope: {
+					2: 'operator.math.unaryNegate'
+				}
 			}
 		]
 	};
@@ -21606,13 +21654,13 @@ function jai(hljs) {
 		end: /(?=\W)/
 	};
 
-	const PROC_DECLARATION = {//FIXME: add #modify handling
+	const PROC_DECLARATION = {
 		scope: 'title.function.declaration',
 		begin: `${identifierRE}(?=\\s*${skipCommentsRE}::\\s*${skipCommentsRE}(?:(?:#no_a[bo]c|(?:no_)?inline)\\s*${skipCommentsRE})*\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
-		end: /(?=\s*::)/
+		end: `(?=\\s*${skipCommentsRE}::)`
 	};
 
 	const ENUM_DECLARATION = {
@@ -21684,21 +21732,26 @@ function jai(hljs) {
 		end: /(?=\s*::)/
 	};
 
-	function balancedParen(contents, options) {
+	function balancedPair(contents, options, pairName, pairChars) {
 		return {
-			scope: '_BalancedParens',
-			begin: /\(/,
+			scope: `_Balanced${pairName[0].toUpperCase() + pairName.slice(1)}s`,
+			begin: `\\${pairChars[0]}`,
 			keywords: {
 				...keywords,
-				$pattern: /(?:\b(?:#Context|[A-Za-z][_\dA-Za-z]+)\b)|[()]/,
-				'punctuation.paren': [
-					'(',
-					')'
-				]
+				$pattern: `(?:\\b(?:#Context|[A-Za-z][_\\dA-Za-z]+)\\b)|[${pairChars}]`,
+				[`punctuation.${pairName}`]: pairChars.split('')
 			},
 			contains: [
 				options?.endsParent
-					? balancedParen(contents)
+					? balancedPair(
+						contents,
+						{
+							...options,
+							endsParent: false
+						},
+						pairName,
+						pairChars
+					)
 					: 'self',
 				...contents
 					.map(
@@ -21706,14 +21759,20 @@ function jai(hljs) {
 							? r
 							: {
 								...r,
-								begin: r.begin.source.replace('()', ''),
-								variants: r.variants.filter(v => v.scope !== 'punctuation.paren')
+								begin: r.begin.source.replace(pairChars, ''),
+								variants: r.variants.filter(v => v.scope !== `punctuation.${pairName}`)
 							}
 					)
 			],
-			end: /\)/,
+			end: `\\${pairChars[1]}`,
 			...options
 		};
+	}
+	function balancedParen(contents, options) {
+		return balancedPair(contents, options, 'paren', '()');
+	}
+	function balancedBrace(contents, options) {
+		return balancedPair(contents, options, 'brace', '{}');
 	}
 
 	const COMMON_EXCEPT_STRING = [
@@ -22188,6 +22247,7 @@ function jai(hljs) {
 			"palignr"
 		],
 		"symbol.FMA": [
+			//QUESTION: should these lose their prefix too?
 			"vfmadd132ps",
 			"vfmadd213ps",
 			"vfmadd231ps",
@@ -22315,6 +22375,7 @@ function jai(hljs) {
 			"xgetbv"
 		],
 		"symbol.AVX": [
+			//QUESTION: should these lose their prefix too?
 			"vaddps",
 			"vsubps",
 			"vmulps",
@@ -22439,6 +22500,7 @@ function jai(hljs) {
 			"vmovntdqa"
 		],
 		"symbol.F16C": [
+			//QUESTION: should these lose their prefix too?
 			"vcvtph2ps",
 			"vcvtps2ph"
 		],
@@ -22464,54 +22526,55 @@ function jai(hljs) {
 			"xrelease"
 		],
 		"symbol.AVX2": [
-			"vbroadcastss",
-			"vbroadcastsd",
-			"vbroadcastf128",
-			"vbroadcasti128",
-			"vpblendd",
-			"vpermps",
-			"vpermd",
-			"vpermq",
-			"vperm2i128",
-			"vpsllvd",
-			"vpsllvq",
-			"vpsrlvd",
-			"vpsrlvq",
-			"vpsravd",
-			"vpmaskmovd",
-			"vpmaskmovq",
-			"vpgatherdd",
-			"vpgatherdq",
-			"vpgatherqd",
-			"vpgatherqq",
-			"vgatherdpd",
-			"vgatherqpd",
-			"vgatherdps",
-			"vgatherqps",
-			"vpbroadcastb",
-			"vpbroadcastw",
-			"vpbroadcastd",
-			"vpbroadcastq",
-			"vpmulhuw",
-			"vpmulld",
-			"vpminuw",
-			"vpminud",
-			"vpminuq",
-			"vpminsb",
-			"vpminsd",
-			"vpminsq",
-			"vpmaxuw",
-			"vpmaxud",
-			"vpmaxuq",
-			"vpmaxsb",
-			"vpmaxsd",
-			"vpmaxsq",
-			"vpshufb",
-			"vpsignb",
-			"vpsignw",
-			"vpsignd",
-			"vpmaddubsw",
-			"vpmulhrsw"
+			//NOTE: v-prefix dropped.
+			"broadcastss",
+			"broadcastsd",
+			"broadcastf128",
+			"broadcasti128",
+			"pblendd",
+			"permps",
+			"permd",
+			"permq",
+			"perm2i128",
+			"psllvd",
+			"psllvq",
+			"psrlvd",
+			"psrlvq",
+			"psravd",
+			"pmaskmovd",
+			"pmaskmovq",
+			"pgatherdd",
+			"pgatherdq",
+			"pgatherqd",
+			"pgatherqq",
+			"gatherdpd",
+			"gatherqpd",
+			"gatherdps",
+			"gatherqps",
+			"pbroadcastb",
+			"pbroadcastw",
+			"pbroadcastd",
+			"pbroadcastq",
+			"pmulhuw",
+			"pmulld",
+			"pminuw",
+			"pminud",
+			"pminuq",
+			"pminsb",
+			"pminsd",
+			"pminsq",
+			"pmaxuw",
+			"pmaxud",
+			"pmaxuq",
+			"pmaxsb",
+			"pmaxsd",
+			"pmaxsq",
+			"pshufb",
+			"psignb",
+			"psignw",
+			"psignd",
+			"pmaddubsw",
+			"pmulhrsw"
 		],
 		"symbol.BMI2": [
 			"bzhi",
@@ -22567,6 +22630,7 @@ function jai(hljs) {
 			"sha256msg2"
 		],
 		"symbol.AVX512F": [
+			//QUESTION: should these lose their prefix too?
 			"vbroadcastf32x2",
 			"vbroadcastf32x4",
 			"vbroadcastf64x2",
@@ -22707,6 +22771,7 @@ function jai(hljs) {
 			"kunpckdq"
 		],
 		"symbol.AVX512DQ": [
+			//QUESTION: should these lose their prefix too?
 			"vpmullq",
 			"vpmadd52huq",
 			"vpmadd52luq",
@@ -22718,6 +22783,7 @@ function jai(hljs) {
 			"vpminub"
 		],
 		"symbol.AVX512BW": [
+			//QUESTION: should these lose their prefix too?
 			"vpabsb",
 			"vpabsw",
 			"vpabsd",
@@ -22751,6 +22817,7 @@ function jai(hljs) {
 			"vpmultishiftqb"
 		],
 		"symbol.AVX512CD": [
+			//QUESTION: should these lose their prefix too?
 			"vpconflictd",
 			"vpconflictq",
 			"vplzcntd",
@@ -22759,6 +22826,7 @@ function jai(hljs) {
 		/*"symbol.AVX512IFMA": [],*/
 		/*"symbol.AVX512VBMI": [],*/
 		"symbol.AVX512VBMI2": [
+			//QUESTION: should these lose their prefix too?
 			"vpshrdvw",
 			"vpshrdvb",
 			"vpshrdvd",
@@ -22769,12 +22837,14 @@ function jai(hljs) {
 			"vpshldq"
 		],
 		"symbol.AVX512VNNI": [
+			//QUESTION: should these lose their prefix too?
 			"vpdpbusd",
 			"vpdpbusds",
 			"vpdpwssd",
 			"vpdpwssds"
 		],
 		"symbol.AVX512BITALG": [
+			//QUESTION: should these lose their prefix too?
 			"vpopcntb",
 			"vpopcntw",
 			"vpopcntd",
@@ -22782,18 +22852,22 @@ function jai(hljs) {
 		],
 		/*"symbol.AVX512VPOPCNTDQ": [],*/
 		"symbol.AVX512_4VNNIW": [
+			//QUESTION: should these lose their prefix too?
 			"vp4dpbssd",
 			"vp4dpbssds"
 		],
 		"symbol.AVX512_4FMAPS": [
+			//QUESTION: should these lose their prefix too?
 			"vp4fmaddps",
 			"vp4fnmaddps"
 		],
 		"symbol.AVX512VP2INTERSECT": [
+			//QUESTION: should these lose their prefix too?
 			"vp2intersectd",
 			"vp2intersectq"
 		],
 		"symbol.AVX512FP16": [
+			//QUESTION: should these lose their prefix too?
 			"vcvtne2ps2bf16",
 			"vcvtneps2bf16",
 			"vfpclassph",
@@ -22815,6 +22889,7 @@ function jai(hljs) {
 			"vfnms*ph"
 		],
 		"symbol.AVX512BF16": [
+			//QUESTION: should these lose their prefix too?  Etc...
 			"vdpbf16ps"
 		],
 		"symbol.PREFETCHWT1": [
@@ -23244,6 +23319,18 @@ function jai(hljs) {
 						},
 						contains: [...COMMENTS]
 					},
+					{
+						scope: 'operator.asm.roundingControl',
+						begin: /![nduz]/,
+					},
+					{
+						scope: 'operator.asm.broadcastValueOrSuppressFloatExceptions',
+						begin: /!/,
+					},
+					{
+						scope: 'operator.asm.maskControl',
+						begin: /\&\*?/,
+					},
 					VAR_DECLARATION,
 					{	// ===
 						scope: 'operator.pinRegister',
@@ -23375,7 +23462,7 @@ function jai(hljs) {
 	};
 
 	const IMPORT_DIRECTIVE = {
-		scope: 'meta.directive',
+		scope: 'meta.directive.import',
 		begin: [
 			/#/,
 			/import/
@@ -23408,6 +23495,24 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	const MODIFY_DIRECTIVE = {
+		scope: 'meta.directive.modify',
+		begin: [
+			/#/,
+			/modify\b/,
+		],
+		beginScope: {
+			1: 'punctuation.hash.directive',
+			2: 'meta.directive.modify'
+		},
+		contains: [
+			...COMMENTS,
+			balancedBrace([...COMMON_EXCEPT_IMPORT, IMPORT_DIRECTIVE], { endsParent: true }),
+		],
+		end: /(?<=\})/,
+	};
+
+
 	const LOAD_DIRECTIVE = {
 		scope: 'meta.directive',
 		begin: [
@@ -23434,6 +23539,7 @@ function jai(hljs) {
 		MODULE_PARAMETERS_DIRECTIVE,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
+		MODIFY_DIRECTIVE,
 		SEMICOLON
 	];
 
