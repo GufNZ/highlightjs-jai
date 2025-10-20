@@ -21170,7 +21170,8 @@ function jai(hljs) {
 			'it|5'
 		],
 		'built_in.special': [
-			'for_expansion'
+			'for_expansion|10',
+			'operator'
 		],
 		'type.integer.signed': [
 			's8',
@@ -21335,7 +21336,7 @@ function jai(hljs) {
 			}
 		]
 	};
-//TODO: operator modifiers for shifts, ..?
+//FIXME: operator modifiers for shifts, ..?
 	const OPERATOR = {
 		scope: 'operator',
 		begin: /[-+*/%=^&|<>.]/,
@@ -21541,9 +21542,19 @@ function jai(hljs) {
 		}
 	];
 
+	const CONST_REF = {
+		scope: 'property.constant',
+		begin: `(?<=\w)\\.${constIdentifierRE}`
+	};
+
 	const ENUM_REF = {
-		scope: 'variable.constant.enum',
+		scope: 'property.constant.enum',
 		begin: `(?<=^|\\W)\\.${typeIdentifierRE}`
+	};
+
+	const FIELD_REF = {
+		scope: 'property',
+		begin: `(?<=\w)\\.${identifierRE}`
 	};
 
 	const DIRECTIVE = {
@@ -21599,7 +21610,9 @@ function jai(hljs) {
 	const ATOMIC = [
 		NOTE,
 		...COMMENTS,
+		CONST_REF,
 		ENUM_REF,
+		FIELD_REF,
 		CONST,
 		TYPE,
 		VAR,

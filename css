@@ -167,7 +167,6 @@ meta.directive.modify
 meta.directive.module_parameters
 meta.keyword.asm.register
 meta.note
-meta.string.here
 meta.stringTerminator
 number
 number.binary
@@ -197,14 +196,17 @@ operator.dereference
 operator.dot
 operator.logical
 operator.math
+operator.math.unaryNegate
 operator.pinRegister
 operator.quickLambda
 operator.range
 operator.returns
 operator.shift
-operator.unary-negate
 operator.uninitialised
 params.moduleOrProgram
+property
+property.constant
+property.constant.enum
 punctuation
 punctuation.backslash
 punctuation.brace
@@ -433,7 +435,6 @@ type.void
 variable
 variable.constant
 variable.constant.declaration
-variable.constant.enum
 variable.context
 variable.context.constant
 variable.declaration

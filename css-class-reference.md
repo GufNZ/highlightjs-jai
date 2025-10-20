@@ -1,18 +1,86 @@
-# CSS Class Reference
-## For the jai language
-
+# CSS Class Reference for the jai language
 <!--
-To check we got them all, first run `node dumpScopes.mjs | sort -u >css`, then run
-```bash
-while read -r line; do
-	re="${line//./_*\\.}";
-	if ! grep "$re" css-class-reference.md >/dev/null; then
-		echo $line;
-	fi;
-done < css | grep -v 'stdLib|symbol.'
-```
-and deal with any output.
+To check we got them all, run `checkRef.sh` and deal with any output.
 -->
+## CSS Variables
+The included `jaiEverything.css` is built with inheriting variables so for best results, to make a new jai theme, copy it and just modify the variables.
+
+Each kind of thing has 5 properties you can adjust, namely:
+| CSS Property | Variable Suffix | Example Values |
+|-|-|-|
+|Foreground Colour|`-fg`|`#F00`, `red`, `rgba(255, 0, 0, 0.75)` etc.|
+|Background Colour|`-bg`|Same as above.|
+|Font Style|`-style`|`normal`, `italic` etc.|
+|Font Weight|`-weight`|`normal`, `bold`, `400` etc.|
+|Text Decoration|`-decoration`|`none`, `underline` etc.|
+
+Everything apart from `default` has a fallback of at least `--default-x`, but some have several layers of fallback, getting less and less specific.
+
+To create a theme using them, only set things that need to change from the defaults.
+
+### Available Variable Sections
+
+Each section below can be defined up to 5 times (once for each suffix above), e.g. `--comment`s can be configured with `--comment-fg`, `--comment-bg`, `--comment-style`, `--comment-weight` and `--comment-decoration`, or any subset of those (with the rest falling back to the defaults).
+
+//FIXME: more sensible ordering - see top of .css
+|Section|Scope|Fallback chain|
+|-|-|-|
+|`--keyword`|Keywords|`--default`|
+|`--keyword-cast`|The `cast` keyword, its parameters, and `()`s and `,`, as used in Option 1 and Option 2.|`-keyword`=>`--default` for the keyword;<br/>`--keyword`=>`--punctuation`=>`--default` for the `()`s and `,`;|
+|`--keyword-cast-v1`|The `cast` keyword & parameters, as used in Option 1.|`-keyword-cast`=>`-keyword`=>`--default`|
+|`--keyword-cast-v2`|The `cast` keyword & parameters, as used in Option 2.|`-keyword-cast`=>`-keyword`=>`--default`|
+|`--operator-cast-v3`|The `.(Type)` Option 3 suffix cast.|`--operator`=>`--default`|
+||||
+|`--variable`|All otherwise-uncategorised variable identifiers.|`--default`|
+|`--variable-language`|Language-defined variables: `context`, `it`, `it_index` & `temp`.|`--variable`=>`--default`|
+|`--variable-constant`|Constants (`ALL_UPPER` names).|`--variable`=>`--default`|
+|`--variable-context`|Variables on the Context.|`--variable`=>`--default`|
+|`--variable-context-constant`|Constants on the Context.|`--variable-constant`=>`--variable`=>`--default`|
+|`--variable-stdLib`|Variables defined in a standard lib module.|`--variable`=>`--default`|
+|`--variable-stdLib-constant`|Constants defined in a module.|`--variable-constant`=>`--variable`=>`--default`|
+|`--variable-stdLib-context`|Context additions defined a module.|`--variable`=>`--default`|
+|`--variable-stdLib-moduleparan`|A standard lib module's module-parameters.|`--params`=>`--variable`=>`--default`|
+|`--variable-stdLib-programparan`|A standard lib module's program-parameters.|`--params`=>`--variable`=>`--default`|
+|`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
+||||
+|`--field`|Struct field references.|`--default`|
+|`--field-constant`|Struct constant-field references.|`--field`=>`--default`|
+|`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
+||||
+|`--builtIn`|All built-in procs & functions.|`--default`|
+|`--builtIn-stdLib`|Procs and functions defined in a standard lib module|`--builtIn`=>`--default`|
+|`--builtIn-special`|Specially recognised functions: `for_expansion`, `operator...`|`--builtIn`=>`--default`|
+||||
+|`--type`|All types (PascalCase).|`--default`|
+|`--type-enum`|All Enum types.|`--type`=>`--default`|
+|`--type-baked`|Any polymorphic type that is baked, e.g. `$T`.|`--type`=>`--default`|
+||||
+|`--literal`|Non-numeric, non-string Literals: `true`, `false`, `null`.|`--default`|
+||||
+|`--number`|All numeric literals.|`--default`|
+|`--number-prefix`|The prefix on any non-decimal numeric literal, e.g. `0x`, `0b` etc.|`--number`=>`--default`|
+|`--number-integer`|All integer literals.|`--number`=>`--default`|
+|`--number-float`|All floating-point literals.|`--number`=>`--default`|
+|`--number-float-exponent`|The exponent suffix on a float literal, if present.|`--number-float`=>`--number`=>`--default`|
+|`--number-binary`|All binary (`0b`) literals.|`--number`=>`--default`|
+|`--number-binary-prefix`|The `0b` prefix.|`--number-prefix`=>`--number`=>`--default`|
+|`--number-hexadecimal`|All hexadecimal (`0x`) literals.|`--number`=>`--default`|
+|`--number-hex-prefix`|The `0x` prefix.|`--number-prefix`=>`--number`=>`--default`|
+|`--number-hexFloat`|All hexFloat (`0h`) literals.|`--number`=>`--default`|
+|`--number-hexFloat-prefix`|The `0h` prefix.|`--number-prefix`=>`--number`=>`--default`|
+||||
+|`--operator`|All operators.|`--default`|
+|`--operator-bake`|The `$` and `$$` operators.|`--operator`=>`--default`|
+||||
+|`--punctuation`|All punctuation.|`--default`|
+|`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|
+|`--punctuation-quote`|`"`s.|`--punctuation`=>`--default`|
+|`--punctuation-directive`|`#`s.|`--punctuation`=>`--default`|
+
+
+
+---
+## CSS Classes
 
 ### Comments
 | CSS class | Definition |
@@ -31,7 +99,6 @@ and deal with any output.
   |`BUG:`|`.hljs-doctag.bug_`|Marks a bug that needs attention.|
   |`FIXME:`|`.hljs-doctag.fixme_`|Marks something that needs fixing.|
   |`HACK:`|`.hljs-doctag.hack_`|Marks something dodgy or unusual.|
-  |`LABEL:`|`.hljs-doctag.label_`|A label.|
   |`LATER:`|`.hljs-doctag.later_`|Marks something we need to come back to later.|
   |`MAYBE:`|`.hljs-doctag.maybe_`|A thought we aren't sure about yet.|
   |`NO_CHECKIN:`|`.hljs-doctag.no_checkin_`|For repos with the right hooks set up, blocks commits till this is resolved & removed.|
@@ -142,13 +209,19 @@ and deal with any output.
 |`.hljs-variable`|All variables.|
 |`.hljs-variable.constant_`|All constants (`ALL_UPPER`).|
 |`.hljs-variable.constant_.declaration__`|A constant being defined.|
-|`.hljs-variable.constant_.enum__`|An enum value reference (`.ALL_UPPER`)|
 |`.hljs-variable.context_`|Fields on the context (`thread_index`, `allocator` et al).|
 |`.hljs-variable.context_.constant__`|Constants on the context (`default_allocator`).|
 |`.hljs-variable.declaration_`|A variable being defined.|
 |`.hljs-variable.language_`|Language-special variables - `context`, `temp`, `it`, `it_index`.|
 |`.hljs-punctuation.backslash_`|Mid-identifier alignment backslash, e.g. `my_var\   _name`|
 |`.hljs-variable.param_.baked__`|A proc parameter that is being baked (`$`-prefixed).|
+
+### Fields
+| CSS class | Definition |
+|-|-|
+|`.hljs-property`|An field reference (`something.camelCase`)|
+|`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
+|`.hljs-property.constant_.enum__`|An enum value reference (`.ALL_UPPER` or `.PascalCase`)|
 
 ### Types
 | CSS class | Definition |
