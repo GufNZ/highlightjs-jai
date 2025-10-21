@@ -245,6 +245,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-operator.math_.unaryNegate__`|The unary `-`.|
 |`.hljs-operator.bitwise_`|Bitwise operators.|
 |`.hljs-operator.shift_`|Bit-shift operators.|
+|`.hljs-operator.rotate_`|Bit-rotate operators.|
 |`.hljs-operator.define_`|`:`.|
 |`.hljs-operator.define_.assign__`|`:=`.|
 |`.hljs-operator.define_.constant__`|`::`.|

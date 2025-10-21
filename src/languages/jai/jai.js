@@ -21402,11 +21402,27 @@ function jai(hljs) {
 				begin: /[&|^~]/
 			},
 			{
-				scope: 'operator.shift',
-				begin: /<<<?|>>>?/
+				scope: 'operator.rotate',
+				begin: /<<<|>>>/
 			}
 		]
 	};
+
+	const SHIFTS = {
+		scope: 'operator.shift',
+		begin: [
+			/<<|>>/,
+			`\\s&${skipCommentsRE}`,
+			/,?/,
+			`\\s&${skipCommentsRE}`,
+			/(?:small|logical)?/
+		],//FIXME: too loose like this - how did we solve this for other things?
+		beginScope: {
+			1: 'operator.shift',
+			3: 'operator.shift.comma',
+			5: 'operator.shift.modifier'
+		}
+	}
 
 	const DEFINE = OPERATOR.variants.find(v => v.scope === 'operator.define');
 
@@ -21620,6 +21636,7 @@ function jai(hljs) {
 		...BAKES,
 		FOR_EXPANSION,
 		AS_REF,
+		SHIFTS,
 		OPERATOR,
 		PUNCTUATION
 	];
