@@ -39,8 +39,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--variable-stdLib`|Variables defined in a standard lib module.|`--variable`=>`--default`|
 |`--variable-stdLib-constant`|Constants defined in a module.|`--variable-constant`=>`--variable`=>`--default`|
 |`--variable-stdLib-context`|Context additions defined a module.|`--variable`=>`--default`|
-|`--variable-stdLib-moduleparan`|A standard lib module's module-parameters.|`--params`=>`--variable`=>`--default`|
-|`--variable-stdLib-programparan`|A standard lib module's program-parameters.|`--params`=>`--variable`=>`--default`|
+|`--variable-stdLib-moduleParam`|A standard lib module's module-parameter.|`--params`=>`--variable`=>`--default`|
+|`--variable-stdLib-programParam`|A standard lib module's program-parameter.|`--params`=>`--variable`=>`--default`|
 |`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
 ||||
 |`--field`|Struct field references.|`--default`|
@@ -76,7 +76,74 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|
 |`--punctuation-quote`|`"`s.|`--punctuation`=>`--default`|
 |`--punctuation-directive`|`#`s.|`--punctuation`=>`--default`|
-
+|`--punctuation-dot`|`.`s in `#asm` opcode size specifiers.|`--punctuation`=>`--default`|
+|`--punctuation-clue`|`?`s in `#asm` opcode size specifiers.|`--punctuation`=>`--default`|
+||||
+|`--field`|Things following the `.` operator.|`--default`|
+|`--field-constant`|Constant fields (ALL_UPPER).|`--field`=>`--default`|
+|`--field-enum`|Enum fields (PascalCase).|`--field-constant`=>`--field`=>`--default`|
+||||
+|`--string`|Strings.|`--default`|
+|`--string-here`|Here-Strings.|`--string`=>`--default`|
+|`--string-here-termiator`|Here-String terminators.|`--string-here`=>`--string`=>`--default`|
+|`--string-path`|Strings in `#load` and `#import` directives.|`--string`=>`--default`|
+|`--char-escape`|Escaped things in strings, e.g. `\n`.|`--string`=>`--default`|
+|`--subst`|Substituted things in strings that are args to known `@PrintLike` functions, e.g. `%`.|`--string`=>`--default`|
+||||
+|`--declaration`|All declarations.|`--default`|
+||||
+|`--struct`|Structs.|`--default`|
+|`--struct-inherited`|Struct fields marked with `#as`.|`--struct`=>`--default`|
+||||
+|`--proc`|Procedures & functions.|`--default`|
+|`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--default`|
+||||
+|`--params`|A module's module or program parameters in an `#import` directive.|`--default`|
+|`--module-params`|A module's module in an `#import` directive.|`--params`=>`--default`|
+|`--program-params`|A module's program parameters in an `#import` directive.|`--params`=>`--default`|
+||||
+|`--comment`|All comments.|`--default`|
+|`--comment-line`|All line comments.|`--comment`=>`--default`|
+|`--comment-block`|All block comments.|`--comment`=>`--default`|
+|`--doctag`|All doctags within comments.|`--comment`=>`--default`|
+|`--doctag-bug`|E.g. `BUG:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-fixme`|E.g. `FIXME:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-hack`|E.g. `HACK:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-later`|E.g. `LATER:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-maybe`|E.g. `MAYBE:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-no_checkin`|E.g. `NO_CHECKIN:` or `nocheckin:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-note`|E.g. `NOTE:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-optimise`|E.g. `OPTIMISE:` or `OPTIMIZE:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-test`|E.g. `TEST:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-todo`|E.g. `TODO:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-question`|E.g. `QUESTION:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-xxx`|E.g. `XXX:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-reminder`|E.g. `@Speed`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-label`|E.g. `:Something`.|`--doctag`=>`--comment`=>`--default`|
+||||
+|`--meta`|Meta-information, e.g. directives and notes.|`--default`|
+|`--meta-comma`|Commas in directives.|`--punctation`=>`--default`|
+|`--note`|Notes, e.g. `@PrintLike`|`--meta`=>`--default`|
+|`--directive`|Directives.|`--meta`=>`--default`|
+|`--directive-modifier`|Directive modifiers.|`--directive`=>`--meta`=>`--default`|
+|`--directive-import`|The `#import` directive.|`--directive`=>`--meta`=>`--default`|
+|`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
+|`--directive-module_parameters`|The `#module_parameters` directive.|`--directive`=>`--meta`=>`--default`|
+|`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
+||||
+|`--asm-directive`|The `#asm` directive.|`--directive`=>`--meta`=>`--default`|
+|`--asm-directive-flags`|Any CPU feature flags list on the `#asm` directive.|`--directive-modifier`=>`--directive`=>`--meta`=>`--default`|
+|`--asm-directive-flags-comma`|`,`s in the CPU feature flags list on the `#asm` directive.|`--meta-comma`=>`--punctuation`=>`--default`|
+|`--asm-directive-flag`|Each CPU feature flags on the `#asm` directive.|`--asm-directive-flags`=>`--directive-modifier`=>`--directive`=>`--meta`=>`--default`|
+|`--asm-directive-block`|The entire `{}`-bounded block after the `#asm` directive.|`--asm-directive`=>`--directive`=>`--meta`=>`--default`|
+|`--asm-register`|CPU register names.|`--keyword`=>`--default`|
+|`--asm-mnemonic`|Instruction opcodes, e.g. `mov`.|`--default`|
+|`--asm-size`|A size specifier on an opcode, e.g. in `mov.8` or `mov?T`.|`--asm-mnemonic`=>`--default`|
+|`--asm-size-const`|A constant (literal) opcode size specifier, e.g. `mov.8`|`--asm-size`=>`--asm-mnemonic`=>`--default`|
+|`--asm-size-type`|A variable opcode size specifier, e.g. `mov?T`|`--asm-size`=>`--asm-mnemonic`=>`--default`|
+|`--asm-size-punctuation`|The `.` or `?` in an opcode size specifier, e.g. in `mov.8` or `mov?T`.|`--punctuation`=>`--default`|
+|`--asm-dot-size-punctuation`|The `.` in an opcode size specifier, e.g. in `mov.8`.|`--punctuation-dot`=>`--punctuation`=>`--default`|
+|`--asm-clue-size-punctuation`|The `?` in an opcode size specifier, e.g. in `mov?T`.|`--punctuation-clue`=>`--punctuation`=>`--default`|
 
 
 ---

@@ -20,8 +20,8 @@
 	--variable-stdLib-fg: #CF8;
 	--variable-stdLib-constant-fg: #0DD;
 	--variable-stdLib-context-fg: #C63;
-	--variable-stdLib-moduleparam-fg: #FCC;
-	--variable-stdLib-programparam-fg: #CCF;
+	--variable-stdLib-moduleParam-fg: #FCC;
+	--variable-stdLib-programParam-fg: #CCF;
 	--variable-context-fg: #C43;
 	--variable-context-constant-fg: #CC0;
 
@@ -54,7 +54,6 @@
 	--punctuation-quote-fg: #C6C;
 	--punctuation-directive-fg: #FFF;
 
-
 	--string-fg: #F0F;
 	--string-here-bg: #303;
 	--string-here-termiator-fg: #FFF;
@@ -70,7 +69,7 @@
 	--struct-inherited-decoration: underline;
 
 	--proc-fg: #F80;
-	--for-expansion-fg: #F40;
+	--forExpansion-fg: #F40;
 
 	--params-bg: #400;
 	--module-params-bg: #044;
@@ -79,9 +78,24 @@
 	--comment-fg: #080;
 	--comment-weight: normal;
 	--comment-block-bg: #030;
-	--doctag-bg: #008;
+	--doctag-fg: #FFF;
 	--doctag-weight: bold;
-	--doctag-no_checkin-fg: #F00;
+	--doctag-bug-bg: #F00;
+	--doctag-fixme-bg: #F0F;
+	--doctag-hack-bg: #08F;
+	--doctag-later-bg: #888;
+	--doctag-maybe-bg: #F80;
+	--doctag-note-bg: #080;
+	--doctag-no_checkin-fg: #000;
+	--doctag-no_checkin-bg: #FFF;
+	--doctag-optimise-bg: #800;
+	--doctag-test-fg: #000;
+	--doctag-test-bg: #0F0;
+	--doctag-todo-fg: #000;
+	--doctag-todo-bg: #FF0;
+	--doctag-question-bg: #80F;
+	--doctag-xxx-fg: #FF0;
+	--doctag-xxx-bg: #808;
 
 	--meta-fg: #F68;
 	--meta-bg: #660;
@@ -123,6 +137,8 @@
 
 	tab-size: 4;
 }
+
+/*//QUESTION: Given everything is tweaked via vars, should we minimally nest below rather than separating different concepts?*/
 
 .hljs-keyword {
 	color: var(--keyword-fg, --default-fg);
@@ -240,18 +256,18 @@
 			text-decoration: var(--variable-stdLib-context-decoration, var(--variable-decoration, --default-decoration));
 		}
 		&.moduleParam___ {
-			color: var(--variable-stdLib-moduleparam-fg, var(--params-fg, var(--variable-fg, --default-fg)));
-			background-color: var(--variable-stdLib-moduleparam-bg, var(--params-bg, var(--variable-bg, --default-bg)));
-			font-style: var(--variable-stdLib-moduleparam-style, var(--params-style, var(--variable-style, --default-style)));
-			font-weight: var(--variable-stdLib-moduleparam-weight, var(--params-weight, var(--variable-weight, --default-weight)));
-			text-decoration: var(--variable-stdLib-moduleparam-decoration, var(--params-decoration, var(--variable-decoration, --default-decoration)));
+			color: var(--variable-stdLib-moduleParam-fg, var(--params-fg, var(--variable-fg, --default-fg)));
+			background-color: var(--variable-stdLib-moduleParam-bg, var(--params-bg, var(--variable-bg, --default-bg)));
+			font-style: var(--variable-stdLib-moduleParam-style, var(--params-style, var(--variable-style, --default-style)));
+			font-weight: var(--variable-stdLib-moduleParam-weight, var(--params-weight, var(--variable-weight, --default-weight)));
+			text-decoration: var(--variable-stdLib-moduleParam-decoration, var(--params-decoration, var(--variable-decoration, --default-decoration)));
 		}
 		&.programParam___ {
-			color: var(--variable-stdLib-programparam-fg, var(--params-fg, var(--variable-fg, --default-fg)));
-			background-color: var(--variable-stdLib-programparam-bg, var(--params-bg, var(--variable-bg, --default-bg)));
-			font-style: var(--variable-stdLib-programparam-style, var(--params-style, var(--variable-style, --default-style)));
-			font-weight: var(--variable-stdLib-programparam-weight, var(--params-weight, var(--variable-weight, --default-weight)));
-			text-decoration: var(--variable-stdLib-programparam-decoration, var(--params-decoration, var(--variable-decoration, --default-decoration)));
+			color: var(--variable-stdLib-programParam-fg, var(--params-fg, var(--variable-fg, --default-fg)));
+			background-color: var(--variable-stdLib-programParam-bg, var(--params-bg, var(--variable-bg, --default-bg)));
+			font-style: var(--variable-stdLib-programParam-style, var(--params-style, var(--variable-style, --default-style)));
+			font-weight: var(--variable-stdLib-programParam-weight, var(--params-weight, var(--variable-weight, --default-weight)));
+			text-decoration: var(--variable-stdLib-programParam-decoration, var(--params-decoration, var(--variable-decoration, --default-decoration)));
 		}
 	}
 	&.context_ {
@@ -514,26 +530,26 @@
 	}
 }
 .hljs-meta.stringTerminator_ {
-	color: var(--string-here-termiator-fg, --default-fg);
-	background-color: var(--string-here-termiator-bg, --default-bg);
-	font-style: var(--string-here-termiator-style, --default-style);
-	font-weight: var(--string-here-termiator-weight, --default-weight);
-	text-decoration: var(--string-here-termiator-decoration, --default-decoration);
+	color: var(--string-here-termiator-fg, var(--string-fg, var(--string-fg, --default-fg)));
+	background-color: var(--string-here-termiator-bg, var(--string-here-bg, var(--string-bg, --default-bg)));
+	font-style: var(--string-here-termiator-style, var(--string-here-style, var(--string-style, --default-style)));
+	font-weight: var(--string-here-termiator-weight, var(--string-here-weight, var(--string-weight, --default-weight)));
+	text-decoration: var(--string-here-termiator-decoration, var(--string-here-decoration, var(--string-decoration, --default-decoration)));
 }
 
 .hljs-char.escape_ {
-	color: var(--char-escape-fg, --default-fg);
-	background-color: var(--char-escape-bg, --default-bg);
-	font-style: var(--char-escape-style, --default-style);
-	font-weight: var(--char-escape-weight, --default-weight);
-	text-decoration: var(--char-escape-decoration, --default-decoration);
+	color: var(--char-escape-fg, var(--string-fg, --default-fg));
+	background-color: var(--char-escape-bg, var(--string-bg, --default-bg));
+	font-style: var(--char-escape-style, var(--string-style, --default-style));
+	font-weight: var(--char-escape-weight, var(--string-weight, --default-weight));
+	text-decoration: var(--char-escape-decoration, var(--string-decoration, --default-decoration));
 }
 .hljs-subst {
-	color: var(--subst-fg, --default-fg);
-	background-color: var(--subst-bg, --default-bg);
-	font-style: var(--subst-style, --default-style);
-	font-weight: var(--subst-weight, --default-weight);
-	text-decoration: var(--subst-decoration, --default-decoration);
+	color: var(--subst-fg, var(--string-fg, --default-fg));
+	background-color: var(--subst-bg, var(--string-bg, --default-bg));
+	font-style: var(--subst-style, var(--string-style, --default-style));
+	font-weight: var(--subst-weight, var(--string-weight, --default-weight));
+	text-decoration: var(--subst-decoration, var(--string-decoration, --default-decoration));
 }
 
 .hljs .declaration_,
@@ -568,11 +584,11 @@
 	text-decoration: var(--proc-decoration, --default-decoration);
 
 	&.forExpansion__ {
-		color: var(--for-expansion-fg, var(--proc-fg, --default-fg));
-		background-color: var(--for-expansion-bg, var(--proc-bg, --default-bg));
-		font-style: var(--for-expansion-style, var(--proc-style, --default-style));
-		font-weight: var(--for-expansion-weight, var(--proc-weight, --default-weight));
-		text-decoration: var(--for-expansion-decoration, var(--proc-decoration, --default-decoration));
+		color: var(--forExpansion-fg, var(--proc-fg, --default-fg));
+		background-color: var(--forExpansion-bg, var(--proc-bg, --default-bg));
+		font-style: var(--forExpansion-style, var(--proc-style, --default-style));
+		font-weight: var(--forExpansion-weight, var(--proc-weight, --default-weight));
+		text-decoration: var(--forExpansion-decoration, var(--proc-decoration, --default-decoration));
 	}
 }
 
@@ -715,6 +731,21 @@
 		font-weight: var(--doctag-xxx-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
 		text-decoration: var(--doctag-xxx-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
 	}
+
+	&.reminder_ {
+		color: var(--doctag-reminder-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
+		background-color: var(--doctag-reminder-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
+		font-style: var(--doctag-reminder-style, var(--doctag-style, var(--comment-style, --default-style)));
+		font-weight: var(--doctag-reminder-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
+		text-decoration: var(--doctag-reminder-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+	}
+	&.label_ {
+		color: var(--doctag-label-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
+		background-color: var(--doctag-label-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
+		font-style: var(--doctag-label-style, var(--doctag-style, var(--comment-style, --default-style)));
+		font-weight: var(--doctag-label-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
+		text-decoration: var(--doctag-label-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+	}
 }
 
 .hljs-meta {
@@ -777,6 +808,21 @@
 	font-style: var(--asm-size-punctuation-style, var(--punctuation-style, --default-style));
 	font-weight: var(--asm-size-punctuation-weight, var(--punctuation-weight, --default-weight));
 	text-decoration: var(--asm-size-punctuation-decoration, var(--punctuation-decoration, --default-decoration));
+
+	&.dot_ {
+		color: var(--asm-dot-size-punctuation-fg, var(--punctuation-dot-fg, var(--punctuation-fg, --default-fg)));
+		background-color: var(--asm-dot-size-punctuation-bg, var(--punctuation-dot-bg, var(--punctuation-bg, --default-bg)));
+		font-style: var(--asm-dot-size-punctuation-style, var(--punctuation-dot-style, var(--punctuation-style, --default-style)));
+		font-weight: var(--asm-dot-size-punctuation-weight, var(--punctuation-dot-weight, var(--punctuation-weight, --default-weight)));
+		text-decoration: var(--asm-dot-size-punctuation-decoration, var(--punctuation-dot-decoration, var(--punctuation-decoration, --default-decoration)));
+	}
+	&.clue_ {
+		color: var(--asm-clue-size-punctuation-fg, var(--punctuation-clue-fg, var(--punctuation-fg, --default-fg)));
+		background-color: var(--asm-clue-size-punctuation-bg, var(--punctuation-clue-bg, var(--punctuation-bg, --default-bg)));
+		font-style: var(--asm-clue-size-punctuation-style, var(--punctuation-clue-style, var(--punctuation-style, --default-style)));
+		font-weight: var(--asm-clue-size-punctuation-weight, var(--punctuation-clue-weight, var(--punctuation-weight, --default-weight)));
+		text-decoration: var(--asm-clue-size-punctuation-decoration, var(--punctuation-clue-decoration, var(--punctuation-decoration, --default-decoration)));
+	}
 }
 .hljs-symbol {
 	color: var(--asm-mnemonic-fg, --default-fg);
@@ -809,40 +855,40 @@
 	}
 }
 .hljs-meta.directive_.asm__ {
-	color: var(--asm-directive-fg, var(--directive-fg, --default-fg));
-	background-color: var(--asm-directive-bg, var(--directive-bg, --default-bg));
-	font-style: var(--asm-directive-style, var(--directive-style, --default-style));
-	font-weight: var(--asm-directive-weight, var(--directive-weight, --default-weight));
-	text-decoration: var(--asm-directive-decoration, var(--directive-decoration, --default-decoration));
+	color: var(--asm-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
+	background-color: var(--asm-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
+	font-style: var(--asm-directive-style, var(--directive-style, var(--meta-style, --default-style)));
+	font-weight: var(--asm-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
+	text-decoration: var(--asm-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
 
 	&.flags___ {
-		color: var(--asm-directive-flags-fg, var(--asm-directive-fg, var(--directive-fg, --default-fg)));
-		background-color: var(--asm-directive-flags-bg, var(--asm-directive-bg, var(--directive-bg, --default-bg)));
-		font-style: var(--asm-directive-flags-style, var(--asm-directive-style, var(--directive-style, --default-style)));
-		font-weight: var(--asm-directive-flags-weight, var(--asm-directive-weight, var(--directive-weight, --default-weight)));
-		text-decoration: var(--asm-directive-flags-decoration, var(--asm-directive-decoration, var(--directive-decoration, --default-decoration)));
+		color: var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg))));
+		background-color: var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg))));
+		font-style: var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style))));
+		font-weight: var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight))));
+		text-decoration: var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
 
 		& .comma_ {
-			color: var(--asm-directive-flags-comma-fg, var(--punctuation-fg, --default-fg));
-			background-color: var(--asm-directive-flags-comma-bg, var(--punctuation-bg, --default-bg));
-			font-style: var(--asm-directive-flags-comma-style, var(--punctuation-style, --default-style));
-			font-weight: var(--asm-directive-flags-comma-weight, var(--punctuation-weight, --default-weight));
-			text-decoration: var(--asm-directive-flags-comma-decoration, var(--punctuation-decoration, --default-decoration));
+			color: var(--asm-directive-flags-comma-fg, var(--meta-comma, var(--punctuation-fg, --default-fg)));
+			background-color: var(--asm-directive-flags-comma-bg, var(--meta-comma, var(--punctuation-bg, --default-bg)));
+			font-style: var(--asm-directive-flags-comma-style, var(--meta-comma, var(--punctuation-style, --default-style)));
+			font-weight: var(--asm-directive-flags-comma-weight, var(--meta-comma, var(--punctuation-weight, --default-weight)));
+			text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma, var(--punctuation-decoration, --default-decoration)));
 		}
 	}
 	&.flag___ {
-		color: var(--asm-directive-flag-fg, var(--asm-directive-fg, var(--directive-fg, --default-fg)));
-		background-color: var(--asm-directive-flag-bg, var(--asm-directive-bg, var(--directive-bg, --default-bg)));
-		font-style: var(--asm-directive-flag-style, var(--asm-directive-style, var(--directive-style, --default-style)));
-		font-weight: var(--asm-directive-flag-weight, var(--asm-directive-weight, var(--directive-weight, --default-weight)));
-		text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-decoration, var(--directive-decoration, --default-decoration)));
+		color: var(--asm-directive-flag-fg, var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg)))));
+		background-color: var(--asm-directive-flag-bg, var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg)))));
+		font-style: var(--asm-directive-flag-style, var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style)))));
+		font-weight: var(--asm-directive-flag-weight, var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight)))));
+		text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration)))));
 	}
 	&.block___ {
-		color: var(--asm-directive-block-fg, var(--asm-directive-fg, var(--directive-fg, --default-fg)));
-		background-color: var(--asm-directive-block-bg, var(--asm-directive-bg, var(--directive-bg, --default-bg)));
-		font-style: var(--asm-directive-block-style, var(--asm-directive-style, var(--directive-style, --default-style)));
-		font-weight: var(--asm-directive-block-weight, var(--asm-directive-weight, var(--directive-weight, --default-weight)));
-		text-decoration: var(--asm-directive-block-decoration, var(--asm-directive-decoration, var(--directive-decoration, --default-decoration)));
+		color: var(--asm-directive-block-fg, var(--asm-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
+		background-color: var(--asm-directive-block-bg, var(--asm-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
+		font-style: var(--asm-directive-block-style, var(--asm-directive-style, var(--directive-style, var(--meta-style, --default-style))));
+		font-weight: var(--asm-directive-block-weight, var(--asm-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight))));
+		text-decoration: var(--asm-directive-block-decoration, var(--asm-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
 	}
 }
 .hljs-meta.keyword_.asm__.register___ {
