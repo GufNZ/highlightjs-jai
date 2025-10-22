@@ -71,6 +71,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |`--operator`|All operators.|`--default`|
 |`--operator-bake`|The `$` and `$$` operators.|`--operator`=>`--default`|
+|`--operator-modifier`|Things like `,small` or `,logical` for the bit-shift operators.|`--operator`=>`--default`|
 ||||
 |`--punctuation`|All punctuation.|`--default`|
 |`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|

@@ -4,7 +4,16 @@ if [ "$1" != "-1" ]; then
 	rm check
 	echo -n >check
 	while read -r line; do
-		re="hljs-${line//./_*\\.}_*\`";
+		# Build pattern so a.b.c -> a.b_.c__
+		IFS='.' read -ra parts <<<"$line"
+		build=""
+		for i in "${!parts[@]}"; do
+			[ $i -gt 0 ] && build+="\\."
+			underscores=$(printf '%*s' "$i" "" | tr ' ' '_')
+			build+="${parts[$i]}${underscores}"
+		done
+		re="\\.hljs-${build}\`";
+		echo $re;
 		if ! grep "$re" css-class-reference.md >/dev/null; then
 			echo -en "$line"'\e[K\r';
 			if ! grep -E 'stdLib|symbol.' <<<"$line" >/dev/null; then

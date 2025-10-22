@@ -138,8 +138,6 @@
 	tab-size: 4;
 }
 
-/*//QUESTION: Given everything is tweaked via vars, should we minimally nest below rather than separating different concepts?*/
-
 .hljs-keyword {
 	color: var(--keyword-fg, --default-fg);
 	background-color: var(--keyword-bg, --default-bg);
@@ -187,27 +185,51 @@
 		}
 	}
 }
-.hljs-operator.cast_.v3__ {
-	color: var(--operator-cast-v3-fg, var(--operator-fg, --default-fg));
-	background-color: var(--operator-cast-v3-bg, var(--operator-bg, --default-bg));
-	font-style: var(--operator-cast-v3-style, var(--operator-style, --default-style));
-	font-weight: var(--operator-cast-v3-weight, var(--operator-weight, --default-weight));
-	text-decoration: var(--operator-cast-v3-decoration, var(--operator-decoration, --default-decoration));
 
-	& > .hljs-_BalancedParens {
+.hljs-operator {
+	color: var(--operator-fg, --default-fg);
+	background-color: var(--operator-bg, --default-bg);
+	font-style: var(--operator-style, --default-style);
+	font-weight: var(--operator-weight, --default-weight);
+	text-decoration: var(--operator-decoration, --default-decoration);
+
+	&logical_.modifier__ {
+		color: var(--operator-modifier-fg, var(--operator-fg, --default-fg));
+		background-color: var(--operator-modifier-bg, var(--operator-bg, --default-bg));
+		font-style: var(--operator-modifier-style, var(--operator-style, --default-style));
+		font-weight: var(--operator-modifier-weight, var(--operator-weight, --default-weight));
+		text-decoration: var(--operator-modifier-decoration, var(--operator-decoration, --default-decoration));
+	}
+	&.bake_ {
+		color: var(--operator-bake-fg, var(--operator-fg, --default-fg));
+		background-color: var(--operator-bake-bg, var(--operator-bg, --default-bg));
+		font-style: var(--operator-bake-style, var(--operator-style, --default-style));
+		font-weight: var(--operator-bake-weight, var(--operator-weight, --default-weight));
+		text-decoration: var(--operator-bake-decoration, var(--operator-decoration, --default-decoration));
+	}
+
+	&.cast_.v3__ {
 		color: var(--operator-cast-v3-fg, var(--operator-fg, --default-fg));
 		background-color: var(--operator-cast-v3-bg, var(--operator-bg, --default-bg));
 		font-style: var(--operator-cast-v3-style, var(--operator-style, --default-style));
 		font-weight: var(--operator-cast-v3-weight, var(--operator-weight, --default-weight));
 		text-decoration: var(--operator-cast-v3-decoration, var(--operator-decoration, --default-decoration));
 
-		& > .hljs-punctuation.paren_,
-		& > .hljs-punctuation.comma_ {
-			color: var(--operator-cast-v3-fg, --default-fg);
-			background-color: var(--operator-cast-v3-bg, --default-bg);
-			font-style: var(--operator-cast-v3-style, --default-style);
-			font-weight: var(--operator-cast-v3-weight, --default-weight);
-			text-decoration: var(--operator-cast-v3-decoration, --default-decoration);
+		& > .hljs-_BalancedParens {
+			color: var(--operator-cast-v3-fg, var(--operator-fg, --default-fg));
+			background-color: var(--operator-cast-v3-bg, var(--operator-bg, --default-bg));
+			font-style: var(--operator-cast-v3-style, var(--operator-style, --default-style));
+			font-weight: var(--operator-cast-v3-weight, var(--operator-weight, --default-weight));
+			text-decoration: var(--operator-cast-v3-decoration, var(--operator-decoration, --default-decoration));
+
+			& > .hljs-punctuation.paren_,
+			& > .hljs-punctuation.comma_ {
+				color: var(--operator-cast-v3-fg, --default-fg);
+				background-color: var(--operator-cast-v3-bg, --default-bg);
+				font-style: var(--operator-cast-v3-style, --default-style);
+				font-weight: var(--operator-cast-v3-weight, --default-weight);
+				text-decoration: var(--operator-cast-v3-decoration, --default-decoration);
+			}
 		}
 	}
 }
@@ -429,22 +451,6 @@
 	}
 }
 
-.hljs-operator {
-	color: var(--operator-fg, --default-fg);
-	background-color: var(--operator-bg, --default-bg);
-	font-style: var(--operator-style, --default-style);
-	font-weight: var(--operator-weight, --default-weight);
-	text-decoration: var(--operator-decoration, --default-decoration);
-
-	&.bake_ {
-		color: var(--operator-bake-fg, var(--operator-fg, --default-fg));
-		background-color: var(--operator-bake-bg, var(--operator-bg, --default-bg));
-		font-style: var(--operator-bake-style, var(--operator-style, --default-style));
-		font-weight: var(--operator-bake-weight, var(--operator-weight, --default-weight));
-		text-decoration: var(--operator-bake-decoration, var(--operator-decoration, --default-decoration));
-	}
-}
-
 .hljs-punctuation {
 	color: var(--punctuation-fg, --default-fg);
 	background-color: var(--punctuation-bg, --default-bg);
@@ -480,6 +486,30 @@
 		font-style: var(--punctuation-directive-style, var(--punctuation-style, --default-style));
 		font-weight: var(--punctuation-directive-weight, var(--punctuation-weight, --default-weight));
 		text-decoration: var(--punctuation-directive-decoration, var(--punctuation-decoration, --default-decoration));
+	}
+
+	&.asm__.size___ {
+		color: var(--asm-size-punctuation-fg, var(--punctuation-fg, --default-fg));
+		background-color: var(--asm-size-punctuation-bg, var(--punctuation-bg, --default-bg));
+		font-style: var(--asm-size-punctuation-style, var(--punctuation-style, --default-style));
+		font-weight: var(--asm-size-punctuation-weight, var(--punctuation-weight, --default-weight));
+		text-decoration: var(--asm-size-punctuation-decoration, var(--punctuation-decoration, --default-decoration));
+
+		&.dot_ {
+			color: var(--asm-dot-size-punctuation-fg, var(--punctuation-dot-fg, var(--punctuation-fg, --default-fg)));
+			background-color: var(--asm-dot-size-punctuation-bg, var(--punctuation-dot-bg, var(--punctuation-bg, --default-bg)));
+			font-style: var(--asm-dot-size-punctuation-style, var(--punctuation-dot-style, var(--punctuation-style, --default-style)));
+			font-weight: var(--asm-dot-size-punctuation-weight, var(--punctuation-dot-weight, var(--punctuation-weight, --default-weight)));
+			text-decoration: var(--asm-dot-size-punctuation-decoration, var(--punctuation-dot-decoration, var(--punctuation-decoration, --default-decoration)));
+		}
+
+		&.clue_ {
+			color: var(--asm-clue-size-punctuation-fg, var(--punctuation-clue-fg, var(--punctuation-fg, --default-fg)));
+			background-color: var(--asm-clue-size-punctuation-bg, var(--punctuation-clue-bg, var(--punctuation-bg, --default-bg)));
+			font-style: var(--asm-clue-size-punctuation-style, var(--punctuation-clue-style, var(--punctuation-style, --default-style)));
+			font-weight: var(--asm-clue-size-punctuation-weight, var(--punctuation-clue-weight, var(--punctuation-weight, --default-weight)));
+			text-decoration: var(--asm-clue-size-punctuation-decoration, var(--punctuation-clue-decoration, var(--punctuation-decoration, --default-decoration)));
+		}
 	}
 }
 
@@ -598,23 +628,23 @@
 	font-style: var(--params-style, --default-style);
 	font-weight: var(--params-weight, --default-weight);
 	text-decoration: var(--params-decoration, --default-decoration);
-}
 
-/* Module Parameters: */
-.hljs-params.moduleOrProgram_ {
-	color: var(--module-params-fg, var(--params-fg, --default-fg));
-	background-color: var(--module-params-bg, var(--params-bg, --default-bg));
-	font-style: var(--module-params-style, var(--params-style, --default-style));
-	font-weight: var(--module-params-weight, var(--params-weight, --default-weight));
-	text-decoration: var(--module-params-decoration, var(--params-decoration, --default-decoration));
+	/* Module Parameters: */
+	&.moduleOrProgram_ {
+		color: var(--module-params-fg, var(--params-fg, --default-fg));
+		background-color: var(--module-params-bg, var(--params-bg, --default-bg));
+		font-style: var(--module-params-style, var(--params-style, --default-style));
+		font-weight: var(--module-params-weight, var(--params-weight, --default-weight));
+		text-decoration: var(--module-params-decoration, var(--params-decoration, --default-decoration));
 
-	/* Program Parameters: */
-	& > .hljs-_BalancedParens:nth-of-type(2) {
-		color: var(--program-params-fg, var(--params-fg, --default-fg));
-		background-color: var(--program-params-bg, var(--params-bg, --default-bg));
-		font-style: var(--program-params-style, var(--params-style, --default-style));
-		font-weight: var(--program-params-weight, var(--params-weight, --default-weight));
-		text-decoration: var(--program-params-decoration, var(--params-decoration, --default-decoration));
+		/* Program Parameters: */
+		& > .hljs-_BalancedParens:nth-of-type(2) {
+			color: var(--program-params-fg, var(--params-fg, --default-fg));
+			background-color: var(--program-params-bg, var(--params-bg, --default-bg));
+			font-style: var(--program-params-style, var(--params-style, --default-style));
+			font-weight: var(--program-params-weight, var(--params-weight, --default-weight));
+			text-decoration: var(--program-params-decoration, var(--params-decoration, --default-decoration));
+		}
 	}
 }
 
@@ -798,32 +828,65 @@
 			font-weight: var(--directive-module_parameters-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
 			text-decoration: var(--directive-module_parameters-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
 		}
+
+		&.asm__ {
+			color: var(--asm-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
+			background-color: var(--asm-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
+			font-style: var(--asm-directive-style, var(--directive-style, var(--meta-style, --default-style)));
+			font-weight: var(--asm-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
+			text-decoration: var(--asm-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
+
+			&.flags___ {
+				color: var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg))));
+				background-color: var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg))));
+				font-style: var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style))));
+				font-weight: var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight))));
+				text-decoration: var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
+
+				& .comma_ {
+					color: var(--asm-directive-flags-comma-fg, var(--meta-comma, var(--punctuation-fg, --default-fg)));
+					background-color: var(--asm-directive-flags-comma-bg, var(--meta-comma, var(--punctuation-bg, --default-bg)));
+					font-style: var(--asm-directive-flags-comma-style, var(--meta-comma, var(--punctuation-style, --default-style)));
+					font-weight: var(--asm-directive-flags-comma-weight, var(--meta-comma, var(--punctuation-weight, --default-weight)));
+					text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma, var(--punctuation-decoration, --default-decoration)));
+				}
+			}
+
+			&.flag___ {
+				color: var(--asm-directive-flag-fg, var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg)))));
+				background-color: var(--asm-directive-flag-bg, var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg)))));
+				font-style: var(--asm-directive-flag-style, var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style)))));
+				font-weight: var(--asm-directive-flag-weight, var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight)))));
+				text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration)))));
+			}
+
+			&.block___ {
+				color: var(--asm-directive-block-fg, var(--asm-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
+				background-color: var(--asm-directive-block-bg, var(--asm-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
+				font-style: var(--asm-directive-block-style, var(--asm-directive-style, var(--directive-style, var(--meta-style, --default-style))));
+				font-weight: var(--asm-directive-block-weight, var(--asm-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight))));
+				text-decoration: var(--asm-directive-block-decoration, var(--asm-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
+			}
+		}
+	}
+
+	&.keyword_.asm__.register___ {
+		color: var(--asm-register-fg, var(--keyword-fg, --default-fg));
+		background-color: var(--asm-register-bg, var(--keyword-bg, --default-bg));
+		font-style: var(--asm-register-style, var(--keyword-style, --default-style));
+		font-weight: var(--asm-register-weight, var(--keyword-weight, --default-weight));
+		text-decoration: var(--asm-register-decoration, var(--keyword-decoration, --default-decoration));
+	}
+
+	&.note_ {
+		color: var(--note-fg, var(--meta-fg, --default-fg));
+		background-color: var(--note-bg, var(--meta-bg, --default-bg));
+		font-style: var(--note-style, var(--meta-style, --default-style));
+		font-weight: var(--note-weight, var(--meta-weight, --default-weight));
+		text-decoration: var(--note-decoration, var(--meta-decoration, --default-decoration));
 	}
 }
 
-/* #asm */
-.hljs-punctuation.asm__.size___ {
-	color: var(--asm-size-punctuation-fg, var(--punctuation-fg, --default-fg));
-	background-color: var(--asm-size-punctuation-bg, var(--punctuation-bg, --default-bg));
-	font-style: var(--asm-size-punctuation-style, var(--punctuation-style, --default-style));
-	font-weight: var(--asm-size-punctuation-weight, var(--punctuation-weight, --default-weight));
-	text-decoration: var(--asm-size-punctuation-decoration, var(--punctuation-decoration, --default-decoration));
-
-	&.dot_ {
-		color: var(--asm-dot-size-punctuation-fg, var(--punctuation-dot-fg, var(--punctuation-fg, --default-fg)));
-		background-color: var(--asm-dot-size-punctuation-bg, var(--punctuation-dot-bg, var(--punctuation-bg, --default-bg)));
-		font-style: var(--asm-dot-size-punctuation-style, var(--punctuation-dot-style, var(--punctuation-style, --default-style)));
-		font-weight: var(--asm-dot-size-punctuation-weight, var(--punctuation-dot-weight, var(--punctuation-weight, --default-weight)));
-		text-decoration: var(--asm-dot-size-punctuation-decoration, var(--punctuation-dot-decoration, var(--punctuation-decoration, --default-decoration)));
-	}
-	&.clue_ {
-		color: var(--asm-clue-size-punctuation-fg, var(--punctuation-clue-fg, var(--punctuation-fg, --default-fg)));
-		background-color: var(--asm-clue-size-punctuation-bg, var(--punctuation-clue-bg, var(--punctuation-bg, --default-bg)));
-		font-style: var(--asm-clue-size-punctuation-style, var(--punctuation-clue-style, var(--punctuation-style, --default-style)));
-		font-weight: var(--asm-clue-size-punctuation-weight, var(--punctuation-clue-weight, var(--punctuation-weight, --default-weight)));
-		text-decoration: var(--asm-clue-size-punctuation-decoration, var(--punctuation-clue-decoration, var(--punctuation-decoration, --default-decoration)));
-	}
-}
 .hljs-symbol {
 	color: var(--asm-mnemonic-fg, --default-fg);
 	background-color: var(--asm-mnemonic-bg, --default-bg);
@@ -853,56 +916,4 @@
 			text-decoration: var(--asm-size-type-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration)));
 		}
 	}
-}
-.hljs-meta.directive_.asm__ {
-	color: var(--asm-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
-	background-color: var(--asm-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
-	font-style: var(--asm-directive-style, var(--directive-style, var(--meta-style, --default-style)));
-	font-weight: var(--asm-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
-	text-decoration: var(--asm-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
-
-	&.flags___ {
-		color: var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg))));
-		background-color: var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg))));
-		font-style: var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style))));
-		font-weight: var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight))));
-		text-decoration: var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
-
-		& .comma_ {
-			color: var(--asm-directive-flags-comma-fg, var(--meta-comma, var(--punctuation-fg, --default-fg)));
-			background-color: var(--asm-directive-flags-comma-bg, var(--meta-comma, var(--punctuation-bg, --default-bg)));
-			font-style: var(--asm-directive-flags-comma-style, var(--meta-comma, var(--punctuation-style, --default-style)));
-			font-weight: var(--asm-directive-flags-comma-weight, var(--meta-comma, var(--punctuation-weight, --default-weight)));
-			text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma, var(--punctuation-decoration, --default-decoration)));
-		}
-	}
-	&.flag___ {
-		color: var(--asm-directive-flag-fg, var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg)))));
-		background-color: var(--asm-directive-flag-bg, var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg)))));
-		font-style: var(--asm-directive-flag-style, var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style)))));
-		font-weight: var(--asm-directive-flag-weight, var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight)))));
-		text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration)))));
-	}
-	&.block___ {
-		color: var(--asm-directive-block-fg, var(--asm-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
-		background-color: var(--asm-directive-block-bg, var(--asm-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
-		font-style: var(--asm-directive-block-style, var(--asm-directive-style, var(--directive-style, var(--meta-style, --default-style))));
-		font-weight: var(--asm-directive-block-weight, var(--asm-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight))));
-		text-decoration: var(--asm-directive-block-decoration, var(--asm-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
-	}
-}
-.hljs-meta.keyword_.asm__.register___ {
-	color: var(--asm-register-fg, var(--keyword-fg, --default-fg));
-	background-color: var(--asm-register-bg, var(--keyword-bg, --default-bg));
-	font-style: var(--asm-register-style, var(--keyword-style, --default-style));
-	font-weight: var(--asm-register-weight, var(--keyword-weight, --default-weight));
-	text-decoration: var(--asm-register-decoration, var(--keyword-decoration, --default-decoration));
-}
-
-.hljs-meta.note_ {
-	color: var(--note-fg, var(--meta-fg, --default-fg));
-	background-color: var(--note-bg, var(--meta-bg, --default-bg));
-	font-style: var(--note-style, var(--meta-style, --default-style));
-	font-weight: var(--note-weight, var(--meta-weight, --default-weight));
-	text-decoration: var(--note-decoration, var(--meta-decoration, --default-decoration));
 }

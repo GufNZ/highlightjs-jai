@@ -195,12 +195,14 @@ operator.define.constant
 operator.dereference
 operator.dot
 operator.logical
+operator.logical.modifier
 operator.math
 operator.math.unaryNegate
 operator.pinRegister
 operator.quickLambda
 operator.range
 operator.returns
+operator.rotate
 operator.shift
 operator.uninitialised
 params.moduleOrProgram
