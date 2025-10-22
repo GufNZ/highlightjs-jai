@@ -1,0 +1,10 @@
+{
+	"local_modules": [
+	],
+	"roots": [
+		"checkRef.jai",
+		"generateStdLib.jai"
+	],
+	"build_root": "checkRef.jai",
+	"auto_insert_parentheses": true
+}

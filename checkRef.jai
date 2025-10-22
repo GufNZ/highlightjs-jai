@@ -12,9 +12,60 @@ main :: () {
 	ref := read_entire_file("css-class-reference.md");
 	scopes := read_entire_file("css");
 
-	//TODO: verify all scopes covered by css.  Needs a nesting-aware search.
+	seenScopes: Table(string, bool);
+	init(*seenScopes);
+	lines := split(css, "\n");
+	lastSeenScope := "";
+	lastSeenIndent := 0;
+	indentCount := 0;
+	for line: lines {
+		trimmed := line;
+		indentCount = 0;
+		while trimmed.count > 0 && trimmed[0] == #char "\t" {
+			advance(*trimmed, 1);
+			indentCount += 1;
+		}
 
-	lines := split(scopes, "\n");
+		if starts_with(trimmed, ".hljs-") {
+			spaceIdx := find_index_from_left(trimmed, " ");
+			if spaceIdx == -1 {
+				spaceIdx = line.count;
+			}
+			scope := slice(trimmed, 6, spaceIdx - 6);
+			lastSeenScope = scope;
+			if (!table_find(*seenScopes, scope)) {
+				table_add(*seenScopes, scope, true);
+			}
+		} else if starts_with(trimmed, "&.") {
+			spaceIdx := find_index_from_left(trimmed, " ");
+			if spaceIdx == -1 {
+				spaceIdx = line.count;
+			}
+
+			if lastSeenIndent == indentCount {
+				dotIdx := find_index_from_right(lastSeenScope, ".");
+				if dotIdx != -1 {
+					lastSeenScope.count = dotIdx;
+				} else {
+					assert(false, "Unexpected no parent scope!");
+				}
+			} else if lastSeenIndent > indentCount{
+				for indentCount..lastSeenIndent-1 {
+					dotIdx := find_index_from_right(lastSeenScope, ".");
+					lastSeenScope.count = dotIdx;
+				}
+			}
+
+			scope := tprint("%.%", lastSeenScope, slice(trimmed, 2, spaceIdx - 2));
+			lastSeenScope = scope;
+			lastSeenIndent = indentCount;
+			if (!table_find(*seenScopes, scope)) {
+				table_add(*seenScopes, scope, true);
+			}
+		}
+	}
+
+	lines = split(scopes, "\n");
 	for line: lines {
 		if (line == "") {
 			continue;
@@ -48,5 +99,6 @@ main :: () {
 };
 
 #import "Basic";
+#import "Hash_Table";
 #import "File";
 #import "String";
