@@ -109,6 +109,9 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []string) {
 	for n, scope: seenScopes {
 		seen[n] = scope;
 	}
+	for < seen {
+		if it == "---"  array_ordered_remove_by_index(*seen, it_index);
+	}
 	return seen, vars;
 };
 
@@ -128,14 +131,14 @@ scopeToCSSClass :: (scope: string, noPrefix := false) -> string {
 		underscores := repeat("_", i,, temp);
 		name := part;
 		if prevPart == "stdLib" || prevPart == "symbol" {
-			print("%->*\n", part, to_standard_error=true);
 			name = "*";
+			underscores = "";
 		}
 		append(*build, name);
 		append(*build, underscores);
 		prevPart = part;
 	}
-	return builder_to_string(*build);
+	return replace(builder_to_string(*build), ".*", "*");
 };
 
 scopeFromCSSClass :: (class: string, noPrefix := false) -> string {
@@ -167,8 +170,9 @@ scopeFromCSSClass :: (class: string, noPrefix := false) -> string {
 	);
 }
 
-verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false) -> []string {
+verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, expectedFromCSS: []string, expectedExtra: ..string) -> []string {
 	cssScopes, vars := collectScopesFromCSS(cssLines, debug);
+	reported: [..]string;
 	print("\nScopes missing from CSS:\n");
 	for langScopes {
 		cssClass := scopeToCSSClass(it, true);
@@ -181,19 +185,30 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false) 
 				}
 			}
 
-			if cssClass {
-				print("%\n", cssClass);
+			if cssClass && !array_find(reported, cssClass) {
+				array_add(*reported, cssClass);
+				if array_find(expectedFromCSS, cssClass) {
+					print("(%)\n", cssClass);
+				} else {
+					print("%\n", cssClass);
+				}
 			}
 
 			continue;
 		}
 
 
-		if !array_find(cssScopes , cssClass) {
-			print("%\n", cssClass);
+		if !array_find(cssScopes , cssClass) && !array_find(reported, cssClass) {
+			array_add(*reported, cssClass);
+			if array_find(expectedFromCSS, cssClass) {
+				print("(%)\n", cssClass);
+			} else {
+				print("%\n", cssClass);
+			}
 		}
 	}
 
+	array_reset(*reported);
 	print("\nExtra CSS scopes:\n");
 	for cssScopes {
 		if it == "---" || contains(it, "<")  continue;
@@ -209,23 +224,34 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false) 
 				}
 			}
 
-			if !scope {
-				print("%\n", it);
+			if scope && !array_find(reported, scope) {
+				array_add(*reported, scope);
+				if array_find(expectedExtra, it) {
+					print("(%)\n", it);
+				} else {
+					print("%\n", it);
+				}
 			}
 
 			continue;
 		}
 
 
-		if !array_find(langScopes , scope) {
-			print("%\n", it);
+		if !array_find(langScopes , scope) && !array_find(reported, scope) {
+			array_add(*reported, scope);
+			if array_find(expectedExtra, it) {
+				print("(%)\n", it);
+			} else {
+				print("%\n", it);
+			}
 		}
 	}
 
 	return vars;
 };
 
-verifyCSSClassesInReference :: (scopes: []string, ref: string) {
+verifyCSSClassesInReference :: (scopes: []string, ref: string, expected: ..string) {
+	reported: [..]string;
 	print("\nCSS classes missing from reference:\n");
 	for line: scopes {
 		if (line == "") {
@@ -234,18 +260,34 @@ verifyCSSClassesInReference :: (scopes: []string, ref: string) {
 
 
 		cssClass := scopeToCSSClass(line);
+		if contains(cssClass, "*") {
+			cssClass = replace(cssClass, "*", ifx contains(cssClass, "symbol") ".<flag>_" else ".<module>__",, temp);
+		}
 		if !contains(ref, tprint("|`%`|", cssClass)) {
-			print("%\n", line);
+			if array_find(reported, cssClass)  continue;
+			array_add(*reported, cssClass);
+			if array_find(expected, line) {
+				print("(%)\n", line);
+			} else {
+				print("%\n", line);
+			}
 		}
 	}
 }
 
-verifyCSSVarsInReference :: (vars: []string, ref: string) {
+verifyCSSVarsInReference :: (vars: []string, ref: string, expected: ..string) {
+	reported: [..]string;
 	print("\nCSS variables missing from reference:\n");
 	for var: vars {
 		if !var  continue;
 		if !contains(ref, tprint("|`%`|", var)) {
-			print("%\n", var);
+			if array_find(reported, var)  continue;
+			array_add(*reported, var);
+			if array_find(expected, var) {
+				print("(%)\n", var);
+			} else {
+				print("%\n", var);
+			}
 		}
 	}
 };
@@ -258,7 +300,25 @@ main :: () {
 	css := split(cssStr, "\n");
 	scopes := split(scopesStr, "\n");
 
-	vars := verifyScopesInCSS(scopes, css);
+	vars := verifyScopesInCSS(
+		scopes,
+		css,
+		expectedFromCSS = .["_BalancedBraces"],
+		"built_in",
+		"comment",
+		"keyword",
+		"_BalancedParens",
+		"number.prefix__",
+		"operator.asm_",
+		"operator.asm_.size__",
+		"params",
+		"string.path_",
+		"symbol",
+		"title",
+		"title.class_",
+		"type.enum_",
+		"type.integer_"
+	);
 
 	verifyCSSClassesInReference(scopes, refStr);
 
