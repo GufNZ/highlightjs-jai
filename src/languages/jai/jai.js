@@ -38,7 +38,7 @@ function jai(hljs) {
 			delete cont.end;
 			delete cont.begin;
 			cont.variants = doctags.map(tag => ({
-				scope: `doctag.${tag.source.toLowerCase().replace('?', '')}`,
+				scope: `doctag.${tag.source.toLowerCase().replace('?', '').replace('z', 's').replace('_c', 'C')}`,
 				begin: new RegExp(
 					`\\b${
 						tag.flags === 'i'
@@ -21458,7 +21458,7 @@ function jai(hljs) {
 		begin: `(?=#string(?=\\s|\\/[\\/*])\\s*${skipCommentsRE}(?:,\\s*${skipCommentsRE}cr(?=\\s|\\/[\\/*]))?\\s*${skipCommentsRE}(\\w+)[ \\t]*\\n)`,
 		contains: [
 			{
-				scope: 'punctuation.hash.directive',
+				scope: 'operator.hash.directive',
 				begin: /#/
 			},
 			{
@@ -21592,7 +21592,7 @@ function jai(hljs) {
 			/\b/
 		],
 		beginScope: {
-			1: 'punctuation.hash.directive',
+			1: 'operator.hash.directive',
 			2: 'meta.directive'
 		},
 		contains: [
@@ -23094,7 +23094,7 @@ function jai(hljs) {
 			/\s+/,
 		],
 		beginScope: {
-			1: 'punctuation.hash.directive',
+			1: 'operator.hash.directive',
 			2: 'meta.directive.asm'
 		},
 		contains: [
@@ -23329,7 +23329,7 @@ function jai(hljs) {
 							/\b/
 						],
 						beginScope: {
-							1: 'punctuation.dot.asm.size',
+							1: 'operator.asm.size.dot',
 							4: 'symbol.size'
 						},
 						contains: [...COMMENTS]
@@ -23342,7 +23342,7 @@ function jai(hljs) {
 							constIdentifierRE,
 						],
 						beginScope: {
-							1: 'punctuation.clue.asm.size',
+							1: 'operator.asm.size.clue',
 							4: 'symbol.size.const'
 						},
 						contains: [...COMMENTS]
@@ -23355,7 +23355,7 @@ function jai(hljs) {
 							typeIdentifierRE,
 						],
 						beginScope: {
-							1: 'punctuation.clue.asm.size',
+							1: 'operator.asm.size.clue',
 							4: 'symbol.size.type'
 						},
 						contains: [...COMMENTS]
@@ -23379,7 +23379,7 @@ function jai(hljs) {
 						contains: [
 							...COMMENTS,
 							{
-								scope: 'meta.keyword.asm.register',
+								scope: 'meta.asm.keyword.register',
 								begin: /\b(?:(?:[er]?(?:[abcd]x?|[sd]i|[sb]p|r8[0-9]|r9[0-9]|r1[0-5]|r[0-9]{1,2}|[er]?ip|[er]?flags|e?sp))|3[0-2]|[12]\d|\d)\b/,
 							}
 						],
@@ -23479,7 +23479,7 @@ function jai(hljs) {
 			/module_parameters/
 		],
 		beginScope: {
-			1: 'punctuation.hash.directive',
+			1: 'operator.hash.directive',
 			2: 'meta.directive.module_parameters'
 		},
 		contains: [
@@ -23509,7 +23509,7 @@ function jai(hljs) {
 			/import/
 		],
 		beginScope: {
-			1: 'punctuation.hash.directive',
+			1: 'operator.hash.directive',
 			2: 'meta.directive.import'
 		},
 		contains: [
@@ -23543,7 +23543,7 @@ function jai(hljs) {
 			/modify\b/,
 		],
 		beginScope: {
-			1: 'punctuation.hash.directive',
+			1: 'operator.hash.directive',
 			2: 'meta.directive.modify'
 		},
 		contains: [
@@ -23561,7 +23561,7 @@ function jai(hljs) {
 			/load/
 		],
 		beginScope: {
-			1: 'punctuation.hash.directive',
+			1: 'operator.hash.directive',
 			2: 'meta.directive.load'
 		},
 		contains: [

@@ -378,6 +378,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-operator.asm_.maskControl__`|The `&` and `&*` masking operators - part of the EVEX encoding available under the AVX512F feature.|
 |`.hljs-operator.asm_.roundingControl__`|The `!n`, `!u`, `!d` and `!z` operators - part of the EVEX encoding available under the AVX512F feature.|
 |`.hljs-operator.asm_.broadcastValueOrSuppressFloatExceptions__`|The `!` operator, either broadcast loads or SuppressAllExceptions - part of the EVEX encoding available under the AVX512F feature.|
+|`.hljs-symbol`|All `#asm` mnemonics.|
+|`.hljs-symbol.<flag>_`|All `#asm` mnemonics available for the given CPU FeatureFlag.|
 
 ### Other
 | CSS class | Definition |

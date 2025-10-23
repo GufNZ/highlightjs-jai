@@ -1,7 +1,7 @@
-/// node dumpScopes.mjs | sort -u >css
+/// node dumpScopes.mjs | sort -u >langScopes
 
 import jai from './src/languages/jai/jai.js';
-/*
+//*
 import hljs from 'highlight.js';
 /*/
 import hljs from './localHilightDebug.js';

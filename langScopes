@@ -131,10 +131,9 @@ doctag.hack
 doctag.label
 doctag.later
 doctag.maybe
-doctag.no_checkin
+doctag.noCheckin
 doctag.note
 doctag.optimise
-doctag.optimize
 doctag.question
 doctag.reminder
 doctag.test
@@ -155,6 +154,7 @@ literal
 literal.bool
 meta
 meta.asm
+meta.asm.keyword.register
 meta.directive
 meta.directive.asm
 meta.directive.asm.block
@@ -165,7 +165,6 @@ meta.directive.load
 meta.directive.modifier
 meta.directive.modify
 meta.directive.module_parameters
-meta.keyword.asm.register
 meta.note
 meta.stringTerminator
 number
@@ -182,6 +181,8 @@ operator
 operator.asm.broadcastValueOrSuppressFloatExceptions
 operator.asm.maskControl
 operator.asm.roundingControl
+operator.asm.size.clue
+operator.asm.size.dot
 operator.assign
 operator.autobake
 operator.backtick
@@ -194,6 +195,7 @@ operator.define.assign
 operator.define.constant
 operator.dereference
 operator.dot
+operator.hash.directive
 operator.logical
 operator.logical.modifier
 operator.math
@@ -213,12 +215,9 @@ punctuation
 punctuation.backslash
 punctuation.brace
 punctuation.bracket
-punctuation.clue.asm.size
 punctuation.comma
 punctuation.commaComma
-punctuation.dot.asm.size
 punctuation.forExpansionInvoke
-punctuation.hash.directive
 punctuation.paren
 punctuation.quote
 punctuation.semicolon
