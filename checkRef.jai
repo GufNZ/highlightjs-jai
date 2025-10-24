@@ -10,6 +10,75 @@ repeat :: (s: string, n: int) -> string {
 	return builder_to_string(*result);
 };
 
+// Build pattern so a.b.c -> a.b_.c__
+scopeToCSSClass :: (scope: string, noPrefix := false) -> string {
+	parts := split(scope, ".");
+	build: String_Builder;
+	init_string_builder(*build);
+	if !noPrefix {
+		append(*build, ".hljs-");
+	}
+	prevPart := "";
+	for part, i: parts {
+		if i > 0 {
+			append(*build, ".");
+		}
+		underscores := repeat("_", i,, temp);
+		name := part;
+		if (prevPart == "stdLib"
+			|| prevPart == "symbol" && (
+				part[0] <= #char "_"
+			)
+		) {
+			name = "*";
+			underscores = "";
+		}
+		append(*build, name);
+		append(*build, underscores);
+		prevPart = part;
+	}
+	return replace(builder_to_string(*build), ".*", "*");
+};
+
+scopeFromCSSClass :: (cssClass: string, noPrefix := false) -> string {
+	scope := cssClass;
+	if (!noPrefix) {
+		scope = advance(scope, 6);
+	}
+
+	scope = replace(
+		replace(
+			replace(
+				replace(
+					replace(
+						replace(
+							scope,
+							"_",
+							""
+						),
+						"builtin",
+						"built_in"
+					),
+					"moduleparameters",
+					"module_parameters"
+				),
+				"stdLib",
+				"stdLib.*"
+			),
+			"<module>.",
+			""
+		),
+		"<flag>.",
+		""
+	);
+
+	if contains(scope, "symbol.") && (scope.count == 7 || scope[7] <= #char "_") {
+		scope = replace(scope, "symbol.", "symbol.*");
+	}
+
+	return scope;
+}
+
 collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []string) {
 	vars: [..]string;
 
@@ -109,71 +178,13 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []string) {
 	for n, scope: seenScopes {
 		seen[n] = scope;
 	}
-	for < seen {
-		if it == "---"  array_ordered_remove_by_index(*seen, it_index);
-	}
 	return seen, vars;
 };
-
-// Build pattern so a.b.c -> a.b_.c__
-scopeToCSSClass :: (scope: string, noPrefix := false) -> string {
-	parts := split(scope, ".");
-	build: String_Builder;
-	init_string_builder(*build);
-	if !noPrefix {
-		append(*build, ".hljs-");
-	}
-	prevPart := "";
-	for part, i: parts {
-		if i > 0 {
-			append(*build, ".");
-		}
-		underscores := repeat("_", i,, temp);
-		name := part;
-		if prevPart == "stdLib" || prevPart == "symbol" {
-			name = "*";
-			underscores = "";
-		}
-		append(*build, name);
-		append(*build, underscores);
-		prevPart = part;
-	}
-	return replace(builder_to_string(*build), ".*", "*");
-};
-
-scopeFromCSSClass :: (class: string, noPrefix := false) -> string {
-	scope := class;
-	if (!noPrefix) {
-		scope = advance(scope, 6);
-	}
-
-	return replace(
-		replace(
-			replace(
-				replace(
-					replace(
-						scope,
-						"_",
-						""
-					),
-					"builtin",
-					"built_in"
-				),
-				"moduleparameters",
-				"module_parameters"
-			),
-			"stdLib",
-			"stdLib.*"
-		),
-		"symbol.",
-		"symbol.*"
-	);
-}
 
 verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, expectedFromCSS: []string, expectedExtra: ..string) -> []string {
 	cssScopes, vars := collectScopesFromCSS(cssLines, debug);
 	reported: [..]string;
-	print("\nScopes missing from CSS:\n");
+	print("\n#Scopes missing from CSS:\n");
 	for langScopes {
 		cssClass := scopeToCSSClass(it, true);
 		if contains(cssClass, "*") {
@@ -209,7 +220,7 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, 
 	}
 
 	array_reset(*reported);
-	print("\nExtra CSS scopes:\n");
+	print("\n#Extra CSS scopes:\n");
 	for cssScopes {
 		if it == "---" || contains(it, "<")  continue;
 
@@ -229,7 +240,7 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, 
 				if array_find(expectedExtra, it) {
 					print("(%)\n", it);
 				} else {
-					print("%\n", it);
+					print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, it);
 				}
 			}
 
@@ -242,18 +253,23 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, 
 			if array_find(expectedExtra, it) {
 				print("(%)\n", it);
 			} else {
-				print("%\n", it);
+				print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, it);
 			}
 		}
 	}
 
+	for < cssScopes {
+		if it == "---"  remove it;
+	}
+	write_entire_file("css", join(..quick_sort(cssScopes, compare_strings), separator="\n"));
+
 	return vars;
 };
 
-verifyCSSClassesInReference :: (scopes: []string, ref: string, expected: ..string) {
+verifyCSSClassesInReference :: (langScopes: []string, ref: string, expected: []string, extra: ..string) {
 	reported: [..]string;
-	print("\nCSS classes missing from reference:\n");
-	for line: scopes {
+	print("\n#CSS classes missing from reference:\n");
+	for line: langScopes {
 		if (line == "") {
 			continue;
 		}
@@ -273,11 +289,50 @@ verifyCSSClassesInReference :: (scopes: []string, ref: string, expected: ..strin
 			}
 		}
 	}
+
+	array_reset(*reported);
+	print("\n#Extra CSS classes in reference:\n");
+	refLines := split(ref, "\n");
+	for refLine: refLines {
+		line := eat_spaces(refLine);
+		if !starts_with(line, "|`.hljs-")  continue;
+		endIdx := find_index_from_left(line, "|", 1);
+		cssClass := slice(line, 2, endIdx - 3);
+		scope := scopeFromCSSClass(cssClass);
+		if contains(scope, "*") {
+			parts := split(scope, "*");
+			for langScope: langScopes {
+				if starts_with(langScope, parts[0]) && ends_with(langScope, parts[1]) {
+					scope = "";
+					break;
+				}
+			}
+
+			if scope && !array_find(reported, scope) {
+				array_add(*reported, scope);
+				if array_find(extra, cssClass) {
+					print("(%)\n", cssClass);
+				} else {
+					print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, cssClass);
+				}
+			}
+		}
+
+
+		if !array_find(reported, cssClass) && !array_find(langScopes, scope) {
+			array_add(*reported, cssClass);
+			if array_find(extra, cssClass) {
+				print("(%)\n", cssClass);
+			} else {
+				print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, cssClass);
+			}
+		}
+	}
 }
 
 verifyCSSVarsInReference :: (vars: []string, ref: string, expected: ..string) {
 	reported: [..]string;
-	print("\nCSS variables missing from reference:\n");
+	print("\n#CSS variables missing from reference:\n");
 	for var: vars {
 		if !var  continue;
 		if !contains(ref, tprint("|`%`|", var)) {
@@ -298,10 +353,10 @@ main :: () {
 	scopesStr := read_entire_file("langScopes");
 
 	css := split(cssStr, "\n");
-	scopes := split(scopesStr, "\n");
+	langScopes := split(scopesStr, "\n");
 
 	vars := verifyScopesInCSS(
-		scopes,
+		langScopes,
 		css,
 		expectedFromCSS = .["_BalancedBraces"],
 		"built_in",
@@ -314,13 +369,23 @@ main :: () {
 		"params",
 		"string.path_",
 		"symbol",
+		"symbol.size_",
 		"title",
 		"title.class_",
 		"type.enum_",
 		"type.integer_"
 	);
 
-	verifyCSSClassesInReference(scopes, refStr);
+	verifyCSSClassesInReference(
+		langScopes,
+		refStr,
+		.[],
+		".hljs-comment",
+		".hljs-keyword",
+		".hljs-symbol.size_",
+		".hljs-type.integer_",
+		".hljs-type.enum_"
+	);
 
 	verifyCSSVarsInReference(vars, refStr);
 };
@@ -328,4 +393,5 @@ main :: () {
 #import "Basic";
 #import "Hash_Table";
 #import "File";
+#import "Sort";
 #import "String";

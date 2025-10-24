@@ -1,4 +1,4 @@
-/// node dumpScopes.mjs | sort -u >langScopes
+/// node dumpScopes.mjs >langScopes
 
 import jai from './src/languages/jai/jai.js';
 /*
@@ -51,10 +51,19 @@ function eq(a, b, path = '$') {
 }
 
 function walk(obj, matches, path = '$') {
+	const result = [];
 	if (path === '$') {
 		seen.clear();
 		matches = matches.map(m => {
-			const r = new RegExp(m.replace(/\[/g, '\\[').replace(/\]/g, '\\]').replace(/\./g, '\\.').replace(/:/g, '').replace(/(.+)\?/g, '(?<=$1)[^\[$]+').replace(/\*/g, '[^.$]+') + '$');
+			const r = new RegExp(
+				m.replace(/\[/g, '\\[')
+					.replace(/\]/g, '\\]')
+					.replace(/\./g, '\\.')
+					.replace(/:/g, '')
+					.replace(/(.+)\?/g, '(?<=$1)[^\[$]+')
+					.replace(/\*/g, '[^.$]+')
+					+ '$'
+			);
 			r.matchValue = m.endsWith(':');
 			return r;
 		});
@@ -63,7 +72,7 @@ function walk(obj, matches, path = '$') {
 	matches.forEach(m => {
 		const match = m.exec(path);
 		if (match) {
-			console.log(m.matchValue ? obj : match[0]);
+			result.push(m.matchValue ? obj : match[0]);
 		}
 	});
 
@@ -71,24 +80,39 @@ function walk(obj, matches, path = '$') {
 	if (Array.isArray(obj)) {
 		if (seen.has(obj)) {
 			//console.log('already seen []', path);
-			return;
+			return result;
 		}
 		seen.add(obj);
 		for (let i = 0; i < obj.length; i++) {
-			walk(obj[i], matches, `${path}[${i}]`);
+			const sub = walk(obj[i], matches, `${path}[${i}]`);
+			result.push(...sub);
 		}
 	} else if (obj && typeof obj === 'object') {
 		if (seen.has(obj)) {
 			//console.log('already seen {}', path);
-			return;
+			return result;
 		}
 		seen.add(obj);
 		const keys = Object.keys(obj);
 		for (let key of keys) {
-			walk(obj[key], matches, `${path}.${key}`);
+			const sub = walk(obj[key], matches, `${path}.${key}`);
+			result.push(...sub);
 		}
 	}
+
+	return result;
 }
 
 const jaiDef = jai(hljs);
-walk(jaiDef, ['keywords.?', 'scope:', 'beginScope.*:', `endScope[*]:`]);
+const langScopes = walk(jaiDef, ['keywords.?', 'scope:', 'beginScope.*:', `endScope[*]:`]);
+let prev = "";
+langScopes
+	.sort()
+	.forEach(
+		s => {
+			if (s !== prev) {
+				console.log(s);
+				prev = s;
+			}
+		}
+	);

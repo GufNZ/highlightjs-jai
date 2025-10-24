@@ -162,25 +162,25 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 <details>
   <summary>List of recognised doctags:</summary>
 
-  |Tag| CSS class | Definition |
+  | CSS class | Tag | Definition |
   |-|-|-|
-  |`BUG:`|`.hljs-doctag.bug_`|Marks a bug that needs attention.|
-  |`FIXME:`|`.hljs-doctag.fixme_`|Marks something that needs fixing.|
-  |`HACK:`|`.hljs-doctag.hack_`|Marks something dodgy or unusual.|
-  |`LATER:`|`.hljs-doctag.later_`|Marks something we need to come back to later.|
-  |`MAYBE:`|`.hljs-doctag.maybe_`|A thought we aren't sure about yet.|
-  |`NO_CHECKIN:`|`.hljs-doctag.no_checkin_`|For repos with the right hooks set up, blocks commits till this is resolved & removed.|
-  |`NOTE:`|`.hljs-doctag.note_`|Something important to take note of.|
-  |`OPTIMISE:`|`.hljs-doctag.optimise_`|Something we really should come back and optimise.|
-  |`OPTIMIZE:`|`.hljs-doctag.optimize_`|Same as above, but for Americans.|
-  |`QUESTION:`|`.hljs-doctag.question_`|An outstanding question that needs an answer.|
-  |`TEST:`|`.hljs-doctag.test_`|Marks something that still needs to be tested.|
-  |`TODO:`|`.hljs-doctag.todo_`|Marks something we need to come back and do.|
-  |`XXX:`|`.hljs-doctag.xxx_`|Marks a hack or a bug that needs attention.|
+  |`.hljs-doctag.bug_`|`BUG:`|Marks a bug that needs attention.|
+  |`.hljs-doctag.fixme_`|`FIXME:`|Marks something that needs fixing.|
+  |`.hljs-doctag.hack_`|`HACK:`|Marks something dodgy or unusual.|
+  |`.hljs-doctag.later_`|`LATER:`|Marks something we need to come back to later.|
+  |`.hljs-doctag.maybe_`|`MAYBE:`|A thought we aren't sure about yet.|
+  |`.hljs-doctag.noCheckin_`|`NO_CHECKIN:`|For repos with the right hooks set up, blocks commits till this is resolved & removed.|
+  |`.hljs-doctag.note_`|`NOTE:`|Something important to take note of.|
+  |`.hljs-doctag.optimise_`|`OPTIMISE:`|Something we really should come back and optimise.|
+  |`.hljs-doctag.optimise_`|`OPTIMIZE:`|Same as above, but for Americans.|
+  |`.hljs-doctag.question_`|`QUESTION:`|An outstanding question that needs an answer.|
+  |`.hljs-doctag.test_`|`TEST:`|Marks something that still needs to be tested.|
+  |`.hljs-doctag.todo_`|`TODO:`|Marks something we need to come back and do.|
+  |`.hljs-doctag.xxx_`|`XXX:`|Marks a hack or a bug that needs attention.|
   ||||
-  |`@Something`|`.hljs-doctag.reminder_`|Reminder tags, e.g. `@Incomplete` or `@Speed`.|
+  |`.hljs-doctag.reminder_`|`@Something`|Reminder tags, e.g. `@Incomplete` or `@Speed`.|
   ||||
-  |`:Label`|`.hljs-doctag.label`|A label likely used somewhere else near related code.|
+  |`.hljs-doctag.label_`|`:Label`|A label likely used somewhere else near related code.|
 </details>
 
 ### Literals
@@ -210,7 +210,6 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-char.escape_`|Any escaped character in a string.|
 |`.hljs-subst`|Only for `@PrintLike` procs, the value substitution `%`.|
 |`.hljs-string.here_`|HereDoc strings.|
-|`.hljs-meta.string.here`|The entire `#string` plus following whitespace/comments.|
 |`.hljs-meta.stringTerminator_`|The terminator of a HereDoc string.|
 
 ### Keywords
@@ -246,6 +245,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-operator.math_.unaryNegate__`|The unary `-`.|
 |`.hljs-operator.bitwise_`|Bitwise operators.|
 |`.hljs-operator.shift_`|Bit-shift operators.|
+|`.hljs-operator.shift_.modifier__`|Shift operator modifiers, e.g. `,small`.|
 |`.hljs-operator.rotate_`|Bit-rotate operators.|
 |`.hljs-operator.define_`|`:`.|
 |`.hljs-operator.define_.assign__`|`:=`.|
@@ -258,6 +258,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-operator.quickLambda_`|`=>`|
 |`.hljs-operator.returns_`|`->`|
 |`.hljs-operator.range_`|`..` - Range or spread.|
+|`.hljs-operator.hash_.directive__`|`#` - The start of a directive.|
 
 ### Punctuation
 | CSS class | Definition |
@@ -270,7 +271,6 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-punctuation.commaComma_`|`,,`, for overriding context values like allocator.|
 |`.hljs-punctuation.quote_`|`"`.|
 |`.hljs-punctuation.semicolon_`|`;`.|
-|`.hljs-punctuation.hash_.directive__`|`#`|
 
 ### Variables
 | CSS class | Definition |
@@ -372,9 +372,13 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-meta.directive_.asm__.flags___`|Any CPU FeatureFlags required for this `#asm` block.|
 |`.hljs-meta.directive_.asm__.flag___`|Individual CPU FeatureFlags.|
 |`.hljs-meta.directive_.asm__.block___`|The block containing the inline assembly.|
-|`.hljs-punctuation.clue_.asm__.size___`|`?` in `#asm` after mnemonics to specify data witdh based on a variable or type.|
-|`.hljs-punctuation.dot_.asm__.size___`|`.` in `#asm` after mnemonics to specify data witdh based a literal number.|
-|`.hljs-meta.keyword_.asm__.register___`|A register name.|
+|`.hljs-operator.asm_.size__.clue___`|`?` in `#asm` after mnemonics to specify data width based on a variable or type.|
+|`.hljs-operator.asm_.size__.dot___`|`.` in `#asm` after mnemonics to specify data width based a constant.|
+|`.hljs-symbol.size_`|All mnemonic data width specifiers.|
+|`.hljs-symbol.size_.numeric__`|The mnemonic data width specifier when specified using a number after the `.`.|
+|`.hljs-symbol.size_.type__`|The mnemonic data width specifier when specified using a variable or type after the `?`.|
+|`.hljs-symbol.size_.const__`|The mnemonic data width specifier when specified using a constant after the `?`.|
+|`.hljs-meta.asm_.keyword__.register___`|A register name.|
 |`.hljs-operator.asm_.maskControl__`|The `&` and `&*` masking operators - part of the EVEX encoding available under the AVX512F feature.|
 |`.hljs-operator.asm_.roundingControl__`|The `!n`, `!u`, `!d` and `!z` operators - part of the EVEX encoding available under the AVX512F feature.|
 |`.hljs-operator.asm_.broadcastValueOrSuppressFloatExceptions__`|The `!` operator, either broadcast loads or SuppressAllExceptions - part of the EVEX encoding available under the AVX512F feature.|

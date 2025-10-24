@@ -849,14 +849,6 @@
 		font-style: var(--operator-logical-style, var(--operator-style, --default-style));
 		font-weight: var(--operator-logical-weight, var(--operator-weight, --default-weight));
 		text-decoration: var(--operator-logical-decoration, var(--operator-decoration, --default-decoration));
-
-		&.modifier__ {
-			color: var(--operator-logical-modifier-fg, var(--operator-logical-fg, var(--operator-fg, --default-fg)));
-			background-color: var(--operator-logical-modifier-bg, var(--operator-logical-bg, var(--operator-bg, --default-bg)));
-			font-style: var(--operator-logical-modifier-style, var(--operator-logical-style, var(--operator-style, --default-style)));
-			font-weight: var(--operator-logical-modifier-weight, var(--operator-logical-weight, var(--operator-weight, --default-weight)));
-			text-decoration: var(--operator-logical-modifier-decoration, var(--operator-logical-decoration, var(--operator-decoration, --default-decoration)));
-		}
 	}
 
 	&.math_ {
@@ -921,6 +913,14 @@
 		font-style: var(--operator-shift-style, var(--operator-style, --default-style));
 		font-weight: var(--operator-shift-weight, var(--operator-weight, --default-weight));
 		text-decoration: var(--operator-shift-decoration, var(--operator-decoration, --default-decoration));
+
+		&.modifier__ {
+			color: var(--operator-shift-modifier-fg, var(--operator-shift-fg, var(--operator-fg, --default-fg)));
+			background-color: var(--operator-shift-modifier-bg, var(--operator-shift-bg, var(--operator-bg, --default-bg)));
+			font-style: var(--operator-shift-modifier-style, var(--operator-shift-style, var(--operator-style, --default-style)));
+			font-weight: var(--operator-shift-modifier-weight, var(--operator-shift-weight, var(--operator-weight, --default-weight)));
+			text-decoration: var(--operator-shift-modifier-decoration, var(--operator-shift-decoration, var(--operator-decoration, --default-decoration)));
+		}
 	}
 
 	&.uninitialised_ {
@@ -1115,6 +1115,14 @@
 		font-style: var(--asm-size-style, var(--asm-mnemonic-style, --default-style));
 		font-weight: var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight));
 		text-decoration: var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration));
+
+		&.numeric__ {
+			color: var(--asm-size-numeric-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg)));
+			background-color: var(--asm-size-numeric-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, --default-bg)));
+			font-style: var(--asm-size-numeric-style, var(--asm-size-style, var(--asm-mnemonic-style, --default-style)));
+			font-weight: var(--asm-size-numeric-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight)));
+			text-decoration: var(--asm-size-numeric-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration)));
+		}
 
 		&.const__ {
 			color: var(--asm-size-const-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg)));
@@ -1312,6 +1320,14 @@
 		font-style: var(--type-string-style, var(--type-style, --default-style));
 		font-weight: var(--type-string-weight, var(--type-weight, --default-weight));
 		text-decoration: var(--type-string-decoration, var(--type-decoration, --default-decoration));
+	}
+
+	&.stdLib_ {
+		color: var(--type-stdLib-fg, var(--type-fg, --default-fg));
+		background-color: var(--type-stdLib-bg, var(--type-bg, --default-bg));
+		font-style: var(--type-stdLib-style, var(--type-style, --default-style));
+		font-weight: var(--type-stdLib-weight, var(--type-weight, --default-weight));
+		text-decoration: var(--type-stdLib-decoration, var(--type-decoration, --default-decoration));
 	}
 
 	&.type_ {

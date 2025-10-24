@@ -21416,7 +21416,7 @@ function jai(hljs) {
 				...COMMENTS,
 				COMMA,
 				{
-					scope: 'operator.logical.modifier',
+					scope: 'operator.shift.modifier',
 					begin: /small/
 				}
 			]
@@ -21428,7 +21428,7 @@ function jai(hljs) {
 				...COMMENTS,
 				COMMA,
 				{
-					scope: 'operator.logical.modifier',
+					scope: 'operator.shift.modifier',
 					begin: /small|logical/
 				}
 			]
@@ -23330,7 +23330,7 @@ function jai(hljs) {
 						],
 						beginScope: {
 							1: 'operator.asm.size.dot',
-							4: 'symbol.size'
+							4: 'symbol.size.numeric'
 						},
 						contains: [...COMMENTS]
 					},

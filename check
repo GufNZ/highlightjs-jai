@@ -1,37 +1,46 @@
 
-Scopes missing from CSS:
-type.stdLib_*
+#Scopes missing from CSS:
 (_BalancedBraces)
 
 
-Extra CSS scopes:
+#Extra CSS scopes:
 (built_in)
 (comment)
 (keyword)
-_BalancedParens
-number.prefix__
-operator.asm_
-operator.asm_.size__
+(_BalancedParens)
+(number.prefix__)
+(operator.asm_)
+(operator.asm_.size__)
 (params)
-string.path_
+(string.path_)
 (symbol)
+(symbol.size_)
 (title)
-title.class_
-type.enum_
-type.integer_
+(title.class_)
+(type.enum_)
+(type.integer_)
 
-CSS classes missing from reference:
-doctag.noCheckin
-doctag.label
-operator.hash.directive
-operator.logical.modifier
-operator.asm.size.dot
-operator.asm.size.clue
-symbol.size.const
-symbol.size.type
-meta.asm.keyword.register
+#CSS classes missing from reference:
 
-CSS variables missing from reference:
+#Extra CSS classes in reference:
+(.hljs-comment)
+(.hljs-keyword)
+(.hljs-type.integer_)
+(.hljs-type.enum_)
+_341: .hljs-variable.stdLib_.<module>__
+_341: .hljs-variable.stdLib_.<module>__
+_342: .hljs-type.stdLib_.<module>__
+_342: .hljs-type.stdLib_.<module>__
+_343: .hljs-built_in.stdLib_.<module>__
+_343: .hljs-built_in.stdLib_.<module>__
+(.hljs-symbol.size_)
+_385: .hljs-symbol
+_386: .hljs-symbol.<flag>_
+_386: .hljs-symbol.<flag>_
+_391: .hljs-_BalancedParens
+_392: .hljs-_BalancedBraces
+
+#CSS variables missing from reference:
 --builtIn-fg
 --builtIn-bg
 --builtIn-style
@@ -457,11 +466,6 @@ CSS variables missing from reference:
 --operator-logical-style
 --operator-logical-weight
 --operator-logical-decoration
---operator-logical-modifier-fg
---operator-logical-modifier-bg
---operator-logical-modifier-style
---operator-logical-modifier-weight
---operator-logical-modifier-decoration
 --operator-math-fg
 --operator-math-bg
 --operator-math-style
@@ -502,6 +506,11 @@ CSS variables missing from reference:
 --operator-shift-style
 --operator-shift-weight
 --operator-shift-decoration
+--operator-shift-modifier-fg
+--operator-shift-modifier-bg
+--operator-shift-modifier-style
+--operator-shift-modifier-weight
+--operator-shift-modifier-decoration
 --operator-uninitialised-fg
 --operator-uninitialised-bg
 --operator-uninitialised-style
@@ -622,6 +631,11 @@ CSS variables missing from reference:
 --asm-size-style
 --asm-size-weight
 --asm-size-decoration
+--asm-size-numeric-fg
+--asm-size-numeric-bg
+--asm-size-numeric-style
+--asm-size-numeric-weight
+--asm-size-numeric-decoration
 --asm-size-const-fg
 --asm-size-const-bg
 --asm-size-const-style
@@ -747,6 +761,11 @@ CSS variables missing from reference:
 --type-string-style
 --type-string-weight
 --type-string-decoration
+--type-stdLib-fg
+--type-stdLib-bg
+--type-stdLib-style
+--type-stdLib-weight
+--type-stdLib-decoration
 --type-type-fg
 --type-type-bg
 --type-type-style
