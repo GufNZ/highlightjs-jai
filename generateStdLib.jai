@@ -10,6 +10,16 @@ Mod :: struct {
 JAI_VERSION :: #run compiler_get_version_info(null);
 
 main :: () {
+	result, raw_path, err := run_command("where.exe", "jai.exe", capture_and_return_output=true);
+	path_overwrite_separators(raw_path, #char "/");
+	raw_path = trim(raw_path);
+	path := split(raw_path, "/");
+
+	pop(*path);	// jai.exe or jai
+	pop(*path);	// bin
+
+	set_working_directory(join(..path, "/"));
+
 	if !is_directory("modules") {
 		print("Error: 'modules' directory not found in current working directory!\n");
 		exit(1);
@@ -197,6 +207,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 	lines := split(content, "\n");
 	commentDepth := 0;
+	terminator: string;
 	public := true;
 	inContext := false;
 	staticIfDepth := 0;
@@ -216,6 +227,20 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 		if line[line.count - 1] == #char "\r"  line.count -= 1;
 		if line.count == 0  continue;
+
+
+		if commentDepth == -1 {
+			test := eat_spaces(line);
+			i := find_index_from_left(test, ";");
+			if test == terminator || i == terminator.count && starts_with(test, terminator) {
+				print("  _done Skipping `#string %` at '%:%'\n", terminator, path, lineNum + 1, to_standard_error=true);
+				commentDepth = 0;
+				terminator.count = 0;
+			}
+
+			continue;
+		}
+
 
 		nextLine := false;
 		if staticIfDepth {
@@ -401,7 +426,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								advance(*line, 6);
 								index -= 6;
 								found, proc = split_from_left_by_any(line, " \t:");
-								usingActive = true;//BUG: need to turn this off if we see a ; before a {
+								usingActive = true;
 								assert(found);
 							}
 							if starts_with(proc, "operator") && !starts_with(proc, "operator_") {
@@ -448,6 +473,16 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								} else {
 									array_add_if_unique(*mod.const, proc);
 								}
+
+								i := find_index_from_left(line, "#string");
+								if i > -1 {
+									advance(*line, i + 7);
+									line = eat_spaces(line);
+									commentDepth = -1;
+									terminator = copy_string(line);
+									print("  ~Skipping `#string %` from '%:%'\n", terminator, path, lineNum + 1, to_standard_error=true);
+									break;
+								}
 							}
 
 
@@ -476,7 +511,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 			}
 		}
 
-		if line && line[0] == #char "}"  usingActive = false;
+		if line && line[0] == #char "}" || ends_with(line, ";") || ends_with(line, "}")  usingActive = false;
 	}
 
 	return true;
@@ -570,5 +605,6 @@ parseDeclarations :: (lexer: *Lexer, name: string, mod: *Mod, mode: ModuleParams
 #import "File_Utilities";
 #import "Hash_Table";
 #import "Jai_Lexer";
+#import "Process";
 #import "Sort";
 #import "String";
