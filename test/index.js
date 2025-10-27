@@ -12,10 +12,8 @@ hljs.registerLanguage('jai', hljsDefineJai);
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 
-describe('Jai syntax highlighting', () =>
-{
-	async function itShouldPerformSyntaxHighlighting()
-	{
+describe('Jai syntax highlighting', () => {
+	async function itShouldPerformSyntaxHighlighting() {
 		const files = (await readdir(path.join(__dirname, 'markup')))
 			.filter(f => !f.includes('.expect.'));
 		const scenarios = files.map(f => f.replace(/\.txt$/, ''));
@@ -35,8 +33,7 @@ describe('Jai syntax highlighting', () =>
 
 	itShouldPerformSyntaxHighlighting();
 
-	it('should detect jai language', async () =>
-	{
+	it('should detect jai language', async () => {
 		var code = await readFile(path.join(__dirname, 'detect', 'default.txt'), 'utf-8');
 		var actual = hljs.highlightAuto(code).language;
 		actual.should.eql('jai');

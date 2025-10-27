@@ -8,6 +8,7 @@
 
 	/* Any var prefix can define as many of the suffixes as you want; the rest will fall back to the defaults above. */
 	--keyword-fg: #00F;
+	--keyword-flowControl-fg: #80F;
 	--keyword-cast-fg: #FFF;
 	--keyword-cast-v1-bg: #222;
 	--keyword-cast-v2-bg: #300;

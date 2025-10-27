@@ -202,6 +202,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 	staticIfDepth := 0;
 	delimiters :: "/:#";
 	skipCount := 0;
+	usingActive := false;
 	for it, lineNum: lines {
 		if skipCount > 0 {
 			skipCount -= 1;
@@ -391,10 +392,18 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 				}
 
 
-				if !(starts_with(line, " ") || starts_with(line, "\t")) {
+				if usingActive || !(starts_with(line, " ") || starts_with(line, "\t")) {
+					if usingActive  line = eat_spaces(line);
 					if index + 1 < line.count && line[index + 1] == ":" {
 						found, proc := split_from_left_by_any(line, " \t:");
 						if found && proc {
+							if proc == "using" {
+								advance(*line, 6);
+								index -= 6;
+								found, proc = split_from_left_by_any(line, " \t:");
+								usingActive = true;//BUG: need to turn this off if we see a ; before a {
+								assert(found);
+							}
 							if starts_with(proc, "operator") && !starts_with(proc, "operator_") {
 								print("    -Skipping %\n", line, to_standard_error=true);
 								break;
@@ -452,14 +461,22 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 						} else {
 							advance(*line, index + 2);
 						}
-					} else {
-						break;
+					} else if find_index_from_left(line, #char ":") > -1 {
+						found, var := split_from_left_by_any(line, " \t:");
+						if found && var {
+							array_add_if_unique(*mod.vars, var);
+							break;
+						} else {
+							advance(*line, index + 2);
+						}
 					}
 				} else {
 					break;
 				}
 			}
 		}
+
+		if line && line[0] == #char "}"  usingActive = false;
 	}
 
 	return true;

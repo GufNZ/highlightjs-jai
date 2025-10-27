@@ -23494,7 +23494,7 @@ function jai(hljs) {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST]),
+					balancedParen(COMMON_EXCEPT_IMPORT_AND_CAST),
 					...COMMON_EXCEPT_IMPORT_AND_CAST
 				],
 				end: /;/,
@@ -23577,7 +23577,6 @@ function jai(hljs) {
 		],
 		end: /(?<=\})/,
 	};
-
 
 	const LOAD_DIRECTIVE = {
 		scope: 'meta.directive',
