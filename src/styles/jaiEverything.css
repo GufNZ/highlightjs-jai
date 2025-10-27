@@ -54,10 +54,19 @@
 	--punctuation-quote-fg: #C6C;
 	--punctuation-directive-fg: #FFF;
 
+	--char-fg: #F8F;
+	--char-bg: #008;
+	--char-hash-fg: #F8F;
+	--keyword-char-fg: #80F;
+
 	--string-fg: #F0F;
-	--string-here-bg: #303;
-	--string-here-termiator-fg: #FFF;
-	--string-here-termiator-bg: #808;
+	--hereString-bg: #303;
+	--hereString-hash-fg: #F0F;
+	--hereString-directive-fg: #F8F;
+	--hereString-directive-modifier-fg: #F88;
+	--hereString-termiator-fg: #CCC;
+	--hereString-termiator-bg: #808;
+	--hereString-termiator-style: italic;
 	--string-path-decoration: underline;
 
 	--char-escape-bg: #330;
@@ -154,12 +163,28 @@
 	}
 }
 
-.hljs-char.escape_ {
-	color: var(--char-escape-fg, var(--string-fg, --default-fg));
-	background-color: var(--char-escape-bg, var(--string-bg, --default-bg));
-	font-style: var(--char-escape-style, var(--string-style, --default-style));
-	font-weight: var(--char-escape-weight, var(--string-weight, --default-weight));
-	text-decoration: var(--char-escape-decoration, var(--string-decoration, --default-decoration));
+.hljs-char {
+	color: var(--char-fg, var(--string-fg, --default-fg));
+	background-color: var(--char-bg, var(--string-bg, --default-bg));
+	font-style: var(--char-style, var(--string-style, --default-style));
+	font-weight: var(--char-weight, var(--string-weight, --default-weight));
+	text-decoration: var(--char-decoration, var(--string-decoration, --default-decoration));
+
+	& > .hljs-operator.hash_.directive__ {
+		color: var(--char-hash-fg, var(--operator-hash-directive-fg, var(--operator-fg, --default-fg)));
+		background-color: var(--char-hash-bg, var(--operator-hash-directive-bg, var(--operator-bg, --default-bg)));
+		font-style: var(--char-hash-style, var(--operator-hash-directive-style, var(--operator-style, --default-style)));
+		font-weight: var(--char-hash-weight, var(--operator-hash-directive-weight, var(--operator-weight, --default-weight)));
+		text-decoration: var(--char-hash-decoration, var(--operator-hash-directive-decoration, var(--operator-decoration, --default-decoration)));
+	}
+
+	&.escape_ {
+		color: var(--char-escape-fg, var(--string-fg, --default-fg));
+		background-color: var(--char-escape-bg, var(--string-bg, --default-bg));
+		font-style: var(--char-escape-style, var(--string-style, --default-style));
+		font-weight: var(--char-escape-weight, var(--string-weight, --default-weight));
+		text-decoration: var(--char-escape-decoration, var(--string-decoration, --default-decoration));
+	}
 }
 
 .hljs-comment {
@@ -351,6 +376,14 @@
 			font-weight: var(--keyword-cast-v2-weight, var(--keyword-cast-weight, var(--keyword-weight, --default-weight)));
 			text-decoration: var(--keyword-cast-v2-decoration, var(--keyword-cast-decoration, var(--keyword-decoration, --default-decoration)));
 		}
+	}
+
+	&.char_ {
+		color: var(--keyword-char-fg, var(--keyword-fg, --default-fg));
+		background-color: var(--keyword-char-bg, var(--keyword-bg, --default-bg));
+		font-style: var(--keyword-char-style, var(--keyword-style, --default-style));
+		font-weight: var(--keyword-char-weight, var(--keyword-weight, --default-weight));
+		text-decoration: var(--keyword-char-decoration, var(--keyword-decoration, --default-decoration));
 	}
 
 	&.context_ {
@@ -576,11 +609,11 @@
 	}
 
 	&.stringTerminator_ {
-		color: var(--string-here-termiator-fg, var(--string-here-fg, var(--string-fg, --default-fg)));
-		background-color: var(--string-here-termiator-bg, var(--string-here-bg, var(--string-bg, --default-bg)));
-		font-style: var(--string-here-termiator-style, var(--string-here-style, var(--string-style, --default-style)));
-		font-weight: var(--string-here-termiator-weight, var(--string-here-weight, var(--string-weight, --default-weight)));
-		text-decoration: var(--string-here-termiator-decoration, var(--string-here-decoration, var(--string-decoration, --default-decoration)));
+		color: var(--hereString-termiator-fg, var(--hereString-fg, var(--string-fg, --default-fg)));
+		background-color: var(--hereString-termiator-bg, var(--hereString-bg, var(--string-bg, --default-bg)));
+		font-style: var(--hereString-termiator-style, var(--hereString-style, var(--string-style, --default-style)));
+		font-weight: var(--hereString-termiator-weight, var(--hereString-weight, var(--string-weight, --default-weight)));
+		text-decoration: var(--hereString-termiator-decoration, var(--hereString-decoration, var(--string-decoration, --default-decoration)));
 	}
 }
 
@@ -1077,11 +1110,35 @@
 	text-decoration: var(--string-decoration, --default-decoration);
 
 	&.here_ {
-		color: var(--string-here-fg, var(--string-fg, --default-fg));
-		background-color: var(--string-here-bg, var(--string-bg, --default-bg));
-		font-style: var(--string-here-style, var(--string-style, --default-style));
-		font-weight: var(--string-here-weight, var(--string-weight, --default-weight));
-		text-decoration: var(--string-here-decoration, var(--string-decoration, --default-decoration));
+		color: var(--hereString-fg, var(--string-fg, --default-fg));
+		background-color: var(--hereString-bg, var(--string-bg, --default-bg));
+		font-style: var(--hereString-style, var(--string-style, --default-style));
+		font-weight: var(--hereString-weight, var(--string-weight, --default-weight));
+		text-decoration: var(--hereString-decoration, var(--string-decoration, --default-decoration));
+
+		& > .hljs-operator.hash_.directive__ {
+			color: var(--hereString-hash-fg, var(--hereString-fg, var(--string-fg, --default-fg)));
+			background-color: var(--hereString-hash-bg, var(--hereString-bg, var(--string-bg, --default-bg)));
+			font-style: var(--hereString-hash-style, var(--hereString-style, var(--string-style, --default-style)));
+			font-weight: var(--hereString-hash-weight, var(--hereString-weight, var(--string-weight, --default-weight)));
+			text-decoration: var(--hereString-hash-decoration, var(--hereString-decoration, var(--string-decoration, --default-decoration)));
+		}
+
+		& > .hljs-meta.directive_ {
+			color: var(--hereString-directive-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
+			background-color: var(--hereString-directive-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
+			font-style: var(--hereString-directive-style, var(--directive-style, var(--meta-style, --default-style)));
+			font-weight: var(--hereString-directive-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
+			text-decoration: var(--hereString-directive-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
+
+			&.modifier__ {
+				color: var(--hereString-directive-modifier-fg, var(--directive-modifier-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
+				background-color: var(--hereString-directive-modifier-bg, var(--directive-modifier-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
+				font-style: var(--hereString-directive-modifier-style, var(--directive-modifier-style, var(--directive-style, var(--meta-style, --default-style))));
+				font-weight: var(--hereString-directive-modifier-weight, var(--directive-modifier-weight, var(--directive-weight, var(--meta-weight, --default-weight))));
+				text-decoration: var(--hereString-directive-modifier-decoration, var(--directive-modifier-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
+			}
+		}
 	}
 
 	&.path_ {

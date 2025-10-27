@@ -111,6 +111,17 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
 		result: String_Builder;
 		init_string_builder(*result);
 		for 0..top - 1 {
+			if starts_with(stack[it], "& ") {
+				reset(*result);
+				cssVar := advance(stack[it], 2);
+				if cssVar[0] == #char ">"  advance(*cssVar, 2);
+				advance(*cssVar, ifx starts_with(cssVar, ".hljs-") 6 else 1);
+				cssVar.count = find_index_from_left(cssVar, #char " ");
+				append(*result, cssVar);
+				continue;
+			}
+
+
 			if it > 0 {
 				append(*result, ".");
 			}
@@ -442,7 +453,7 @@ main :: () {
 	vars := verifyScopesInCSS(
 		langScopes,
 		css,
-		//true,
+		//true,	// Debug css parse.
 		expectedFromCSS = .["_BalancedBraces"],
 		"built_in",
 		"comment",

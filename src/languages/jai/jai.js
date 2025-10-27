@@ -21592,7 +21592,7 @@ function jai(hljs) {
 		scope: 'meta',
 		begin: [
 			/#/,
-			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|har|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|file(?:path|)|foreign(?:(?:_system)?_library|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
+			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|file(?:path|)|foreign(?:(?:_system)?_library|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
 			/\b/
 		],
 		beginScope: {
@@ -23506,6 +23506,27 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	const CHAR_DIRECTIVE = {
+		scope: 'char',
+		begin: [
+			/#/,
+			/char/,
+			`\\s${skipCommentsRE}`,
+			/"(?=(?:\\.|[^\\])")/,
+			/(?:\\.(?="))?/,
+			/(?:[^\\](?="))?/,
+			/"/
+		],
+		beginScope: {
+			1: 'operator.hash.directive',
+			2: 'keyword.char',
+			4: 'punctuation.quote',
+			5: 'char.escape',
+			6: 'char',
+			7: 'punctuation.quote'
+		}
+	};
+
 	const IMPORT_DIRECTIVE = {
 		scope: 'meta.directive.import',
 		begin: [
@@ -23582,6 +23603,7 @@ function jai(hljs) {
 	const ALL = [
 		...COMMON_EXCEPT_IMPORT,
 		MODULE_PARAMETERS_DIRECTIVE,
+		CHAR_DIRECTIVE,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
 		MODIFY_DIRECTIVE,

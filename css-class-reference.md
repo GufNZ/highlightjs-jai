@@ -65,10 +65,17 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--number-hexFloat`|All hexFloat (`0h`) literals.|`--number`=>`--default`|
 |`--number-hexFloat-prefix`|The `0h` prefix.|`--number-prefix`=>`--number`=>`--default`|
 ||||
+|**Chars**|
+|`--char`|The `#char` directive and it's following quoted char value.|`--string`=>`--default`|
+|`--char-hash`|The `#` in the `#char` directive.|`--operator-hash-directive`=>`--operator`=>`--default`|
+|`--keyword-char`|The `char` keyword in the `#char` directive.|`--keyword`=>`--default`|
 |**Strings**|
 |`--string`|Strings.|`--default`|
-|`--string-here`|Here-Strings.|`--string`=>`--default`|
-|`--string-here-termiator`|Here-String terminators.|`--string-here`=>`--string`=>`--default`|
+|`--hereString`|Here-Strings.|`--string`=>`--default`|
+|`--hereString-hash`|The `#` in the `#string` directive.|`--hereString`=>`--string`=>`--default`|
+|`--hereString-directive`|The `string` in the `#string` directive.|`--directive`=>`--meta`=>`--default`|
+|`--hereString-directive-modifier`|The `,cr` in the `#string,cr` directive.|`--directive-modifier`=>`--directive`=>`--meta`=>`--default`|
+|`--hereString-termiator`|Here-String terminators.|`--hereString`=>`--string`=>`--default`|
 |`--string-path`|Strings in `#load` and `#import` directives.|`--string`=>`--default`|
 |`--char-escape`|Escaped things in strings, e.g. `\n`.|`--string`=>`--default`|
 |`--subst`|Substituted things in strings that are args to known `@PrintLike` functions, e.g. `%`.|`--string`=>`--default`|
@@ -78,6 +85,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Keywords**|
 |`--keyword`|Keywords|`--default`|
+|`--keyword-char`|The `char` keyword in the `#char` directive.|`--keyword`=>`--default`|
 |`--keyword-context`|The `push_context` and `defer_pop` keywords.|`--keyword`=>`--default`|
 |`--keyword-enum`|The `enum` and `enum_flags` keywords.|`--keyword`=>`--default`|
 |`--keyword-if`|`if`, `ifx`, `then`, `else` and `case`.|`--keyword`=>`--default`|
@@ -297,6 +305,10 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-number.hexFloat_`|Floats specified in hex via the `0h` prefix.|
 |`.hljs-number.hexFloat_.prefix__`|The `0h` prefix.|
 
+### Chars
+| CSS class | Definition |
+|-|-|
+|`.hljs-char`|The `#char` directive and it's quoted char value.|
 ### Strings
 | CSS class | Definition |
 |-|-|
@@ -314,6 +326,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`.hljs-keyword.cast_.v1__`|Specifically the Option 1 cast kind.|
 |`.hljs-keyword.cast_.v2__`|Specifically the Option 2 cast kind.|
 ||_Note: Option 3 is an operator._|
+|`.hljs-keyword.char_`|The `char` keyword in the `#char` directive.|
 |`.hljs-keyword.context_`|The `push_context` keyword.|
 |`.hljs-keyword.enum_`|`enum` and `enum_flags`.|
 |`.hljs-keyword.flowCtrl_`|`continue`, `break`, `return` and `defer`.|

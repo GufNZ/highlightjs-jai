@@ -1,6 +1,7 @@
 _BalancedParens
 built_in
 built_in.stdLib_
+char
 char.escape_
 comment
 comment.block_
@@ -24,6 +25,7 @@ keyword
 keyword.cast_
 keyword.cast_.v1__
 keyword.cast_.v2__
+keyword.char_
 keyword.context_
 keyword.enum_
 keyword.flowCtrl_
