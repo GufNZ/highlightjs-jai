@@ -1,6 +1,5 @@
 _BalancedBraces
 _BalancedParens
-built_in.special
 built_in.stdLib.Adpcm
 built_in.stdLib.Android
 built_in.stdLib.Atomics
@@ -151,7 +150,8 @@ keyword.meta
 keyword.proc
 keyword.struct
 literal
-literal.bool
+literal.bool.false
+literal.bool.true
 meta
 meta.asm
 meta.asm.keyword.register
@@ -321,6 +321,7 @@ title.class.inherited
 title.function
 title.function.declaration
 title.function.forExpansion
+title.function.operatorProc
 type
 type.any
 type.asm

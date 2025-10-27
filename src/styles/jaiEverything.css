@@ -145,14 +145,6 @@
 	font-weight: var(--builtIn-weight, --default-weight);
 	text-decoration: var(--builtIn-decoration, --default-decoration);
 
-	&.special_ {
-		color: var(--builtIn-special-fg, var(--builtIn-fg, --default-fg));
-		background-color: var(--builtIn-special-bg, var(--builtIn-bg, --default-bg));
-		font-style: var(--builtIn-special-style, var(--builtIn-style, --default-style));
-		font-weight: var(--builtIn-special-weight, var(--builtIn-weight, --default-weight));
-		text-decoration: var(--builtIn-special-decoration, var(--builtIn-decoration, --default-decoration));
-	}
-
 	&.stdLib_ {
 		color: var(--builtIn-stdLib-fg, var(--builtIn-fg, --default-fg));
 		background-color: var(--builtIn-stdLib-bg, var(--builtIn-bg, --default-bg));
@@ -346,18 +338,18 @@
 		}
 
 		&.v1__ {
-			color: var(--keyword-cast-v1-fg, var(--keyword-fg, --default-fg));
-			background-color: var(--keyword-cast-v1-bg, var(--keyword-bg, --default-bg));
-			font-style: var(--keyword-cast-v1-style, var(--keyword-style, --default-style));
-			font-weight: var(--keyword-cast-v1-weight, var(--keyword-weight, --default-weight));
-			text-decoration: var(--keyword-cast-v1-decoration, var(--keyword-decoration, --default-decoration));
+			color: var(--keyword-cast-v1-fg, var(--keyword-cast-fg, var(--keyword-fg, --default-fg)));
+			background-color: var(--keyword-cast-v1-bg, var(--keyword-cast-bg, var(--keyword-bg, --default-bg)));
+			font-style: var(--keyword-cast-v1-style, var(--keyword-cast-style, var(--keyword-style, --default-style)));
+			font-weight: var(--keyword-cast-v1-weight, var(--keyword-cast-weight, var(--keyword-weight, --default-weight)));
+			text-decoration: var(--keyword-cast-v1-decoration, var(--keyword-cast-decoration, var(--keyword-decoration, --default-decoration)));
 		}
 		&.v2__ {
-			color: var(--keyword-cast-v2-fg, var(--keyword-fg, --default-fg));
-			background-color: var(--keyword-cast-v2-bg, var(--keyword-bg, --default-bg));
-			font-style: var(--keyword-cast-v2-style, var(--keyword-style, --default-style));
-			font-weight: var(--keyword-cast-v2-weight, var(--keyword-weight, --default-weight));
-			text-decoration: var(--keyword-cast-v2-decoration, var(--keyword-decoration, --default-decoration));
+			color: var(--keyword-cast-v2-fg, var(--keyword-cast-fg, var(--keyword-fg, --default-fg)));
+			background-color: var(--keyword-cast-v2-bg, var(--keyword-cast-bg, var(--keyword-bg, --default-bg)));
+			font-style: var(--keyword-cast-v2-style, var(--keyword-cast-style, var(--keyword-style, --default-style)));
+			font-weight: var(--keyword-cast-v2-weight, var(--keyword-cast-weight, var(--keyword-weight, --default-weight)));
+			text-decoration: var(--keyword-cast-v2-decoration, var(--keyword-cast-decoration, var(--keyword-decoration, --default-decoration)));
 		}
 	}
 
@@ -439,6 +431,21 @@
 		font-style: var(--literal-bool-style, var(--literal-style, --default-style));
 		font-weight: var(--literal-bool-weight, var(--literal-weight, --default-weight));
 		text-decoration: var(--literal-bool-decoration, var(--literal-decoration, --default-decoration));
+
+		&.true__ {
+			color: var(--literal-bool-true-fg, var(--literal-bool-fg, var(--literal-fg, --default-fg)));
+			background-color: var(--literal-bool-true-bg, var(--literal-bool-bg, var(--literal-bg, --default-bg)));
+			font-style: var(--literal-bool-true-style, var(--literal-bool-style, var(--literal-style, --default-style)));
+			font-weight: var(--literal-bool-true-weight, var(--literal-bool-weight, var(--literal-weight, --default-weight)));
+			text-decoration: var(--literal-bool-true-decoration, var(--literal-bool-decoration, var(--literal-decoration, --default-decoration)));
+		}
+		&.false__ {
+			color: var(--literal-bool-false-fg, var(--literal-bool-fg, var(--literal-fg, --default-fg)));
+			background-color: var(--literal-bool-false-bg, var(--literal-bool-bg, var(--literal-bg, --default-bg)));
+			font-style: var(--literal-bool-false-style, var(--literal-bool-style, var(--literal-style, --default-style)));
+			font-weight: var(--literal-bool-false-weight, var(--literal-bool-weight, var(--literal-weight, --default-weight)));
+			text-decoration: var(--literal-bool-false-decoration, var(--literal-bool-decoration, var(--literal-decoration, --default-decoration)));
+		}
 	}
 }
 
@@ -455,6 +462,22 @@
 		font-style: var(--meta-comma-style, var(--punctuation-style, --default-style));
 		font-weight: var(--meta-comma-weight, var(--punctuation-weight, --default-weight));
 		text-decoration: var(--meta-comma-decoration, var(--punctuation-decoration, --default-decoration));
+	}
+
+	&.asm_ {
+		color: var(--asm-fg, var(--meta-fg, --default-fg));
+		background-color: var(--asm-bg, var(--meta-bg, --default-bg));
+		font-style: var(--asm-style, var(--meta-style, --default-style));
+		font-weight: var(--asm-weight, var(--meta-weight, --default-weight));
+		text-decoration: var(--asm-decoration, var(--meta-decoration, --default-decoration));
+
+		&.keyword__.register___ {
+			color: var(--asm-register-fg, var(--keyword-fg, --default-fg));
+			background-color: var(--asm-register-bg, var(--keyword-bg, --default-bg));
+			font-style: var(--asm-register-style, var(--keyword-style, --default-style));
+			font-weight: var(--asm-register-weight, var(--keyword-weight, --default-weight));
+			text-decoration: var(--asm-register-decoration, var(--keyword-decoration, --default-decoration));
+		}
 	}
 
 	&.directive_ {
@@ -480,25 +503,25 @@
 			}
 
 			&.flag___ {
-				color: var(--asm-directive-flag-fg, var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg)))));
-				background-color: var(--asm-directive-flag-bg, var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg)))));
-				font-style: var(--asm-directive-flag-style, var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style)))));
-				font-weight: var(--asm-directive-flag-weight, var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight)))));
-				text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration)))));
+				color: var(--asm-directive-flag-fg, var(--asm-directive-flags-fg, var(--directive-modifier-fg, var(--directive-fg, var(--meta-fg, --default-fg)))));
+				background-color: var(--asm-directive-flag-bg, var(--asm-directive-flags-bg, var(--directive-modifier-bg, var(--directive-bg, var(--meta-bg, --default-bg)))));
+				font-style: var(--asm-directive-flag-style, var(--asm-directive-flags-style, var(--directive-modifier-style, var(--directive-style, var(--meta-style, --default-style)))));
+				font-weight: var(--asm-directive-flag-weight, var(--asm-directive-flags-weight, var(--directive-modifier-weight, var(--directive-weight, var(--meta-weight, --default-weight)))));
+				text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-flags-decoration, var(--directive-modifier-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)))));
 			}
 			&.flags___ {
-				color: var(--asm-directive-flags-fg, var(--directive-modifier, var(--directive-fg, var(--meta-fg, --default-fg))));
-				background-color: var(--asm-directive-flags-bg, var(--directive-modifier, var(--directive-bg, var(--meta-bg, --default-bg))));
-				font-style: var(--asm-directive-flags-style, var(--directive-modifier, var(--directive-style, var(--meta-style, --default-style))));
-				font-weight: var(--asm-directive-flags-weight, var(--directive-modifier, var(--directive-weight, var(--meta-weight, --default-weight))));
-				text-decoration: var(--asm-directive-flags-decoration, var(--directive-modifier, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
+				color: var(--asm-directive-flags-fg, var(--directive-modifier-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
+				background-color: var(--asm-directive-flags-bg, var(--directive-modifier-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
+				font-style: var(--asm-directive-flags-style, var(--directive-modifier-style, var(--directive-style, var(--meta-style, --default-style))));
+				font-weight: var(--asm-directive-flags-weight, var(--directive-modifier-weight, var(--directive-weight, var(--meta-weight, --default-weight))));
+				text-decoration: var(--asm-directive-flags-decoration, var(--directive-modifier-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
 
 				& .comma_ {
-					color: var(--asm-directive-flags-comma-fg, var(--meta-comma, var(--punctuation-fg, --default-fg)));
-					background-color: var(--asm-directive-flags-comma-bg, var(--meta-comma, var(--punctuation-bg, --default-bg)));
-					font-style: var(--asm-directive-flags-comma-style, var(--meta-comma, var(--punctuation-style, --default-style)));
-					font-weight: var(--asm-directive-flags-comma-weight, var(--meta-comma, var(--punctuation-weight, --default-weight)));
-					text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma, var(--punctuation-decoration, --default-decoration)));
+					color: var(--asm-directive-flags-comma-fg, var(--meta-comma-fg, var(--punctuation-fg, --default-fg)));
+					background-color: var(--asm-directive-flags-comma-bg, var(--meta-comma-bg, var(--punctuation-bg, --default-bg)));
+					font-style: var(--asm-directive-flags-comma-style, var(--meta-comma-style, var(--punctuation-style, --default-style)));
+					font-weight: var(--asm-directive-flags-comma-weight, var(--meta-comma-weight, var(--punctuation-weight, --default-weight)));
+					text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma-decoration, var(--punctuation-decoration, --default-decoration)));
 				}
 			}
 		}
@@ -544,22 +567,6 @@
 		}
 	}
 
-	&.asm_ {
-		color: var(--asm-fg, var(--meta-fg, --default-fg));
-		background-color: var(--asm-bg, var(--meta-bg, --default-bg));
-		font-style: var(--asm-style, var(--meta-style, --default-style));
-		font-weight: var(--asm-weight, var(--meta-weight, --default-weight));
-		text-decoration: var(--asm-decoration, var(--meta-decoration, --default-decoration));
-
-		&.keyword__.register___ {
-			color: var(--asm-register-fg, var(--keyword-fg, --default-fg));
-			background-color: var(--asm-register-bg, var(--keyword-bg, --default-bg));
-			font-style: var(--asm-register-style, var(--keyword-style, --default-style));
-			font-weight: var(--asm-register-weight, var(--keyword-weight, --default-weight));
-			text-decoration: var(--asm-register-decoration, var(--keyword-decoration, --default-decoration));
-		}
-	}
-
 	&.note_ {
 		color: var(--note-fg, var(--meta-fg, --default-fg));
 		background-color: var(--note-bg, var(--meta-bg, --default-bg));
@@ -569,7 +576,7 @@
 	}
 
 	&.stringTerminator_ {
-		color: var(--string-here-termiator-fg, var(--string-fg, var(--string-fg, --default-fg)));
+		color: var(--string-here-termiator-fg, var(--string-here-fg, var(--string-fg, --default-fg)));
 		background-color: var(--string-here-termiator-bg, var(--string-here-bg, var(--string-bg, --default-bg)));
 		font-style: var(--string-here-termiator-style, var(--string-here-style, var(--string-style, --default-style)));
 		font-weight: var(--string-here-termiator-weight, var(--string-here-weight, var(--string-weight, --default-weight)));
@@ -592,11 +599,11 @@
 		text-decoration: var(--number-binary-decoration, var(--number-decoration, --default-decoration));
 
 		&.prefix__ {
-			color: var(--number-binary-prefix-fg, var(--number-prefix, var(--number-fg, --default-fg)));
-			background-color: var(--number-binary-prefix-bg, var(--number-prefix, var(--number-bg, --default-bg)));
-			font-style: var(--number-binary-prefix-style, var(--number-prefix, var(--number-style, --default-style)));
-			font-weight: var(--number-binary-prefix-weight, var(--number-prefix, var(--number-weight, --default-weight)));
-			text-decoration: var(--number-binary-prefix-decoration, var(--number-prefix, var(--number-decoration, --default-decoration)));
+			color: var(--number-binary-prefix-fg, var(--number-prefix-fg, var(--number-fg, --default-fg)));
+			background-color: var(--number-binary-prefix-bg, var(--number-prefix-bg, var(--number-bg, --default-bg)));
+			font-style: var(--number-binary-prefix-style, var(--number-prefix-style, var(--number-style, --default-style)));
+			font-weight: var(--number-binary-prefix-weight, var(--number-prefix-weight, var(--number-weight, --default-weight)));
+			text-decoration: var(--number-binary-prefix-decoration, var(--number-prefix-decoration, var(--number-decoration, --default-decoration)));
 		}
 	}
 
@@ -624,11 +631,11 @@
 		text-decoration: var(--number-hexadecimal-decoration, var(--number-decoration, --default-decoration));
 
 		&.prefix__ {
-			color: var(--number-hex-prefix-fg, var(--number-prefix, var(--number-fg, --default-fg)));
-			background-color: var(--number-hex-prefix-bg, var(--number-prefix, var(--number-bg, --default-bg)));
-			font-style: var(--number-hex-prefix-style, var(--number-prefix, var(--number-style, --default-style)));
-			font-weight: var(--number-hex-prefix-weight, var(--number-prefix, var(--number-weight, --default-weight)));
-			text-decoration: var(--number-hex-prefix-decoration, var(--number-prefix, var(--number-decoration, --default-decoration)));
+			color: var(--number-hex-prefix-fg, var(--number-prefix-fg, var(--number-fg, --default-fg)));
+			background-color: var(--number-hex-prefix-bg, var(--number-prefix-bg, var(--number-bg, --default-bg)));
+			font-style: var(--number-hex-prefix-style, var(--number-prefix-style, var(--number-style, --default-style)));
+			font-weight: var(--number-hex-prefix-weight, var(--number-prefix-weight, var(--number-weight, --default-weight)));
+			text-decoration: var(--number-hex-prefix-decoration, var(--number-prefix-decoration, var(--number-decoration, --default-decoration)));
 		}
 	}
 
@@ -640,11 +647,11 @@
 		text-decoration: var(--number-hexFloat-decoration, var(--number-decoration, --default-decoration));
 
 		&.prefix__ {
-			color: var(--number-hexFloat-prefix-fg, var(--number-prefix, var(--number-fg, --default-fg)));
-			background-color: var(--number-hexFloat-prefix-bg, var(--number-prefix, var(--number-bg, --default-bg)));
-			font-style: var(--number-hexFloat-prefix-style, var(--number-prefix, var(--number-style, --default-style)));
-			font-weight: var(--number-hexFloat-prefix-weight, var(--number-prefix, var(--number-weight, --default-weight)));
-			text-decoration: var(--number-hexFloat-prefix-decoration, var(--number-prefix, var(--number-decoration, --default-decoration)));
+			color: var(--number-hexFloat-prefix-fg, var(--number-prefix-fg, var(--number-fg, --default-fg)));
+			background-color: var(--number-hexFloat-prefix-bg, var(--number-prefix-bg, var(--number-bg, --default-bg)));
+			font-style: var(--number-hexFloat-prefix-style, var(--number-prefix-style, var(--number-style, --default-style)));
+			font-weight: var(--number-hexFloat-prefix-weight, var(--number-prefix-weight, var(--number-weight, --default-weight)));
+			text-decoration: var(--number-hexFloat-prefix-decoration, var(--number-prefix-decoration, var(--number-decoration, --default-decoration)));
 		}
 	}
 
@@ -1022,11 +1029,11 @@
 	}
 
 	&.commaComma_ {
-		color: var(--punctuation-commaComma-fg, var(--punctuation-comma, var(--punctuation-fg, --default-fg)));
-		background-color: var(--punctuation-commaComma-bg, var(--punctuation-comma, var(--punctuation-bg, --default-bg)));
-		font-style: var(--punctuation-commaComma-style, var(--punctuation-comma, var(--punctuation-style, --default-style)));
-		font-weight: var(--punctuation-commaComma-weight, var(--punctuation-comma, var(--punctuation-weight, --default-weight)));
-		text-decoration: var(--punctuation-commaComma-decoration, var(--punctuation-comma, var(--punctuation-decoration, --default-decoration)));
+		color: var(--punctuation-commaComma-fg, var(--punctuation-comma-fg, var(--punctuation-fg, --default-fg)));
+		background-color: var(--punctuation-commaComma-bg, var(--punctuation-comma-bg, var(--punctuation-bg, --default-bg)));
+		font-style: var(--punctuation-commaComma-style, var(--punctuation-comma-style, var(--punctuation-style, --default-style)));
+		font-weight: var(--punctuation-commaComma-weight, var(--punctuation-comma-weight, var(--punctuation-weight, --default-weight)));
+		text-decoration: var(--punctuation-commaComma-decoration, var(--punctuation-comma-decoration, var(--punctuation-decoration, --default-decoration)));
 	}
 
 	&.forExpansionInvoke_ {
@@ -1035,6 +1042,14 @@
 		font-style: var(--punctuation-forExpansionInvoke-style, var(--punctuation-style, --default-style));
 		font-weight: var(--punctuation-forExpansionInvoke-weight, var(--punctuation-weight, --default-weight));
 		text-decoration: var(--punctuation-forExpansionInvoke-decoration, var(--punctuation-decoration, --default-decoration));
+	}
+
+	&.paren_ {
+		color: var(--punctuation-paren-fg, var(--punctuation-fg, --default-fg));
+		background-color: var(--punctuation-paren-bg, var(--punctuation-bg, --default-bg));
+		font-style: var(--punctuation-paren-style, var(--punctuation-style, --default-style));
+		font-weight: var(--punctuation-paren-weight, var(--punctuation-weight, --default-weight));
+		text-decoration: var(--punctuation-paren-decoration, var(--punctuation-decoration, --default-decoration));
 	}
 
 	&.semicolon_ {
@@ -1193,6 +1208,14 @@
 			font-style: var(--forExpansion-style, var(--proc-style, var(--title-style, --default-style)));
 			font-weight: var(--forExpansion-weight, var(--proc-weight, var(--title-weight, --default-weight)));
 			text-decoration: var(--forExpansion-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
+		}
+
+		&.operatorProc__ {
+			color: var(--operatorProc-fg, var(--proc-fg, var(--title-fg, --default-fg)));
+			background-color: var(--operatorProc-bg, var(--proc-bg, var(--title-bg, --default-bg)));
+			font-style: var(--operatorProc-style, var(--proc-style, var(--title-style, --default-style)));
+			font-weight: var(--operatorProc-weight, var(--proc-weight, var(--title-weight, --default-weight)));
+			text-decoration: var(--operatorProc-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
 		}
 	}
 }

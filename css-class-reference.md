@@ -25,38 +25,34 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 //FIXME: more sensible ordering - see top of .css
 |Section|Scope|Fallback chain|
 |-|-|-|
-|`--keyword`|Keywords|`--default`|
-|`--keyword-cast`|The `cast` keyword, its parameters, and `()`s and `,`, as used in Option 1 and Option 2.|`-keyword`=>`--default` for the keyword;<br/>`--keyword`=>`--punctuation`=>`--default` for the `()`s and `,`;|
-|`--keyword-cast-v1`|The `cast` keyword & parameters, as used in Option 1.|`-keyword-cast`=>`-keyword`=>`--default`|
-|`--keyword-cast-v2`|The `cast` keyword & parameters, as used in Option 2.|`-keyword-cast`=>`-keyword`=>`--default`|
-|`--operator-cast-v3`|The `.(Type)` Option 3 suffix cast.|`--operator`=>`--default`|
+|**Comments**|
+|`--comment`|All comments.|`--default`|
+|`--comment-line`|All line comments.|`--comment`=>`--default`|
+|`--comment-block`|All block comments.|`--comment`=>`--default`|
+|**DocTags**|
+|`--doctag`|All doctags within comments.|`--comment`=>`--default`|
+|`--doctag-bug`|E.g. `BUG:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-fixme`|E.g. `FIXME:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-hack`|E.g. `HACK:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-later`|E.g. `LATER:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-maybe`|E.g. `MAYBE:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-noCheckin`|E.g. `NO_CHECKIN:` or `nocheckin:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-note`|E.g. `NOTE:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-optimise`|E.g. `OPTIMISE:` or `OPTIMIZE:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-test`|E.g. `TEST:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-todo`|E.g. `TODO:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-question`|E.g. `QUESTION:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-xxx`|E.g. `XXX:`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-reminder`|E.g. `@Speed`.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-label`|E.g. `:Something`.|`--doctag`=>`--comment`=>`--default`|
 ||||
-|`--variable`|All otherwise-uncategorised variable identifiers.|`--default`|
-|`--variable-language`|Language-defined variables: `context`, `it`, `it_index` & `temp`.|`--variable`=>`--default`|
-|`--variable-constant`|Constants (`ALL_UPPER` names).|`--variable`=>`--default`|
-|`--variable-context`|Variables on the Context.|`--variable`=>`--default`|
-|`--variable-context-constant`|Constants on the Context.|`--variable-constant`=>`--variable`=>`--default`|
-|`--variable-stdLib`|Variables defined in a standard lib module.|`--variable`=>`--default`|
-|`--variable-stdLib-constant`|Constants defined in a module.|`--variable-constant`=>`--variable`=>`--default`|
-|`--variable-stdLib-context`|Context additions defined a module.|`--variable`=>`--default`|
-|`--variable-stdLib-moduleParam`|A standard lib module's module-parameter.|`--params`=>`--variable`=>`--default`|
-|`--variable-stdLib-programParam`|A standard lib module's program-parameter.|`--params`=>`--variable`=>`--default`|
-|`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
+|**Literals**|
+|`--literal`|Non-numeric, non-string literals: `true`, `false`, `null`.|`--default`|
+|`--literal-bool`|Boolean literals: `true`, `false`|`--literal`=>`--default`|
+|`--literal-bool-true`|`true`|`--literal-bool`=>`--literal`=>`--default`|
+|`--literal-bool-false`|`false`|`--literal-bool`=>`--literal`=>`--default`|
 ||||
-|`--field`|Struct field references.|`--default`|
-|`--field-constant`|Struct constant-field references.|`--field`=>`--default`|
-|`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
-||||
-|`--builtIn`|All built-in procs & functions.|`--default`|
-|`--builtIn-stdLib`|Procs and functions defined in a standard lib module|`--builtIn`=>`--default`|
-|`--builtIn-special`|Specially recognised functions: `for_expansion`, `operator...`|`--builtIn`=>`--default`|
-||||
-|`--type`|All types (PascalCase).|`--default`|
-|`--type-enum`|All Enum types.|`--type`=>`--default`|
-|`--type-baked`|Any polymorphic type that is baked, e.g. `$T`.|`--type`=>`--default`|
-||||
-|`--literal`|Non-numeric, non-string Literals: `true`, `false`, `null`.|`--default`|
-||||
+|**Numbers**|
 |`--number`|All numeric literals.|`--default`|
 |`--number-prefix`|The prefix on any non-decimal numeric literal, e.g. `0x`, `0b` etc.|`--number`=>`--default`|
 |`--number-integer`|All integer literals.|`--number`=>`--default`|
@@ -69,82 +65,178 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--number-hexFloat`|All hexFloat (`0h`) literals.|`--number`=>`--default`|
 |`--number-hexFloat-prefix`|The `0h` prefix.|`--number-prefix`=>`--number`=>`--default`|
 ||||
-|`--operator`|All operators.|`--default`|
-|`--operator-bake`|The `$` and `$$` operators.|`--operator`=>`--default`|
-|`--operator-modifier`|Things like `,small` or `,logical` for the bit-shift operators.|`--operator`=>`--default`|
-||||
-|`--punctuation`|All punctuation.|`--default`|
-|`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|
-|`--punctuation-quote`|`"`s.|`--punctuation`=>`--default`|
-|`--punctuation-directive`|`#`s.|`--punctuation`=>`--default`|
-|`--punctuation-dot`|`.`s in `#asm` opcode size specifiers.|`--punctuation`=>`--default`|
-|`--punctuation-clue`|`?`s in `#asm` opcode size specifiers.|`--punctuation`=>`--default`|
-||||
-|`--field`|Things following the `.` operator.|`--default`|
-|`--field-constant`|Constant fields (ALL_UPPER).|`--field`=>`--default`|
-|`--field-enum`|Enum fields (PascalCase).|`--field-constant`=>`--field`=>`--default`|
-||||
+|**Strings**|
 |`--string`|Strings.|`--default`|
 |`--string-here`|Here-Strings.|`--string`=>`--default`|
 |`--string-here-termiator`|Here-String terminators.|`--string-here`=>`--string`=>`--default`|
 |`--string-path`|Strings in `#load` and `#import` directives.|`--string`=>`--default`|
 |`--char-escape`|Escaped things in strings, e.g. `\n`.|`--string`=>`--default`|
 |`--subst`|Substituted things in strings that are args to known `@PrintLike` functions, e.g. `%`.|`--string`=>`--default`|
+|`--string-path`|The path-containing string in `#import` and `#load` directives.|`--string`=>`--default`|
+|`--string-path-import`|The path-containing string in an `#import` directive.|`--string-path`=>`--string`=>`--default`|
+|`--string-path-load`|The path-containing string in a `#load` directive.|`--string-path`=>`--string`=>`--default`|
 ||||
+|**Keywords**|
+|`--keyword`|Keywords|`--default`|
+|`--keyword-context`|The `push_context` and `defer_pop` keywords.|`--keyword`=>`--default`|
+|`--keyword-enum`|The `enum` and `enum_flags` keywords.|`--keyword`=>`--default`|
+|`--keyword-if`|`if`, `ifx`, `then`, `else` and `case`.|`--keyword`=>`--default`|
+|`--keyword-for`|`for`, `remove` and `while`|`--keyword`=>`--default`|
+|`--keyword-flowControl`|`continue`, `break`, `defer` and `return`.|`--keyword`=>`--default`|
+|`--keyword-meta`|`type_of`, `type_info`, `size_of`, `initializer_of`, `code_of`, `is_constant` and `using`|`--keyword`=>`--default`|
+|`--keyword-proc`|`inline`, `no_inline` and `interface`.|`--keyword`=>`--default`|
+|`--keyword-struct`|`struct` and `union`.|`--keyword`=>`--default`|
+|`--keyword-cast`|The `cast` keyword, its parameters, and `()`s and `,`, as used in Option 1 and Option 2, and the `xx` autocast keyword.|`--keyword`=>`--default` for the keyword;<br/>`--keyword`=>`--punctuation`=>`--default` for the `()`s and `,`;|
+|`--keyword-cast-v1`|The `cast` keyword & parameters, as used in Option 1.|`--keyword-cast`=>`--keyword`=>`--default`|
+|`--keyword-cast-v2`|The `cast` keyword & parameters, as used in Option 2.|`--keyword-cast`=>`--keyword`=>`--default`|
+|`--operator-cast-v3`|The `.(Type)` Option 3 suffix cast.|`--operator`=>`--default`|
+||||
+|**Operators**|
+|`--operator`|All operators.|`--default`|
+|`--operator-bake`|The `$` operator.|`--operator`=>`--default`|
+|`--operator-autobake`|The `$$` operator.|`--operator`=>`--default`|
+|`--operator-assign`|All assignment operators, `=`, and all the `+=`, `-=` etc. versions.|`--operator`=>`--default`|
+|`--operator-backtick`|The scope-modifying <code>`</code> operator.|`--operator`=>`--default`|
+|`--operator-bitwise`|All bitwise operators (`&`, `|`, `~`, `^`).|`--operator`=>`--default`|
+|`--operator-comparison`|All comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`).|`--operator`=>`--default`|
+|`--operator-define`|The `:` operator.|`--operator`=>`--default`|
+|`--operator-define-assign`|The compound, type-inferred `:=` operator.|`--operator-define`=>`--operator`=>`--default`|
+|`--operator-define-constant`|The constant-defining operator `::`.|`--operator-define`=>`--operator`=>`--default`|
+|`--operator-dereference`|The `.*` operator|`--operator`=>`--default`|
+|`--operator-dot`|The `.` operator.|`--operator`=>`--default`|
+|`--operator-hash-directive`|The `#` operator.|`--operator`=>`--default`|
+|`--operator-logical`|All logical operators (`!`, `&&`, `||`).|`--operator`=>`--default`|
+|`--operator-math`|All math binary operators (`+`, `-`, `*`, `/`, `%`).|`--operator`=>`--default`|
+|`--operator-math-unaryNegate`|The unary `-` in front of a numeric literal.|`--operator-math`=>`--operator`=>`--default`|
+|`--operator-quickLambda`|The `=>` operator.|`--operator`=>`--default`|
+|`--operator-range`|The `..` operator.|`--operator`=>`--default`|
+|`--operator-returns`|The `->` operator.|`--operator`=>`--default`|
+|`--operator-rotate`|The bitwise rotate operators (`<<<`, `>>>`).|`--operator`=>`--default`|
+|`--operator-shift`|The bitwise shift operators (`<<`, `>>`).|`--operator`=>`--default`|
+|`--operator-shift-modifier`|Things like `,small` or `,logical` for the bit-shift operators.|`--operator-shift`=>`--operator`=>`--default`|
+|`--operator-uninitialised`|The `---` operator.|`--operator`=>`--default`|
+|`--operator-pinRegister`|The `===` operator.|`--operator`=>`--default`|
+|`--operator-asm-broadcastValueOrSuppressFloatExceptions`|The `!` operator in inline ASM.|`--operator`=>`--default`|
+|`--operator-asm-maskControl`|The `&` and `&*` operators in inline ASM.|`--operator`=>`--default`|
+|`--operator-asm-roundingControl`|The `!n`, `!d`, `!u` and `!z` operators in inline ASM.|`--operator`=>`--default`|
+|**Punctuation**|
+|`--punctuation`|All punctuation.|`--default`|
+|`--punctuation-bracket`|`[` and `]`.|`--punctuation`=>`--default`|
+|`--punctuation-paren`|`(` and `)`.|`--punctuation`=>`--default`|
+|`--punctuation-brace`|`{` and `}`.|`--punctuation`=>`--default`|
+|`--punctuation-quote`|`"`s.|`--punctuation`=>`--default`|
+|`--punctuation-comma`|`,`s.|`--punctuation`=>`--default`|
+|`--punctuation-commaComma`|The `,,` context-arg delimiter.|`--punctuation-comma`=>`--punctuation`=>`--default`|
+|`--punctuation-semicolon`|`;`s.|`--punctuation`=>`--default`|
+|`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|
+||||
+|**Declarations**|
 |`--declaration`|All declarations.|`--default`|
+|`--variable-declaration`|A variable being declared.|`--variable`=>`--default`|
+|`--struct-declaration`|A struct being declared.|`--struct`=>`--title`=>`--default`|
+|`--proc-declaration`|A proc/function being declared.|`--proc`=>`--title`=>`--default`|
+|`--type-declaration`|A type-alias being declared.|`--type`=>`--default`|
+|`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--type`=>`--default`|
+|`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--type`=>`--default`|
 ||||
-|`--struct`|Structs.|`--default`|
-|`--struct-inherited`|Struct fields marked with `#as`.|`--struct`=>`--default`|
+|**Variables**|
+|`--variable`|All otherwise-uncategorised variable identifiers.|`--default`|
+|`--variable-language`|Language-defined variables: `context`, `it`, `it_index` & `temp`.|`--variable`=>`--default`|
+|`--variable-constant`|Constants (`ALL_UPPER` names).|`--variable`=>`--default`|
+|`--variable-declaration`|A variable being declared.|`--variable`=>`--default`|
+|`--variable-param-baked`|A parameter variable which is being value-baked, i.e. `$myVar`.|`--variable`=>`--default`|
+|`--variable-context`|Variables on the Context.|`--variable`=>`--default`|
+|`--variable-context-constant`|Constants on the Context.|`--variable-constant`=>`--variable`=>`--default`|
+|`--variable-stdLib`|Variables defined in a standard lib module.|`--variable`=>`--default`|
+|`--variable-stdLib-constant`|Constants defined in a module.|`--variable-constant`=>`--variable`=>`--default`|
+|`--variable-stdLib-context`|Context additions defined a module.|`--variable`=>`--default`|
+|`--variable-stdLib-moduleParam`|A standard lib module's module-parameter.|`--params`=>`--variable`=>`--default`|
+|`--variable-stdLib-programParam`|A standard lib module's program-parameter.|`--params`=>`--variable`=>`--default`|
+|`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
 ||||
-|`--proc`|Procedures & functions.|`--default`|
-|`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--default`|
+|**Fields**|
+|`--field`|Struct field references (things following the `.` operator).|`--default`|
+|`--field-constant`|Struct constant-field references (`ALL_UPPER`).|`--field`=>`--default`|
+|`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
 ||||
-|`--params`|A module's module or program parameters in an `#import` directive.|`--default`|
-|`--module-params`|A module's module in an `#import` directive.|`--params`=>`--default`|
-|`--program-params`|A module's program parameters in an `#import` directive.|`--params`=>`--default`|
+|**Types**|
+|`--type`|All types (PascalCase).|`--default`|
+|`--type-enum`|All Enum types.|`--type`=>`--default`|
+|`--type-any`|The `Any` type.|`--type`=>`--default`|
+|`--type-bool`|The `bool` type.|`--type`=>`--default`|
+|`--type-code`|The `Code` type.|`--type`=>`--default`|
+|`--type-context`|The `#Context` type|`--type`=>`--default`|
+|`--type-declaration`|A type-alias being declared.|`--type`=>`--default`|
+|`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--type`=>`--default`|
+|`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--type`=>`--default`|
+|`--type-float`|Both floating point types (`float`, `float64`).|`--type`=>`--default`|
+|`--type-integer`|All integer types.|`--type`=>`--default`|
+|`--type-integer-signed`|All signed integer types (`int`, `s8`, `s16`, `s32`, `s64`).|`--type-integer`=>`--type`=>`--default`|
+|`--type-integer-unsigned`|All unsigned integer types (`u8`, `u16`, `u32`, `u64`).|`--type-integer`=>`--type`=>`--default`|
+|`--type-string`|The `string` type.|`--type`=>`--default`|
+|`--type-stdLib`|Any types defined in the standard library.|`--type`=>`--default`|
+|`--type-type`|The `Type` type.|`--type`=>`--default`|
+|`--type-void`|The `void` type.|`--type`=>`--default`|
+|`--type-asm`|The `reg` (and `__reg`) types.|`--type`=>`--default`|
+|`--type-baked`|Any polymorphic type that is baked, e.g. `$T`.|`--type`=>`--default`|
 ||||
-|`--comment`|All comments.|`--default`|
-|`--comment-line`|All line comments.|`--comment`=>`--default`|
-|`--comment-block`|All block comments.|`--comment`=>`--default`|
-|`--doctag`|All doctags within comments.|`--comment`=>`--default`|
-|`--doctag-bug`|E.g. `BUG:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-fixme`|E.g. `FIXME:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-hack`|E.g. `HACK:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-later`|E.g. `LATER:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-maybe`|E.g. `MAYBE:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-no_checkin`|E.g. `NO_CHECKIN:` or `nocheckin:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-note`|E.g. `NOTE:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-optimise`|E.g. `OPTIMISE:` or `OPTIMIZE:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-test`|E.g. `TEST:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-todo`|E.g. `TODO:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-question`|E.g. `QUESTION:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-xxx`|E.g. `XXX:`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-reminder`|E.g. `@Speed`.|`--doctag`=>`--comment`=>`--default`|
-|`--doctag-label`|E.g. `:Something`.|`--doctag`=>`--comment`=>`--default`|
+|`--title`|The names of structs, procs & functions.|`--default`|
 ||||
+|**Structs**|
+|`--struct`|Structs.|`--title`=>`--default`|
+|`--struct-inherited`|Struct fields marked with `#as`.|`--struct`=>`--title`=>`--default`|
+|`--struct-declaration`|A struct being declared.|`--struct`=>`--title`=>`--default`|
+||||
+|**Procs/Functions**|
+|`--proc`|Procedures & functions.|`--title`=>`--default`|
+|`--proc-declaration`|A proc/function being declared.|`--proc`=>`--title`=>`--default`|
+|`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
+|**Specials**|
+|`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--title`=>`--default`|
+|`--operatorProc`|Procs named `operator`.|`--proc`=>`--title`=>`--default`|
+||||
+|**Standard Lib**|
+|`--builtIn`|All built-in procs & functions.|`--default`|
+|`--builtIn-stdLib`|Procs and functions defined in a standard lib module|`--builtIn`=>`--default`|
+||||
+|**Meta Information**|
 |`--meta`|Meta-information, e.g. directives and notes.|`--default`|
-|`--meta-comma`|Commas in directives.|`--punctation`=>`--default`|
+|`--meta-comma`|Commas in directives.|`--punctuation`=>`--default`|
 |`--note`|Notes, e.g. `@PrintLike`|`--meta`=>`--default`|
+|**Directives**|
 |`--directive`|Directives.|`--meta`=>`--default`|
 |`--directive-modifier`|Directive modifiers.|`--directive`=>`--meta`=>`--default`|
 |`--directive-import`|The `#import` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
-|`--directive-module_parameters`|The `#module_parameters` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
+|`--directive-module_parameters`|The `#module_parameters` directive.|`--directive`=>`--meta`=>`--default`|
 ||||
+|**Specifics**|
+|`--params`|A module's module or program parameters in an `#import` directive.|`--default`|
+|`--module-params`|A module's module in an `#import` directive.|`--params`=>`--default`|
+|`--program-params`|A module's program parameters in an `#import` directive.|`--params`=>`--default`|
+||||
+|**Inline ASM**|
+|`--asm`|All inline ASM.|`--meta`=>`--default`|
 |`--asm-directive`|The `#asm` directive.|`--directive`=>`--meta`=>`--default`|
 |`--asm-directive-flags`|Any CPU feature flags list on the `#asm` directive.|`--directive-modifier`=>`--directive`=>`--meta`=>`--default`|
 |`--asm-directive-flags-comma`|`,`s in the CPU feature flags list on the `#asm` directive.|`--meta-comma`=>`--punctuation`=>`--default`|
 |`--asm-directive-flag`|Each CPU feature flags on the `#asm` directive.|`--asm-directive-flags`=>`--directive-modifier`=>`--directive`=>`--meta`=>`--default`|
-|`--asm-directive-block`|The entire `{}`-bounded block after the `#asm` directive.|`--asm-directive`=>`--directive`=>`--meta`=>`--default`|
+|`--asm-directive-block`|The entire `{}`-bounded block after the `#asm` directive.|`--asm`=>`--asm-directive`=>`--directive`=>`--meta`=>`--default`|
+|`--operator-pinRegister`|The `===` operator.|`--operator`=>`--default`|
+|`--operator-asm-broadcastValueOrSuppressFloatExceptions`|The `!` operator in inline ASM.|`--operator`=>`--default`|
+|`--operator-asm-maskControl`|The `&` and `&*` operators in inline ASM.|`--operator`=>`--default`|
+|`--operator-asm-roundingControl`|The `!n`, `!d`, `!u` and `!z` operators in inline ASM.|`--operator`=>`--default`|
+||||
 |`--asm-register`|CPU register names.|`--keyword`=>`--default`|
 |`--asm-mnemonic`|Instruction opcodes, e.g. `mov`.|`--default`|
 |`--asm-size`|A size specifier on an opcode, e.g. in `mov.8` or `mov?T`.|`--asm-mnemonic`=>`--default`|
-|`--asm-size-const`|A constant (literal) opcode size specifier, e.g. `mov.8`|`--asm-size`=>`--asm-mnemonic`=>`--default`|
-|`--asm-size-type`|A variable opcode size specifier, e.g. `mov?T`|`--asm-size`=>`--asm-mnemonic`=>`--default`|
-|`--asm-size-punctuation`|The `.` or `?` in an opcode size specifier, e.g. in `mov.8` or `mov?T`.|`--punctuation`=>`--default`|
-|`--asm-dot-size-punctuation`|The `.` in an opcode size specifier, e.g. in `mov.8`.|`--punctuation-dot`=>`--punctuation`=>`--default`|
-|`--asm-clue-size-punctuation`|The `?` in an opcode size specifier, e.g. in `mov?T`.|`--punctuation-clue`=>`--punctuation`=>`--default`|
+|`--asm-size-numeric`|A numeric-literal size specifier, e.g. `mov.8`.|`--asm-size`=>`--asm-mnemonic`=>`--default`|
+|`--asm-size-const`|A constant opcode size specifier, e.g. `mov.BITS`.|`--asm-size`=>`--asm-mnemonic`=>`--default`|
+|`--asm-size-type`|A variable opcode size specifier, e.g. `mov?T`.|`--asm-size`=>`--asm-mnemonic`=>`--default`|
+|`--operator-asm-size`|The `.` or `?` in an opcode size specifier, e.g. in `mov.8` or `mov?T`.|`--operator`=>`--default`|
+|`--operator-asm-size-clue`|The `?` in an opcode size specifier, e.g. in `mov?T`.|`--operator-asm-size`=>`--operator`=>`--default`|
+|`--operator-asm-size-dot`|The `.` in an opcode size specifier, e.g. in `mov.8`.|`--operator-asm-size`=>`--operator`=>`--default`|
 
 
 ---
@@ -187,7 +279,9 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 | CSS class | Definition |
 |-|-|
 |`.hljs-literal`|All literals, but specifically including `null`.|
-|`.hljs-literal.bool_`|`true` and `false`|
+|`.hljs-literal.bool_`|`true` and `false`.|
+|`.hljs-literal.bool_.true__`|`true`.|
+|`.hljs-literal.bool_.false__`|`false`.|
 
 ### Numbers
 | CSS class | Definition |
@@ -329,7 +423,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 #### Specials
 | CSS class | Definition |
 |-|-|
-|`.hljs-built_in.special_`|`for_expansion` special function name.|
+|`.hljs-title.function_.forExpansion__`|`for_expansion` special function name.|
+|`.hljs-title.function_.operatorProc__`|`operator` special function name.|
 
 ### StdLib
 | CSS class | Definition |

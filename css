@@ -1,6 +1,5 @@
 _BalancedParens
 built_in
-built_in.special_
 built_in.stdLib_
 char.escape_
 comment
@@ -35,6 +34,8 @@ keyword.proc_
 keyword.struct_
 literal
 literal.bool_
+literal.bool_.false__
+literal.bool_.true__
 meta
 meta.asm_
 meta.asm_.keyword__.register___
@@ -126,6 +127,7 @@ title.class_.inherited__
 title.function_
 title.function_.declaration__
 title.function_.forExpansion__
+title.function_.operatorProc__
 type
 type.any_
 type.asm_

@@ -65,10 +65,10 @@ scopeFromCSSClass :: (cssClass: string, noPrefix := false) -> string {
 				"stdLib",
 				"stdLib.*"
 			),
-			"<module>.",
+			".<module>",
 			""
 		),
-		"<flag>.",
+		".<flag>",
 		""
 	);
 
@@ -79,8 +79,15 @@ scopeFromCSSClass :: (cssClass: string, noPrefix := false) -> string {
 	return scope;
 }
 
-collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []string) {
-	vars: [..]string;
+Var :: struct {
+	base: string;
+	suffix: string;
+	path: [..]string;
+	line: int;
+}
+
+collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
+	vars: [..]Var;
 
 	seenScopes: Table(string, int);
 	init(*seenScopes);
@@ -159,12 +166,27 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []string) {
 		} else {
 			dashIdx := find_index_from_left(trimmed, "--");
 			if dashIdx != -1 {
-				var := advance(trimmed, dashIdx);
-				commaIdx := find_index_of_any_from_left(var, ",:)");
-				if var[commaIdx] == #char "," {
-					var.count = commaIdx;
+				cssVar := advance(trimmed, dashIdx);
+				commaIdx := find_index_of_any_from_left(cssVar, ",:)");
+				if cssVar[commaIdx] == #char "," {
+					cssVar.count = commaIdx;
+					var := New(Var, false);
+					split := find_index_from_right(cssVar, #char "-");
+					var.base = copy_string(.{split, cssVar.data});
+					var.suffix = copy_string(.{cssVar.count - var.base.count - 1, cssVar.data + var.base.count + 1});
+					var.line = lineNum;
+					advance(*trimmed, dashIdx + commaIdx + 1);
+					dashIdx = find_index_from_left(trimmed, "--");
+					pathStr := advance(trimmed, dashIdx);
+					while 1 {
+						commaIdx = find_index_of_any_from_left(pathStr, ",:)");
+						dashIdx = find_index_from_left(pathStr, "--", commaIdx + 1);
+						array_add(*var.path, copy_string(.{commaIdx - var.suffix.count - 1, pathStr.data}));
+						if dashIdx == -1  break;
+						advance(*pathStr, dashIdx);
+					}
 					array_add(*vars, var);
-					if debug  print("%1%\n", repeat("  ", indentCount), var, to_standard_error=true);
+					if debug  print("%1%\n", repeat("  ", indentCount), var.*, to_standard_error=true);
 				}
 			}
 		}
@@ -181,7 +203,7 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []string) {
 	return seen, vars;
 };
 
-verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, expectedFromCSS: []string, expectedExtra: ..string) -> []string {
+verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, expectedFromCSS: []string, expectedExtra: ..string) -> []Var {
 	cssScopes, vars := collectScopesFromCSS(cssLines, debug);
 	reported: [..]string;
 	print("\n#Scopes missing from CSS:\n");
@@ -266,7 +288,7 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, 
 	return vars;
 };
 
-verifyCSSClassesInReference :: (langScopes: []string, ref: string, expected: []string, extra: ..string) {
+verifyCSSClassesInReference :: (langScopes: []string, ref: string, expected: []string, extra: ..string) -> []string {
 	reported: [..]string;
 	print("\n#CSS classes missing from reference:\n");
 	for line: langScopes {
@@ -316,6 +338,8 @@ verifyCSSClassesInReference :: (langScopes: []string, ref: string, expected: []s
 					print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, cssClass);
 				}
 			}
+
+			continue;
 		}
 
 
@@ -328,20 +352,80 @@ verifyCSSClassesInReference :: (langScopes: []string, ref: string, expected: []s
 			}
 		}
 	}
+
+	return refLines;
 }
 
-verifyCSSVarsInReference :: (vars: []string, ref: string, expected: ..string) {
+findVar :: (vars: []Var, base: string, suffix: string) -> bool {
+	i := 0;
+	while i < vars.count {
+		defer i += 5;
+		if vars[i].base != base {
+			continue;
+		}
+
+
+		for 0..4 {
+			if vars[i + it].suffix == suffix  return true;
+		}
+	}
+
+
+	return false;
+}
+
+verifyCSSVarsInReference :: (vars: []Var, ref: string, refLines: []string, expectedPathDiffs: []string, expectedExtra: ..string) {
+	suffixes := string.["fg", "bg", "style", "weight", "decoration"];
+	assert(vars.count % 5 == 0);
+	for 0..vars.count / 5 - 1 {
+		i := it * 5;
+		base := vars[i].base;
+		for suffix: suffixes {
+			assert(vars[i].base == base && vars[i].suffix == suffix);
+			i += 1;
+		}
+	}
+
 	reported: [..]string;
 	print("\n#CSS variables missing from reference:\n");
 	for var: vars {
-		if !var  continue;
-		if !contains(ref, tprint("|`%`|", var)) {
-			if array_find(reported, var)  continue;
-			array_add(*reported, var);
-			if array_find(expected, var) {
-				print("(%)\n", var);
-			} else {
-				print("%\n", var);
+		base := var.base;
+		found, remaining := contains(ref, tprint("|`%`|", base));
+		if found {
+			eol := find_index_from_left(remaining, #char "\n");
+			path := join(..var.path, separator = "`=>`");
+			validPathAt := find_index_from_left(remaining, join("`", path, "`"));
+			if validPathAt == -1 || validPathAt > eol {
+				line := slice(remaining, 0, eol);
+				advance(*line, find_index_from_right(line, "|`") + 2);
+				line.count -= 2;
+				print("%-% has incorrect path\n    ;should be: `%`\n    ;  but was: `%`\n", base, var.suffix, path, line);
+			}
+		} else {
+			if array_find(reported, base)  continue;
+			array_add(*reported, base);
+			print("|`%`||`%`|\n", base, join(..var.path, separator = "`=>`"));
+		}
+	}
+
+	array_reset(*reported);
+	print("\n#Extra CSS variables in the reference:\n");
+	for line: refLines {
+		if starts_with(line, "|`--") {
+			base := advance(line, 2);
+			base.count = find_index_from_left(base, #char "`");
+			for suffix: suffixes {
+				if !findVar(vars, base, suffix) {
+					var := join(base, suffix, separator = "-");
+					if !array_find(reported, var) {
+						array_add(*reported, var);
+						if array_find(expectedExtra, var) {
+							print("(%)\n", var);
+						} else {
+							print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, var);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -358,6 +442,7 @@ main :: () {
 	vars := verifyScopesInCSS(
 		langScopes,
 		css,
+		//true,
 		expectedFromCSS = .["_BalancedBraces"],
 		"built_in",
 		"comment",
@@ -373,10 +458,11 @@ main :: () {
 		"title",
 		"title.class_",
 		"type.enum_",
-		"type.integer_"
+		"type.integer_",
+		"literal.bool_"
 	);
 
-	verifyCSSClassesInReference(
+	refLines := verifyCSSClassesInReference(
 		langScopes,
 		refStr,
 		.[],
@@ -384,10 +470,15 @@ main :: () {
 		".hljs-keyword",
 		".hljs-symbol.size_",
 		".hljs-type.integer_",
-		".hljs-type.enum_"
+		".hljs-type.enum_",
+		".hljs-symbol",
+		".hljs-symbol.<flag>_",
+		".hljs-_BalancedParens",
+		".hljs-_BalancedBraces",
+		".hljs-literal.bool_"
 	);
 
-	verifyCSSVarsInReference(vars, refStr);
+	verifyCSSVarsInReference(vars, refStr, refLines, .[]);
 };
 
 #import "Basic";

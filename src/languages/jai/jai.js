@@ -21150,6 +21150,7 @@ function jai(hljs) {
 		'keyword.meta': [
 			'initializer_of|10',
 			'is_constant|10',
+			'type_info|10',
 			'type_of|10',
 			'size_of|10',
 			'code_of|10',
@@ -21169,8 +21170,10 @@ function jai(hljs) {
 			'temp',
 			'it|5'
 		],
-		'built_in.special': [
-			'for_expansion|10',
+		'title.function.forExpansion': [
+			'for_expansion|10'
+		],
+		'title.function.operatorProc': [
 			'operator'
 		],
 		'type.integer.signed': [
@@ -21218,7 +21221,8 @@ function jai(hljs) {
 			'__reg',	//LATER: Deprecated, will go away sometime in favour of:
 			'reg'
 		],
-		'literal.bool': 'true false',
+		'literal.bool.true': 'true',
+		'literal.bool.false': 'false',
 		literal: 'null',
 		...STDLIB
 	};
