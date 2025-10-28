@@ -1232,11 +1232,11 @@
 		text-decoration: var(--struct-decoration, var(--title-decoration, --default-decoration));
 
 		&.declaration__ {
-			color: var(--struct-declaration-fg, var(--struct-fg, var(--title-fg, --default-fg)));
-			background-color: var(--struct-declaration-bg, var(--struct-bg, var(--title-bg, --default-bg)));
-			font-style: var(--struct-declaration-style, var(--struct-style, var(--title-style, --default-style)));
-			font-weight: var(--struct-declaration-weight, var(--struct-weight, var(--title-weight, --default-weight)));
-			text-decoration: var(--struct-declaration-decoration, var(--struct-decoration, var(--title-decoration, --default-decoration)));
+			color: var(--struct-declaration-fg, var(--declaration-fg, var(--struct-fg, var(--title-fg, --default-fg))));
+			background-color: var(--struct-declaration-bg, var(--declaration-bg, var(--struct-bg, var(--title-bg, --default-bg))));
+			font-style: var(--struct-declaration-style, var(--declaration-style, var(--struct-style, var(--title-style, --default-style))));
+			font-weight: var(--struct-declaration-weight, var(--declaration-weight, var(--struct-weight, var(--title-weight, --default-weight))));
+			text-decoration: var(--struct-declaration-decoration, var(--declaration-decoration, var(--struct-decoration, var(--title-decoration, --default-decoration))));
 		}
 
 		&.inherited__ {
@@ -1256,11 +1256,11 @@
 		text-decoration: var(--proc-decoration, var(--title-decoration, --default-decoration));
 
 		&.declaration__ {
-			color: var(--proc-declaration-fg, var(--proc-fg, var(--title-fg, --default-fg)));
-			background-color: var(--proc-declaration-bg, var(--proc-bg, var(--title-bg, --default-bg)));
-			font-style: var(--proc-declaration-style, var(--proc-style, var(--title-style, --default-style)));
-			font-weight: var(--proc-declaration-weight, var(--proc-weight, var(--title-weight, --default-weight)));
-			text-decoration: var(--proc-declaration-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
+			color: var(--proc-declaration-fg, var(--declaration-fg, var(--proc-fg, var(--title-fg, --default-fg))));
+			background-color: var(--proc-declaration-bg, var(--declaration-bg, var(--proc-bg, var(--title-bg, --default-bg))));
+			font-style: var(--proc-declaration-style, var(--declaration-style, var(--proc-style, var(--title-style, --default-style))));
+			font-weight: var(--proc-declaration-weight, var(--declaration-weight, var(--proc-weight, var(--title-weight, --default-weight))));
+			text-decoration: var(--proc-declaration-decoration, var(--declaration-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration))));
 		}
 
 		&.forExpansion__ {
@@ -1336,11 +1336,11 @@
 	}
 
 	&.declaration_ {
-		color: var(--type-declaration-fg, var(--type-fg, --default-fg));
-		background-color: var(--type-declaration-bg, var(--type-bg, --default-bg));
-		font-style: var(--type-declaration-style, var(--type-style, --default-style));
-		font-weight: var(--type-declaration-weight, var(--type-weight, --default-weight));
-		text-decoration: var(--type-declaration-decoration, var(--type-decoration, --default-decoration));
+		color: var(--type-declaration-fg, var(--declaration-fg, var(--type-fg, --default-fg)));
+		background-color: var(--type-declaration-bg, var(--declaration-bg, var(--type-bg, --default-bg)));
+		font-style: var(--type-declaration-style, var(--declaration-style, var(--type-style, --default-style)));
+		font-weight: var(--type-declaration-weight, var(--declaration-weight, var(--type-weight, --default-weight)));
+		text-decoration: var(--type-declaration-decoration, var(--declaration-decoration, var(--type-decoration, --default-decoration)));
 	}
 
 	&.enum_ {
@@ -1351,19 +1351,19 @@
 		text-decoration: var(--type-enum-decoration, var(--type-decoration, --default-decoration));
 
 		&.declaration__ {
-			color: var(--type-enum-declaration-fg, var(--type-declaration-fg, var(--type-fg, --default-fg)));
-			background-color: var(--type-enum-declaration-bg, var(--type-declaration-bg, var(--type-bg, --default-bg)));
-			font-style: var(--type-enum-declaration-style, var(--type-declaration-style, var(--type-style, --default-style)));
-			font-weight: var(--type-enum-declaration-weight, var(--type-declaration-weight, var(--type-weight, --default-weight)));
-			text-decoration: var(--type-enum-declaration-decoration, var(--type-declaration-decoration, var(--type-decoration, --default-decoration)));
+			color: var(--type-enum-declaration-fg, var(--type-declaration-fg, var(--declaration-fg, var(--type-fg, --default-fg))));
+			background-color: var(--type-enum-declaration-bg, var(--type-declaration-bg, var(--declaration-bg, var(--type-bg, --default-bg))));
+			font-style: var(--type-enum-declaration-style, var(--type-declaration-style, var(--declaration-style, var(--type-style, --default-style))));
+			font-weight: var(--type-enum-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, var(--type-weight, --default-weight))));
+			text-decoration: var(--type-enum-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, var(--type-decoration, --default-decoration))));
 		}
 
 		&.value__.declaration___ {
-			color: var(--type-enum-value-declaration-fg, var(--type-enum-declaration-fg, var(--type-declaration-fg, var(--type-fg, --default-fg))));
-			background-color: var(--type-enum-value-declaration-bg, var(--type-enum-declaration-bg, var(--type-declaration-bg, var(--type-bg, --default-bg))));
-			font-style: var(--type-enum-value-declaration-style, var(--type-enum-declaration-style, var(--type-declaration-style, var(--type-style, --default-style))));
-			font-weight: var(--type-enum-value-declaration-weight, var(--type-enum-declaration-weight, var(--type-declaration-weight, var(--type-weight, --default-weight))));
-			text-decoration: var(--type-enum-value-declaration-decoration, var(--type-enum-declaration-decoration, var(--type-declaration-decoration, var(--type-decoration, --default-decoration))));
+			color: var(--type-enum-value-declaration-fg, var(--type-enum-declaration-fg, var(--type-declaration-fg, var(--declaration-fg, var(--type-fg, --default-fg)))));
+			background-color: var(--type-enum-value-declaration-bg, var(--type-enum-declaration-bg, var(--type-declaration-bg, var(--declaration-bg, var(--type-bg, --default-bg)))));
+			font-style: var(--type-enum-value-declaration-style, var(--type-enum-declaration-style, var(--type-declaration-style, var(--declaration-style, var(--type-style, --default-style)))));
+			font-weight: var(--type-enum-value-declaration-weight, var(--type-enum-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, var(--type-weight, --default-weight)))));
+			text-decoration: var(--type-enum-value-declaration-decoration, var(--type-enum-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, var(--type-decoration, --default-decoration)))));
 		}
 	}
 	&.float_ {
@@ -1446,11 +1446,11 @@
 		text-decoration: var(--variable-constant-decoration, var(--variable-decoration, --default-decoration));
 
 		&.declaration__ {
-			color: var(--variable-declaration-fg, var(--variable-fg, --default-fg));
-			background-color: var(--variable-declaration-bg, var(--variable-bg, --default-bg));
-			font-style: var(--variable-declaration-style, var(--variable-style, --default-style));
-			font-weight: var(--variable-declaration-weight, var(--variable-weight, --default-weight));
-			text-decoration: var(--variable-declaration-decoration, var(--variable-decoration, --default-decoration));
+			color: var(--variable-declaration-fg, var(--declaration-fg, var(--variable-fg, --default-fg)));
+			background-color: var(--variable-declaration-bg, var(--declaration-bg, var(--variable-bg, --default-bg)));
+			font-style: var(--variable-declaration-style, var(--declaration-style, var(--variable-style, --default-style)));
+			font-weight: var(--variable-declaration-weight, var(--declaration-weight, var(--variable-weight, --default-weight)));
+			text-decoration: var(--variable-declaration-decoration, var(--declaration-decoration, var(--variable-decoration, --default-decoration)));
 		}
 	}
 
@@ -1471,11 +1471,11 @@
 	}
 
 	&.declaration_ {
-		color: var(--variable-declaration-fg, var(--variable-fg, --default-fg));
-		background-color: var(--variable-declaration-bg, var(--variable-bg, --default-bg));
-		font-style: var(--variable-declaration-style, var(--variable-style, --default-style));
-		font-weight: var(--variable-declaration-weight, var(--variable-weight, --default-weight));
-		text-decoration: var(--variable-declaration-decoration, var(--variable-decoration, --default-decoration));
+		color: var(--variable-declaration-fg, var(--declaration-fg, var(--variable-fg, --default-fg)));
+		background-color: var(--variable-declaration-bg, var(--declaration-bg, var(--variable-bg, --default-bg)));
+		font-style: var(--variable-declaration-style, var(--declaration-style, var(--variable-style, --default-style)));
+		font-weight: var(--variable-declaration-weight, var(--declaration-weight, var(--variable-weight, --default-weight)));
+		text-decoration: var(--variable-declaration-decoration, var(--declaration-decoration, var(--variable-decoration, --default-decoration)));
 	}
 
 	&.language_ {
@@ -1531,13 +1531,4 @@
 			text-decoration: var(--variable-stdLib-programParam-decoration, var(--params-decoration, var(--variable-decoration, --default-decoration)));
 		}
 	}
-}
-
-.hljs .declaration_,
-.hljs .declaration__ {
-	color: var(--declaration-fg, --default-fg);
-	background-color: var(--declaration-bg, --default-bg);
-	font-style: var(--declaration-style, --default-style);
-	font-weight: var(--declaration-weight, --default-weight);
-	text-decoration: var(--declaration-decoration, --default-decoration);
 }

@@ -149,9 +149,9 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Variables**|
 |`--variable`|All otherwise-uncategorised variable identifiers.|`--default`|
+|`--variable-declaration`|A variable being declared.|`--declaration`=>`--variable`=>`--default`|
 |`--variable-language`|Language-defined variables: `context`, `it`, `it_index` & `temp`.|`--variable`=>`--default`|
 |`--variable-constant`|Constants (`ALL_UPPER` names).|`--variable`=>`--default`|
-|`--variable-declaration`|A variable being declared.|`--variable`=>`--default`|
 |`--variable-param-baked`|A parameter variable which is being value-baked, i.e. `$myVar`.|`--variable`=>`--default`|
 |`--variable-context`|Variables on the Context.|`--variable`=>`--default`|
 |`--variable-context-constant`|Constants on the Context.|`--variable-constant`=>`--variable`=>`--default`|
@@ -169,14 +169,14 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Types**|
 |`--type`|All types (PascalCase).|`--default`|
+|`--type-declaration`|A type-alias being declared.|`--declaration`=>`--type`=>`--default`|
 |`--type-enum`|All Enum types.|`--type`=>`--default`|
 |`--type-any`|The `Any` type.|`--type`=>`--default`|
 |`--type-bool`|The `bool` type.|`--type`=>`--default`|
 |`--type-code`|The `Code` type.|`--type`=>`--default`|
 |`--type-context`|The `#Context` type|`--type`=>`--default`|
-|`--type-declaration`|A type-alias being declared.|`--type`=>`--default`|
-|`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--type`=>`--default`|
-|`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--type`=>`--default`|
+|`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
+|`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 |`--type-float`|Both floating point types (`float`, `float64`).|`--type`=>`--default`|
 |`--type-integer`|All integer types.|`--type`=>`--default`|
 |`--type-integer-signed`|All signed integer types (`int`, `s8`, `s16`, `s32`, `s64`).|`--type-integer`=>`--type`=>`--default`|
@@ -193,11 +193,11 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |**Structs**|
 |`--struct`|Structs.|`--title`=>`--default`|
 |`--struct-inherited`|Struct fields marked with `#as`.|`--struct`=>`--title`=>`--default`|
-|`--struct-declaration`|A struct being declared.|`--struct`=>`--title`=>`--default`|
+|`--struct-declaration`|A struct being declared.|`--declaration`=>`--struct`=>`--title`=>`--default`|
 ||||
 |**Procs/Functions**|
 |`--proc`|Procedures & functions.|`--title`=>`--default`|
-|`--proc-declaration`|A proc/function being declared.|`--proc`=>`--title`=>`--default`|
+|`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
 |**Specials**|
 |`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--title`=>`--default`|
