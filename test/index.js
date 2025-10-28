@@ -5,7 +5,7 @@ const path = require('path');
 const hljs = require('highlight.js');
 const fs = require('fs');
 
-const hljsDefineJai = require('../src/languages/jai/jai');
+const hljsDefineJai = require('../src/languages/jai');
 
 hljs.registerLanguage('jai', hljsDefineJai);
 
@@ -37,5 +37,10 @@ describe('Jai syntax highlighting', () => {
 		var code = await readFile(path.join(__dirname, 'detect', 'default.txt'), 'utf-8');
 		var actual = hljs.highlightAuto(code).language;
 		actual.should.eql('jai');
+	});
+	it('should not over-detect jai language', async () => {
+		var code = '<response value="ok" xml:lang="en"></response>';
+		var actual = hljs.highlightAuto(code).language;
+		actual.should.not.eql('jai');
 	});
 });
