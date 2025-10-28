@@ -4,7 +4,11 @@
 	"description": "Highlight.JS syntax definition for jai files.",
 	"main": "src/languages/jai.js",
 	"scripts": {
-		"test": "./node_modules/.bin/mocha --reporter spec"
+		"generateStdLib": "jai generateStdLib.jai && ./generateStdLib >stdLib.js",
+		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
+		"checkCssReference": "jai checkRef.jai && ./checkRef >check",
+		"browserTest": "start index.html",
+		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000"
 	},
 	"repository": {
 		"type": "git",

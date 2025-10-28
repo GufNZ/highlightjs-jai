@@ -2,10 +2,10 @@ require('should');
 
 const promisify = require('util').promisify;
 const path = require('path');
-const hljs = require('highlightjs');
+const hljs = require('highlight.js');
 const fs = require('fs');
 
-const hljsDefineJai = require('../src/jai');
+const hljsDefineJai = require('../src/languages/jai/jai');
 
 hljs.registerLanguage('jai', hljsDefineJai);
 
