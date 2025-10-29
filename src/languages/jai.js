@@ -68,10 +68,9 @@ function jai(hljs) {
 	const constIdentifierRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b';
 	const typeIdentifierRE = '\\b[A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const noteRE = '@(?:"[^"]+"|\\S+)';
-	//FIXME: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - for the final combined regex!.
-	//const skipWSAndCommentsRE = '(?:(?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/)|\\s)*';//BUG: catastrophic backtracking, but not sure how to support nested comments otherwise yet.
-	//const skipWSAndCommentsRE = '(?:(?://[^\\n]*\\n|/\\*(?:(?:[^*]+|\\*(?!/))*)\\*/)|\\s)*';//BUG: nesting unsupported; still bad anyway, maybe much worse.
-	const skipWSAndCommentsREFn = backRefCount => `(?:(?:(?=(//[^\\n]*\\n))\\${backRefCount}|(?=(/\\*(?:(?:[^*]+|\\*(?!/))*)\\*/))\\${backRefCount + 1})|\\s)*`
+	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
+	//const skipWSAndCommentsRE = '(?:(?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/)|\\s)*';
+	const skipWSAndCommentsREFn = backRefCount => `(?:(?:(?=(//[^\\n]*\\n))\\${backRefCount}|(?=(/\\*[\\s\\S]*\\*/))\\${backRefCount + 1})|\\s)*`
 
 	/* Begin generated content [Version: beta 0.2.018, built on 11 October 2025]: */
 	const STDLIB = {
