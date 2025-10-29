@@ -22796,7 +22796,7 @@ function jai(hljs) {
 	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
-		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn(1)}:)`,
+		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn(1)}:(?!.*${skipWSAndCommentsREFn(2)}enum))`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -22809,7 +22809,7 @@ function jai(hljs) {
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		relevance: 2,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::(?!${skipWSAndCommentsREFn(2)}(?:\\(|enum)))`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::(?!${skipWSAndCommentsREFn(2)}enum))`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -22819,7 +22819,7 @@ function jai(hljs) {
 	const VAR_DECLARATION = {
 		scope: 'variable.declaration',
 		relevance: 0,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}:)`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}:(?!.*${skipWSAndCommentsREFn(2)}enum))`,
 		returnBegin: true,
 		keywords,
 		contains: [

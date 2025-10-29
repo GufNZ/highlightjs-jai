@@ -5,7 +5,7 @@
 	<title>Jai for highlight.js</title>
 	<!--
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.0/highlight.min.js"></script>
 		<script type="text/javascript" src="jai.min.js"></script>
 	-->
 	<link rel="stylesheet" type="text/css" href="src/styles/jaiEverything.css" />
@@ -34,6 +34,21 @@
 
 <body>
 	<pre id="it"><code class="language-jai">
+PRIO :: enum s32 {
+    PROCESS        :: 0;
+    PGRP           :: 1;
+    USER           :: 2;
+
+    DARWIN_THREAD  :: 3;
+    DARWIN_PROCESS :: 4;
+
+    DARWIN_BG      :: 0x1000;
+
+    DARWIN_NONUI   :: 0x1001;
+}
+
+PRIO_MIN :: -20;
+
 #import "Basic";
 
 s :: #string,cr END
