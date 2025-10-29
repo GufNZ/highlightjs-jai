@@ -22,7 +22,6 @@ To create a theme using them, only set things that need to change from the defau
 
 Each section below can be defined up to 5 times (once for each suffix above), e.g. `--comment`s can be configured with `--comment-fg`, `--comment-bg`, `--comment-style`, `--comment-weight` and `--comment-decoration`, or any subset of those (with the rest falling back to the defaults).
 
-//FIXME: more sensible ordering - see top of .css
 |Section|Scope|Fallback chain|
 |-|-|-|
 |**Comments**|
@@ -249,6 +248,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 
 ---
 ## CSS Classes
+
+If you feel it necessary, you can alter the structural CSS that uses the variables by referencing the CSS classes used below.
 
 ### Comments
 | CSS class | Definition |
@@ -509,12 +510,6 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ```
 - Check the `jaiEverything` theme CSS for how cast variants are handled.
 - Note that `subst` markers are only processed in known stdLib `@PrintLike` procs.
-- To address all declarations:
-```css
-.hljs .declaration_,
-	.hljs .declaration__:not(.enum_),
-	.hljs-type.enum_:not(.declaration__) { font-style: italic; }
-```
 - To differentiate Module Parameters and Program Parameters:
 ```css
 .hljs-params { background-color: #400; }

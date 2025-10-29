@@ -1,4 +1,4 @@
-# highlightjs-jai //TODO: finish making it match the cookbook...
+# highlightjs-jai
 
 Jai language definition for `highlight.js`, as used in Discord etc.
 
@@ -26,7 +26,7 @@ This module is just a CDN build of the language, so it will register itself as t
 <script type="text/javascript" src="https://unpkg.com/highlightjs-jai/dist/jai.min.js"></script>
 ```
 
-- More info: <https://unpkg.com>	//TODO: how does it get here?
+- More info: <https://unpkg.com>
 
 ### With Node or another build system
 
@@ -74,6 +74,12 @@ class Highlighter extends Component {
 
 export default Highlighter;
 ```
+
+## Theme
+
+There is included an example theme.  It's mostly designed for testing the matching, but it's built using separate structural CSS and config vars, so for best results when making a custom theme for jai, copy the [jaiEverything.gss](dist/styles/jaiEverything.css) and just alter the set of vars at the top, noting that you don't need to set all of them - the structural part has sane fallbacks.
+
+See also the [css-class-reference](css-class-reference.md).
 
 ## License
 
