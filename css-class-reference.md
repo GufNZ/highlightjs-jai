@@ -138,13 +138,13 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|
 ||||
 |**Declarations**|
-|`--declaration`|All declarations.|`--default`|
-|`--variable-declaration`|A variable being declared.|`--variable`=>`--default`|
-|`--struct-declaration`|A struct being declared.|`--struct`=>`--title`=>`--default`|
-|`--proc-declaration`|A proc/function being declared.|`--proc`=>`--title`=>`--default`|
-|`--type-declaration`|A type-alias being declared.|`--type`=>`--default`|
-|`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--type`=>`--default`|
-|`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--type`=>`--default`|
+|`--declaration`|All declarations - if they fall back to this.|`--default`|
+|`--variable-declaration`|A variable being declared.|`--declaration`=>`--variable`=>`--default`|
+|`--struct-declaration`|A struct being declared.|`--declaration`=>`--struct`=>`--title`=>`--default`|
+|`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
+|`--type-declaration`|A type-alias being declared.|`--declaration`=>`--type`=>`--default`|
+|`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
+|`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 ||||
 |**Variables**|
 |`--variable`|All otherwise-uncategorised variable identifiers.|`--default`|

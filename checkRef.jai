@@ -430,7 +430,9 @@ verifyCSSVarsInReference :: (vars: []Var, ref: string, refLines: []string, expec
 					var := join(base, suffix, separator = "-");
 					if !array_find(reported, var) {
 						array_add(*reported, var);
-						if array_find(expectedExtra, var) {
+						test := var;
+						test.count = find_index_from_right(var, #char "-");
+						if array_find(expectedExtra, test) {
 							print("(%)\n", var);
 						} else {
 							print("%: %\n", FormatInt.{value=it_index + 1, minimum_digits=4, padding=95}, var);
@@ -489,7 +491,7 @@ main :: () {
 		".hljs-literal.bool_"
 	);
 
-	verifyCSSVarsInReference(vars, refStr, refLines, .[]);
+	verifyCSSVarsInReference(vars, refStr, refLines, .[], "--declaration");
 };
 
 #import "Basic";
