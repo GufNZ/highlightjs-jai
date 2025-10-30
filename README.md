@@ -1,5 +1,7 @@
 # highlightjs-jai
 
+//TODO: test with normal theme, e.g. GitHub dark.
+
 Jai language definition for `highlight.js`, as used in Discord etc.
 
 ## Usage
