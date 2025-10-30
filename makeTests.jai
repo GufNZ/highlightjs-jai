@@ -5,6 +5,11 @@ INDEX_HTML :: #string HTML
 <html>
 <head>
 	<title>Jai for highlight.js</title>
+	<style type="text/css">
+		body {
+			background: #000;
+		}
+	</style>
 </head>
 <body>
 {}
@@ -15,6 +20,40 @@ HTML;
 main :: () {
 	template, ok := read_entire_file("indexTemplate.html");
 	assert(ok);
+
+	files: [..]string;
+	visit_files(
+		"../highlight.js/src/styles",
+		false,
+		*files,
+		(info, list) => {
+			if !ends_with(info.short_name, ".css")  return;
+
+
+			array_add(
+				list,
+				copy_string(slice(info.short_name, 0, info.short_name.count - 4))
+			);
+		},
+		visit_directories = true
+	);
+	sorted := quick_sort(files, compare_strings);
+	parts := split(template, "~");
+	builder: String_Builder;
+	append(*builder, parts[0]);
+	for sorted {
+		append(*builder, replace(parts[1], "$", it));
+	}
+	append(*builder, parts[2]);
+	template = builder_to_string(*builder);
+	parts = split(template, "%");
+	append(*builder, parts[0]);
+	for sorted {
+		append(*builder, replace(parts[1], "$", it));
+	}
+	append(*builder, parts[2]);
+	template = builder_to_string(*builder);
+
 
 	outputPath := path_join(get_working_directory(), "test", "visualTests");
 	assert(make_directory_if_it_does_not_exist(outputPath));
@@ -62,9 +101,15 @@ main :: () {
 				title := advance(info.full_name, data.basePathCount);
 				print("%\n", title);
 				path_overwrite_separators(title, "/");
-				test := replace(
+				test := copy_string(data.template);
+				if data.prevFile {
+					test = replace(test, "*", data.prevFile);
+				} else {
+					test = replace(test, "*", "\" style=\"display:none");
+				}
+				test = replace(
 					replace(
-						copy_string(data.template),
+						test,
 						"{}",
 						title
 					),
@@ -91,9 +136,6 @@ main :: () {
 						"&quot;"
 					)
 				);
-				if data.prevFile {
-					test = replace(test, "</pre>", tprint("</pre><hr/><a href=\"file:///%\">%1</a>", data.prevFile));
-				}
 				path := path_join(data.outputPath, replace(replace(title, ".jai", ".html"), "/", "$"));
 				data.prevFile = copy_string(path,, context.default_allocator);
 				append(data.indexHtml, tprint("<a href=\"file:///%\">%1</a><br/>\n", path));
@@ -112,4 +154,5 @@ main :: () {
 #import "File";
 #import "File_Utilities";
 #import "Process";
+#import "Sort";
 #import "String";

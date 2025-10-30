@@ -197,7 +197,7 @@ ModuleParams :: enum {
 parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 	print("  Parsing file '%'\n", path, to_standard_error=true);
 	content, success := read_entire_file(path);
-	if contains(path, "ps5") || ends_with(path, "switch.jai") || contains(path, "intendo") {
+	if contains(path, "ps5") || ends_with(path, "switch.jai") || contains(path, "intendo") || ends_with(path, "ounce.jai") {
 		print("    404 file '%'\n", path, to_standard_error=true);
 		return false;
 	} else {
@@ -211,6 +211,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 	public := true;
 	inContext := false;
 	staticIfDepth := 0;
+	staticIfCaseDepth := 0;
 	delimiters :: "/:#";
 	skipCount := 0;
 	usingActive := false;
@@ -245,7 +246,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 		nextLine := false;
 		if staticIfDepth {
 			index := 0;
-			while index < staticIfDepth << 2 {
+			while index < (staticIfDepth + staticIfCaseDepth) << 2 {
 				if starts_with(line, "#if") {
 					if !ends_with(line, ";") {
 						staticIfDepth += 1;
@@ -267,7 +268,14 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 					};
 
 
+					if staticIfCaseDepth == staticIfDepth {
+						staticIfCaseDepth -= 1;
+					}
 					staticIfDepth -= 1;
+					break;
+				} else if staticIfCaseDepth && starts_with(line, "case") {
+					advance(*line, find_index_from_left(line, ";") + 1);
+					line = eat_spaces(line);
 					break;
 				} else {
 					nextLine = true;
@@ -310,6 +318,9 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 				if starts_with(line, "#if") {
 					if !ends_with(line, ";") {
 						staticIfDepth += 1;
+					}
+					if ends_with(line, "== {") {
+						staticIfCaseDepth += 1;
 					}
 
 					advance(*line, 1);
