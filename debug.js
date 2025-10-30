@@ -1,5 +1,3 @@
-//alert(1);debugger;alert(2);
-
 function emitterStack() {
 	return $emitter.stack.map((s, i) => typeof (s) === 'string' ? `${i}"${s}"` : `${i}!${s._id}:${s.scope ?? s.$name ?? '???'}[${s.children?.length ?? '-'}]{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`).toReversed();
 }
@@ -20,7 +18,105 @@ function matchNext(m) {
 	};
 }
 
+const seen = new Set();
+function walk(obj, matches, proc, path = '$', key = "", parent = null, grandParent = null) {
+	if (path === '$') {
+		seen.clear();
+		matches = matches.map(m => {
+			const r = new RegExp(
+				m.replace(/\[/g, '\\[')
+					.replace(/\]/g, '\\]')
+					.replace(/\./g, '\\.')
+					.replace(/\$/g, '\\$')
+					.replace(/:/g, '')
+					.replace(/(.+)\?/g, '(?<=$1)[^\[$]+')
+					.replace(/^\^/, '(?<!:)')
+					.replace(/\*/g, '[^.$]+')
+					+ '$'
+			);
+			r.matchValue = m.endsWith(':');
+			return r;
+		});
+	}
+
+	matches.forEach(m => {
+		const match = m.exec(path);
+		if (match) {
+			proc(m.matchValue ? obj : match[0], parent, parent[key], key, path, grandParent);
+		}
+	});
+
+	//console.log('walk', path, '\x1b[K\x1b[A');
+	if (Array.isArray(obj)) {
+		if (seen.has(obj)) {
+			//console.log('already seen []', path);
+			return;
+		}
+
+
+		seen.add(obj);
+		for (let i = 0; i < obj.length; i++) {
+			walk(obj[i], matches, proc, `${path}[${i}]`, key, obj, parent);
+		}
+	} else if (obj && typeof obj === 'object') {
+		if (seen.has(obj)) {
+			//console.log('already seen {}', path);
+			return;
+		}
+
+
+		seen.add(obj);
+		const keys = Object.keys(obj);
+		for (let key of keys) {
+			walk(obj[key], matches, proc, `${path}.${key}`, key, obj, parent);
+		}
+	}
+}
+
+function regexDebugPre(lang) {
+	const defn = lang(hljs);
+	walk(defn, ['^begin', 'begin.?', '^end', 'end.?', '$pattern'], (match, parent, value, key, path, grandParent) => {
+		if (Array.isArray(value)) {
+			return;
+		}
+
+
+		let re = value;
+		if (typeof(re) !== 'string') {
+			re = re.source;
+		}
+
+		if (re === undefined) {
+			console.error('undefined regex at', path, value);
+			debugger;
+		}
+
+		const parentKey = Object.keys(grandParent).find(k => grandParent[k] === parent);
+		let name = parent.$name
+			?? (
+				(key === "$pattern")
+					? grandParent.$name ?? grandParent.scope
+					: null
+			)?? (
+				isFinite(Number(key))
+					? grandParent[parentKey.replace("Scope", "")][+key]
+					: parent.$name ?? parent.scope
+			) ?? path.slice(2);
+
+		if (key === 'end' || parentKey === 'endScope') {
+			name = 'end:' + name;
+		}
+
+		re = `(?!\n'${name}')` + re;
+
+		parent[key] = re
+	});
+	return () => defn;
+}
+
 hljs.debugMode();
+hljs.unregisterLanguage('jai');
+hljs.registerLanguage('jai', regexDebugPre(jai));
 console.log('starting...');
 console.time('hilight');
 hljs.highlightElement(document.getElementById('it').firstChild);

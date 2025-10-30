@@ -35,6 +35,7 @@
 
 	--type-fg: #088;
 	--type-enum-fg: #0AC;
+	--type-enum-value-declaration-fg: #0AC;
 	--type-baked-fg: #0CC;
 	--type-baked-style: italic;
 
@@ -1327,6 +1328,7 @@
 		font-weight: var(--type-code-weight, var(--type-weight, --default-weight));
 		text-decoration: var(--type-code-decoration, var(--type-decoration, --default-decoration));
 	}
+
 	&.context_ {
 		color: var(--type-context-fg, var(--type-fg, --default-fg));
 		background-color: var(--type-context-bg, var(--type-bg, --default-bg));
@@ -1366,6 +1368,7 @@
 			text-decoration: var(--type-enum-value-declaration-decoration, var(--type-enum-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, var(--type-decoration, --default-decoration)))));
 		}
 	}
+
 	&.float_ {
 		color: var(--type-float-fg, var(--type-fg, --default-fg));
 		background-color: var(--type-float-bg, var(--type-bg, --default-bg));

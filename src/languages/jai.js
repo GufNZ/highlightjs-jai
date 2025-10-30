@@ -70,7 +70,7 @@ function jai(hljs) {
 	const noteRE = '@(?:"[^"]+"|\\S+)';
 	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
 	//const skipWSAndCommentsRE = '(?:(?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/)|\\s)*';
-	const skipWSAndCommentsREFn = backRefCount => `(?:(?:(?=(//[^\\n]*\\n))\\${backRefCount}|(?=(/\\*[\\s\\S]*\\*/))\\${backRefCount + 1})|\\s)*`
+	const skipWSAndCommentsREFn = backRefCount => `(?=((?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/|\\s)*))\\${backRefCount}`;
 
 	/* Begin generated content [Version: beta 0.2.018, built on 11 October 2025]: */
 	const STDLIB = {
@@ -22695,7 +22695,7 @@ function jai(hljs) {
 	const CONST_REF = {
 		scope: 'property.constant',
 		relevance: 0,
-		begin: `(?<=\w)\\.${constIdentifierRE}`
+		begin: `(?<=\\w)\\.${constIdentifierRE}`
 	};
 
 	const ENUM_REF = {
@@ -22707,7 +22707,7 @@ function jai(hljs) {
 	const FIELD_REF = {
 		scope: 'property',
 		relevance: 0,
-		begin: `(?<=\w)\\.${identifierRE}`
+		begin: `(?<=\\w)\\.${identifierRE}`
 	};
 
 	const DIRECTIVE = {
@@ -22796,7 +22796,7 @@ function jai(hljs) {
 	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
-		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn(1)}:(?!.*${skipWSAndCommentsREFn(2)}enum))`,
+		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn(1)}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -22809,7 +22809,7 @@ function jai(hljs) {
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		relevance: 2,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::(?!${skipWSAndCommentsREFn(2)}enum))`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -22819,7 +22819,7 @@ function jai(hljs) {
 	const VAR_DECLARATION = {
 		scope: 'variable.declaration',
 		relevance: 0,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}:(?!.*${skipWSAndCommentsREFn(2)}enum))`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -22865,30 +22865,32 @@ function jai(hljs) {
 						: r
 				),
 			{
+				$name: 'EnumValueConstDeclaration',
 				...CONST_DECLARATION,
+				begin: CONST_DECLARATION.begin.replace(/\)$/, `(?!${skipWSAndCommentsREFn(1)}enum))`),
 				scope: 'type.enum.value.declaration'
 			},
 			{
+				$name: 'EnumValueConst',
 				...CONST,
 				scope: 'type.enum.value.declaration',
-				begin: `${constIdentifierRE}(?=${skipWSAndCommentsREFn(1)};)`,
-				end: /;/,
-			},
-			{
-				...CONST,
-				scope: 'type.enum.value.declaration',
+				begin: `${CONST.begin}(?=${skipWSAndCommentsREFn(1)}(?:;|::(?!${skipWSAndCommentsREFn(2)}enum)))`,
 				end: /;/,
 				returnEnd: true
 			},
 			{
+				$name: 'EnumValueType',
 				...TYPE,
 				scope: 'type.enum.value.declaration',
+				begin: `${TYPE.begin}(?=${skipWSAndCommentsREFn(1)}(?:;|::(?!${skipWSAndCommentsREFn(2)}enum)))`,
 				end: /;/,
 				returnEnd: true
 			},
 			{
+				$name: 'EnumValueVar',
 				...VAR,
 				scope: 'type.enum.value.declaration',
+				begin: `${VAR.begin}(?=${skipWSAndCommentsREFn(1)}(?:;|::(?!${skipWSAndCommentsREFn(2)}enum)))`,
 				end: /;/,
 				returnEnd: true
 			},

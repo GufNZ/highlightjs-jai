@@ -1,6 +1,6 @@
 /// node dumpScopes.mjs >langScopes
 
-import jai from './src/languages/jai/jai.js';
+import jai from './src/languages/jai.js';
 /*
 import hljs from 'highlight.js';
 /*/
@@ -104,7 +104,7 @@ function walk(obj, matches, path = '$') {
 }
 
 const jaiDef = jai(hljs);
-const langScopes = walk(jaiDef, ['keywords.?', 'scope:', 'beginScope.*:', `endScope[*]:`]);
+const langScopes = walk(jaiDef, ['keywords.?', 'scope:', 'beginScope.*:', `endScope.*:`]);
 let prev = "";
 langScopes
 	.sort()
