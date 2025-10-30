@@ -66,11 +66,19 @@ function jai(hljs) {
 
 	const identifierRE = '\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const constIdentifierRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b';
-	const typeIdentifierRE = '\\b[A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
+	const typeIdentifierRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const noteRE = '@(?:"[^"]+"|\\S+)';
 	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
 	//const skipWSAndCommentsRE = '(?:(?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/)|\\s)*';
-	const skipWSAndCommentsREFn = backRefCount => `(?=((?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/|\\s)*))\\${backRefCount}`;
+	let backRefCount = 1;
+	const skipWSAndCommentsREFn = offset => {
+		if (offset === undefined) {
+			backRefCount = 1;
+		} else {
+			backRefCount += offset;
+		}
+		return `(?:(?=(//[^\\n]*\\n))\\${backRefCount++}|(?=(/\\*[\\s\\S]*\\*/))\\${backRefCount++}|(?=(\\s+))\\${backRefCount++})*`;
+	};
 
 	/* Begin generated content [Version: beta 0.2.018, built on 11 October 2025]: */
 	const STDLIB = {
@@ -22570,7 +22578,7 @@ function jai(hljs) {
 	const HERESTRING = {
 		scope: 'string.here',
 		relevance: 5,
-		begin: `(?=#string(?=\\s|\\/[\\/*]|,)${skipWSAndCommentsREFn(1)}(?:,${skipWSAndCommentsREFn(2)}cr(?=\\s|\\/[\\/*])${skipWSAndCommentsREFn(3)})?(\\w+)[ \\t]*\\n)`,
+		begin: `(?=#string(?=\\s|\\/[\\/*]|,)${skipWSAndCommentsREFn()}(?:,${skipWSAndCommentsREFn(0)}cr(?=\\s|\\/[\\/*])${skipWSAndCommentsREFn(0)})?(\\w+)[ \\t]*\\n)`,
 		contains: [
 			{
 				scope: 'operator.hash.directive',
@@ -22584,7 +22592,7 @@ function jai(hljs) {
 			...COMMENTS,
 			{
 				scope: 'meta.directive.modifier',
-				begin: `(?<=,${skipWSAndCommentsREFn(1)})\\bcr\\b`
+				begin: `(?<=,${skipWSAndCommentsREFn()})\\bcr\\b`
 			}
 		],
 		end: /(?=(\w+)[ \t]*\n)/,
@@ -22725,7 +22733,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
-				begin: `,${skipWSAndCommentsREFn(1)}[A-Za-z]+`,
+				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+`,
 				returnBegin: true,
 				contains: [
 					...COMMENTS,
@@ -22753,7 +22761,7 @@ function jai(hljs) {
 
 	const FOR_EXPANSION = {
 		begin: [
-			`(?<=\\bfor${skipWSAndCommentsREFn(1)}(?:[<*]${skipWSAndCommentsREFn(2)}){0,2})`,
+			`(?<=\\bfor${skipWSAndCommentsREFn()}(?:[<*]${skipWSAndCommentsREFn(0)}){0,2})`,
 			/:/,
 			`${identifierRE}`
 		],
@@ -22796,7 +22804,7 @@ function jai(hljs) {
 	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
-		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn(1)}:)`,
+		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn()}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -22809,7 +22817,7 @@ function jai(hljs) {
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		relevance: 2,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::)`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -22819,7 +22827,7 @@ function jai(hljs) {
 	const VAR_DECLARATION = {
 		scope: 'variable.declaration',
 		relevance: 0,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}:)`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -22832,17 +22840,17 @@ function jai(hljs) {
 	const PROC_DECLARATION = {
 		scope: 'title.function.declaration',
 		relevance: 5,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::(?:${skipWSAndCommentsREFn(2)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(3)}\\()`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::(?:${skipWSAndCommentsREFn(0)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(0)}\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
-		end: `(?=${skipWSAndCommentsREFn(1)}::)`
+		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
 
 	const ENUM_DECLARATION = {
 		scope: 'type.enum.declaration',
 		relevance: 5,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::${skipWSAndCommentsREFn(2)}enum(?:_flags)?)`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}enum(?:_flags)?)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -22867,14 +22875,14 @@ function jai(hljs) {
 			{
 				$name: 'EnumValueConstDeclaration',
 				...CONST_DECLARATION,
-				begin: CONST_DECLARATION.begin.replace(/\)$/, `(?!${skipWSAndCommentsREFn(1)}enum))`),
+				begin: CONST_DECLARATION.begin.replace(/\)$/, `(?!${skipWSAndCommentsREFn()}enum))`),
 				scope: 'type.enum.value.declaration'
 			},
 			{
 				$name: 'EnumValueConst',
 				...CONST,
 				scope: 'type.enum.value.declaration',
-				begin: `${CONST.begin}(?=${skipWSAndCommentsREFn(1)}(?:;|::(?!${skipWSAndCommentsREFn(2)}enum)))`,
+				begin: `${CONST.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
 				end: /;/,
 				returnEnd: true
 			},
@@ -22882,7 +22890,7 @@ function jai(hljs) {
 				$name: 'EnumValueType',
 				...TYPE,
 				scope: 'type.enum.value.declaration',
-				begin: `${TYPE.begin}(?=${skipWSAndCommentsREFn(1)}(?:;|::(?!${skipWSAndCommentsREFn(2)}enum)))`,
+				begin: `${TYPE.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
 				end: /;/,
 				returnEnd: true
 			},
@@ -22890,7 +22898,7 @@ function jai(hljs) {
 				$name: 'EnumValueVar',
 				...VAR,
 				scope: 'type.enum.value.declaration',
-				begin: `${VAR.begin}(?=${skipWSAndCommentsREFn(1)}(?:;|::(?!${skipWSAndCommentsREFn(2)}enum)))`,
+				begin: `${VAR.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
 				end: /;/,
 				returnEnd: true
 			},
@@ -22905,7 +22913,7 @@ function jai(hljs) {
 	const STRUCT_DECLARATION = {
 		scope: 'title.class.declaration',
 		relevance: 5,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn(1)}::${skipWSAndCommentsREFn(2)}struct)`,
+		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}struct)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -22977,7 +22985,7 @@ function jai(hljs) {
 		{	// Option 1: cast[,modifier...](type)value
 			scope: 'keyword.cast.v1',
 			relevance: 5,
-			begin: `\\b(?:cast|xx)(?:${skipWSAndCommentsREFn(1)},${skipWSAndCommentsREFn(2)}(?:trunc|no_check|force|FORCE)${skipWSAndCommentsREFn(3)})?\\(`,
+			begin: `\\b(?:cast|xx)(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE)${skipWSAndCommentsREFn(0)})?\\(`,
 			returnBegin: true,
 			keywords,
 			contains: [
@@ -22991,7 +22999,7 @@ function jai(hljs) {
 		{	// Option 2: cast(type, value[,modifier...])
 			scope: 'keyword.cast.v2',
 			relevance: 5,
-			begin: `\\b(?:cast|xx)${skipWSAndCommentsREFn(1)}\\(`,
+			begin: `\\b(?:cast|xx)${skipWSAndCommentsREFn()}\\(`,
 			returnBegin: true,
 			keywords,
 			contains: [
@@ -23006,7 +23014,7 @@ function jai(hljs) {
 			scope: 'operator.cast.v3',
 			relevance: 5,
 			begin: /\.(?=\()/,
-			begin: `\\.(?=\\((?!${skipWSAndCommentsREFn(1)}\\)))`,
+			begin: `\\.(?=\\((?!${skipWSAndCommentsREFn()}\\)))`,
 			keywords,
 			contains: [
 				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
@@ -24459,7 +24467,7 @@ function jai(hljs) {
 			},
 			{	// {...}
 				scope: 'meta.directive.asm.block',
-				begin: `${skipWSAndCommentsREFn(1)}\\{`,
+				begin: `${skipWSAndCommentsREFn()}\\{`,
 				returnBegin: true,
 				keywords: asmKeywords,
 				contains: [
@@ -24467,7 +24475,7 @@ function jai(hljs) {
 					{	// .32 etc
 						begin: [
 							/\./,
-							skipWSAndCommentsREFn(1),
+							skipWSAndCommentsREFn(),
 							/8|16|32|64|128|256|512/,
 							/\b/
 						],
@@ -24480,7 +24488,7 @@ function jai(hljs) {
 					{	// ?CONST
 						begin: [
 							/\?/,
-							skipWSAndCommentsREFn(1),
+							skipWSAndCommentsREFn(),
 							constIdentifierRE,
 						],
 						beginScope: {
@@ -24492,7 +24500,7 @@ function jai(hljs) {
 					{	// ?T
 						begin: [
 							/\?/,
-							skipWSAndCommentsREFn(1),
+							skipWSAndCommentsREFn(),
 							typeIdentifierRE,
 						],
 						beginScope: {
@@ -24650,7 +24658,7 @@ function jai(hljs) {
 		begin: [
 			/#/,
 			/char/,
-			`\\s${skipWSAndCommentsREFn(1)}`,
+			`\\s${skipWSAndCommentsREFn()}`,
 			/"(?=(?:\\.|[^\\])")/,
 			/(?:\\.(?="))?/,
 			/(?:[^\\](?="))?/,
