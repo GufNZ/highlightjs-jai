@@ -8,6 +8,7 @@ built_in.stdLib.Basic
 built_in.stdLib.Bindings_Generator
 built_in.stdLib.Bit_Array
 built_in.stdLib.Bit_Operations
+built_in.stdLib.Bucket_Array
 built_in.stdLib.BuildCpp
 built_in.stdLib.Check
 built_in.stdLib.Clipboard
@@ -88,6 +89,7 @@ built_in.stdLib.Unicode
 built_in.stdLib.Unmapping_Allocator
 built_in.stdLib.Vulkan
 built_in.stdLib.Wav_File
+built_in.stdLib.Window_Creation
 built_in.stdLib.Windows
 built_in.stdLib.Windows_Registry
 built_in.stdLib.Windows_Resources
@@ -166,6 +168,7 @@ meta.directive.load
 meta.directive.modifier
 meta.directive.modify
 meta.directive.module_parameters
+meta.directive.module_parameters.block
 meta.note
 meta.stringTerminator
 number
@@ -341,6 +344,7 @@ type.stdLib.Android
 type.stdLib.Basic
 type.stdLib.Bindings_Generator
 type.stdLib.Bit_Array
+type.stdLib.Bucket_Array
 type.stdLib.BuildCpp
 type.stdLib.Code_Visit
 type.stdLib.Codex
@@ -405,6 +409,7 @@ type.stdLib.Unicode
 type.stdLib.Unmapping_Allocator
 type.stdLib.Vulkan
 type.stdLib.Wav_File
+type.stdLib.Window_Creation
 type.stdLib.Windows
 type.stdLib.Windows_Registry
 type.stdLib.Windows_Resources
@@ -447,6 +452,7 @@ variable.stdLib.Adpcm.constant
 variable.stdLib.Android.constant
 variable.stdLib.Android.programParam
 variable.stdLib.Base64.constant
+variable.stdLib.Basic
 variable.stdLib.Basic.constant
 variable.stdLib.Basic.context
 variable.stdLib.Basic.programParam
@@ -516,6 +522,8 @@ variable.stdLib.MojoShader
 variable.stdLib.MojoShader.constant
 variable.stdLib.Objective_C
 variable.stdLib.Objective_C.constant
+variable.stdLib.POSIX
+variable.stdLib.POSIX.constant
 variable.stdLib.POSIX_old
 variable.stdLib.POSIX_old.constant
 variable.stdLib.Pool.constant
@@ -558,6 +566,7 @@ variable.stdLib.Unicode.constant
 variable.stdLib.Vulkan
 variable.stdLib.Vulkan.constant
 variable.stdLib.Wav_File.constant
+variable.stdLib.Window_Creation
 variable.stdLib.Window_Creation.moduleParam
 variable.stdLib.Window_Type
 variable.stdLib.Window_Type.constant

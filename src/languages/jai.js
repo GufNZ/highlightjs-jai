@@ -28166,50 +28166,6 @@ function jai(hljs) {
 		returnEnd: true
 	}
 
-	const COMMON_EXCEPT_IMPORT_AND_CAST = [
-		ASM,
-		PRINTLIKE,
-		...COMMON_EXCEPT_STRING,
-		STRING,
-		HERESTRING
-	];
-
-	const COMMON_EXCEPT_IMPORT = [
-		...CASTS,
-		...COMMON_EXCEPT_IMPORT_AND_CAST
-	];
-
-	const MODULE_PARAMETERS_DIRECTIVE = {
-		scope: 'meta.directive',
-		relevance: 7,
-		begin: [
-			/#/,
-			/module_parameters/
-		],
-		beginScope: {
-			1: 'operator.hash.directive',
-			2: 'meta.directive.module_parameters'
-		},
-		contains: [
-			...COMMENTS,
-			{
-				scope: 'params.moduleOrProgram',
-				begin: /\(/,
-				returnBegin: true,
-				keywords,
-				contains: [
-					balancedParen(COMMON_EXCEPT_IMPORT_AND_CAST),
-					...COMMON_EXCEPT_IMPORT_AND_CAST
-				],
-				end: /;/,
-				returnEnd: true
-			},
-			...COMMON_EXCEPT_IMPORT_AND_CAST
-		],
-		end: /;/,
-		returnEnd: true
-	};
-
 	const CHAR_DIRECTIVE = {
 		scope: 'char',
 		relevance: 7,
@@ -28231,6 +28187,20 @@ function jai(hljs) {
 			7: 'punctuation.quote'
 		}
 	};
+
+	const COMMON_EXCEPT_IMPORT_AND_CAST = [
+		ASM,
+		PRINTLIKE,
+		...COMMON_EXCEPT_STRING,
+		STRING,
+		HERESTRING,
+		CHAR_DIRECTIVE
+	];
+
+	const COMMON_EXCEPT_IMPORT = [
+		...CASTS,
+		...COMMON_EXCEPT_IMPORT_AND_CAST
+	];
 
 	const IMPORT_DIRECTIVE = {
 		scope: 'meta.directive.import',
@@ -28307,14 +28277,55 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
-	const ALL = [
+	const NEARLY_ALL = [
 		...COMMON_EXCEPT_IMPORT,
-		MODULE_PARAMETERS_DIRECTIVE,
 		CHAR_DIRECTIVE,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
 		MODIFY_DIRECTIVE,
 		SEMICOLON
+	];
+
+	const MODULE_PARAMETERS_DIRECTIVE = {
+		scope: 'meta.directive',
+		relevance: 7,
+		begin: [
+			/#/,
+			/module_parameters/
+		],
+		beginScope: {
+			1: 'operator.hash.directive',
+			2: 'meta.directive.module_parameters'
+		},
+		contains: [
+			...COMMENTS,
+			{
+				scope: 'params.moduleOrProgram',
+				begin: /\(/,
+				returnBegin: true,
+				keywords,
+				contains: [
+					balancedParen(NEARLY_ALL)
+				],
+				end: /;|\{/,
+				returnEnd: true
+			},
+			{
+				scope: 'meta.directive.module_parameters.block',
+				begin: /\{/,
+				returnBegin: true,
+				contains: [
+					balancedBrace(NEARLY_ALL, { endsParent: true })
+				]
+			}
+		],
+		end: /;|(?<=\})|(?<!\n)^/,	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		returnEnd: true
+	};
+
+	const ALL = [
+		...NEARLY_ALL,
+		MODULE_PARAMETERS_DIRECTIVE
 	];
 
 	return {

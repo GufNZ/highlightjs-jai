@@ -217,6 +217,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
 |`--directive-module_parameters`|The `#module_parameters` directive.|`--directive`=>`--meta`=>`--default`|
+|`--directive-module_parameters-block`|The block that is optionally part of the `#module_parameters` directive, where things to be used in the module parameters are defined.|`--directive-module_parameters`=>`--directive`=>`--meta`=>`--default`|
 ||||
 |**Specifics**|
 |`--params`|A module's module or program parameters in an `#import` directive.|`--default`|
@@ -472,6 +473,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-string.path_.import__`|The module name or path in import directives.|
 |`.hljs-params.moduleOrProgram_`|The module or program parameters in either an import directive or the `#module_parameters` directive.|
 |`.hljs-meta.directive_.module_parameters__`|The `#module_parameters` directive.|
+|`.hljs-meta.directive_.module_parameters__.block___`|The block that is optionally part of the `#module_parameters` directive, where things to be used in the module parameters are defined.|
 
 ### Inline ASM
 | CSS class | Definition |

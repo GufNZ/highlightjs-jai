@@ -34,6 +34,21 @@
 
 <body>
 	<pre id="it"><code class="language-jai">
+
+
+#module_parameters (OUTPUT_EXECUTABLE_EXTENSION := DEFAULT_EXTENSION, LAUNCHER_COMMAND: [] string = DEFAULT_LAUNCHER_COMMAND) () {
+    #if OS == .WINDOWS {
+        DEFAULT_EXTENSION        :: ".exe";
+        DEFAULT_LAUNCHER_COMMAND :: string.[];
+    } else #if OS == .PS5 {
+        DEFAULT_EXTENSION        :: ".elf";
+        DEFAULT_LAUNCHER_COMMAND :: string.["prospero-run", "/elf"];
+    } else {
+        DEFAULT_EXTENSION        :: "";
+        DEFAULT_LAUNCHER_COMMAND :: string.[];
+    }
+}
+
 ABC :: 12;
 _DEF :: 34;
 

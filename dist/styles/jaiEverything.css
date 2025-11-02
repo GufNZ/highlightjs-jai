@@ -83,8 +83,8 @@
 	--forExpansion-fg: #F40;
 
 	--params-bg: #400;
-	--module-params-bg: #044;
-	--program-params-bg: #004;
+	--module-params-bg: #033;
+	--program-params-bg: #006;
 
 	--comment-fg: #080;
 	--comment-weight: normal;
@@ -123,6 +123,7 @@
 	--directive-modify-fg: #0C0;
 	--directive-modify-bg: #305;
 	--directive-module_parameters-fg: #0CC;
+	--directive-module_parameters-block-bg: #420;
 
 	--asm-directive-fg: #0CC;
 	--asm-directive-flags-bg: #066;
@@ -602,6 +603,14 @@
 			font-style: var(--directive-module_parameters-style, var(--directive-style, var(--meta-style, --default-style)));
 			font-weight: var(--directive-module_parameters-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
 			text-decoration: var(--directive-module_parameters-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
+
+			&.block___ {
+				color: var(--directive-module_parameters-block-fg, var(--directive-module_parameters-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
+				background-color: var(--directive-module_parameters-block-bg, var(--directive-module_parameters-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
+				font-style: var(--directive-module_parameters-block-style, var(--directive-module_parameters-style, var(--directive-style, var(--meta-style, --default-style))));
+				font-weight: var(--directive-module_parameters-block-weight, var(--directive-module_parameters-weight, var(--directive-weight, var(--meta-weight, --default-weight))));
+				text-decoration: var(--directive-module_parameters-block-decoration, var(--directive-module_parameters-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration))));
+			}
 		}
 	}
 

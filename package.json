@@ -8,6 +8,7 @@
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && ./checkRef >check",
 		"browserTest": "start index.html",
+		"browserTestAll": "jai makeTests.jai && ./makeTests && start tests/visualTests/index.html",
 		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000"
 	},
 	"repository": {
