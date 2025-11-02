@@ -221,6 +221,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 	delimiters :: "/:#";
 	skipCount := 0;
 	usingActive := false;
+	usingScope := false;
 	for it, lineNum: lines {
 		if skipCount > 0 {
 			skipCount -= 1;
@@ -436,11 +437,17 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 
 				if usingActive || !(starts_with(line, " ") || starts_with(line, "\t")) {
-					if usingActive  line = eat_spaces(line);
+					if usingActive {
+						while is_space(line[0]) {
+							advance(*line, 1);
+							index -= 1;
+						}
+					}
 					if index + 1 < line.count && line[index + 1] == ":" {
 						found, proc := split_from_left_by_any(line, " \t:");
 						if found && proc {
 							if proc == "using" {
+								usingScope = ends_with(line, "{");
 								advance(*line, 6);
 								index -= 6;
 								found, proc = split_from_left_by_any(line, " \t:");
@@ -529,7 +536,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 			}
 		}
 
-		if line && line[0] == #char "}" || ends_with(line, ";") || ends_with(line, "}")  usingActive = false;
+		if line && (contains(line, "}") || !usingScope && ends_with(line, ";"))  usingActive = false;
 	}
 
 	return true;
