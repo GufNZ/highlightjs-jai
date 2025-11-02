@@ -34,6 +34,7 @@
 	--builtIn-stdLib-fg: #FC8;
 
 	--type-fg: #088;
+	--type-stdLib-fg: #0AA;
 	--type-enum-fg: #0AC;
 	--type-enum-value-declaration-fg: #0AC;
 	--type-baked-fg: #0CC;
@@ -140,6 +141,10 @@
 
 	--asm-register-fg: #FFF;
 	--asm-register-bg: #80F;
+
+	--builtIn-stdLib-decoration: overline #FFCC8880;
+	--type-stdLib-decoration: overline #00AAAA80;
+	--variable-stdLib-decoration: overline #CCFF8880;
 
 	color: var(--default-fg);
 	background-color: var(--default-bg);
@@ -1514,18 +1519,18 @@
 		text-decoration: var(--variable-stdLib-decoration, var(--variable-decoration, --default-decoration));
 
 		&.context___ {
-			color: var(--variable-stdLib-context-fg, var(--variable-fg, --default-fg));
-			background-color: var(--variable-stdLib-context-bg, var(--variable-bg, --default-bg));
-			font-style: var(--variable-stdLib-context-style, var(--variable-style, --default-style));
-			font-weight: var(--variable-stdLib-context-weight, var(--variable-weight, --default-weight));
-			text-decoration: var(--variable-stdLib-context-decoration, var(--variable-decoration, --default-decoration));
+			color: var(--variable-stdLib-context-fg, var(--variable-stdLib-fg, var(--variable-fg, --default-fg)));
+			background-color: var(--variable-stdLib-context-bg, var(--variable-stdLib-bg, var(--variable-bg, --default-bg)));
+			font-style: var(--variable-stdLib-context-style, var(--variable-stdLib-style, var(--variable-style, --default-style)));
+			font-weight: var(--variable-stdLib-context-weight, var(--variable-stdLib-weight, var(--variable-weight, --default-weight)));
+			text-decoration: var(--variable-stdLib-context-decoration, var(--variable-stdLib-decoration, var(--variable-decoration, --default-decoration)));
 		}
 		&.constant___ {
-			color: var(--variable-stdLib-constant-fg, var(--variable-constant-fg, var(--variable-fg, --default-fg)));
-			background-color: var(--variable-stdLib-constant-bg, var(--variable-constant-bg, var(--variable-bg, --default-bg)));
-			font-style: var(--variable-stdLib-constant-style, var(--variable-constant-style, var(--variable-style, --default-style)));
-			font-weight: var(--variable-stdLib-constant-weight, var(--variable-constant-weight, var(--variable-weight, --default-weight)));
-			text-decoration: var(--variable-stdLib-constant-decoration, var(--variable-constant-decoration, var(--variable-decoration, --default-decoration)));
+			color: var(--variable-stdLib-constant-fg, var(--variable-stdLib-fg, var(--variable-constant-fg, var(--variable-fg, --default-fg))));
+			background-color: var(--variable-stdLib-constant-bg, var(--variable-stdLib-bg, var(--variable-constant-bg, var(--variable-bg, --default-bg))));
+			font-style: var(--variable-stdLib-constant-style, var(--variable-stdLib-style, var(--variable-constant-style, var(--variable-style, --default-style))));
+			font-weight: var(--variable-stdLib-constant-weight, var(--variable-stdLib-weight, var(--variable-constant-weight, var(--variable-weight, --default-weight))));
+			text-decoration: var(--variable-stdLib-constant-decoration, var(--variable-stdLib-decoration, var(--variable-constant-decoration, var(--variable-decoration, --default-decoration))));
 		}
 
 		&.moduleParam___ {

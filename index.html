@@ -35,6 +35,27 @@
 <body>
 	<pre id="it"><code class="language-jai">
 
+pthread_setschedprio :: (__pthread: pthread_t, __priority: s32) -> s32 #foreign libc;
+
+pthread_setspecific :: (__key: pthread_key_t, __value: *void) -> s32 #foreign libc;
+
+__pthread_cleanup_func_t :: #type (unknown0: *void) -> void #c_call;
+
+__pthread_cleanup_t :: struct {
+__cleanup_prev: *__pthread_cleanup_t;
+__cleanup_routine: #type () -> void #c_call;
+__cleanup_arg: *void;
+}
+
+__pthread_cleanup_push :: (c: *__pthread_cleanup_t, unknown0: #type () -> void #c_call, unknown1: *void) -> void
+#foreign libc;
+__pthread_cleanup_pop :: (unknown0: *__pthread_cleanup_t, unknown1: s32) -> void #foreign libc;
+
+/** The type of the buffer used by sigsetjmp()/siglongjmp(). */
+sigjmp_buf :: [12] s64;
+
+/** The type of the buffer used by setjmp()/longjmp(). */
+jmp_buf :: [11] s64;
 
 #module_parameters (OUTPUT_EXECUTABLE_EXTENSION := DEFAULT_EXTENSION, LAUNCHER_COMMAND: [] string = DEFAULT_LAUNCHER_COMMAND) () {
     #if OS == .WINDOWS {

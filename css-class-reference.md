@@ -155,8 +155,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--variable-context`|Variables on the Context.|`--variable`=>`--default`|
 |`--variable-context-constant`|Constants on the Context.|`--variable-constant`=>`--variable`=>`--default`|
 |`--variable-stdLib`|Variables defined in a standard lib module.|`--variable`=>`--default`|
-|`--variable-stdLib-constant`|Constants defined in a module.|`--variable-constant`=>`--variable`=>`--default`|
-|`--variable-stdLib-context`|Context additions defined a module.|`--variable`=>`--default`|
+|`--variable-stdLib-constant`|Constants defined in a module.|`--variable-stdLib`=>`--variable-constant`=>`--variable`=>`--default`|
+|`--variable-stdLib-context`|Context additions defined a module.|`--variable-stdLib`=>`--variable`=>`--default`|
 |`--variable-stdLib-moduleParam`|A standard lib module's module-parameter.|`--params`=>`--variable`=>`--default`|
 |`--variable-stdLib-programParam`|A standard lib module's program-parameter.|`--params`=>`--variable`=>`--default`|
 |`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|

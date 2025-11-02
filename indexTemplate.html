@@ -56,6 +56,7 @@
 			[...document.getElementsByTagName("link")].forEach(el => { el.disabled = true; });
 			document.getElementById(e.target.value).disabled = false;
 		};
+		setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => span.setAttribute('title', span.getAttribute('class'))), 1000);
 	</script>
 </body>
 </html>

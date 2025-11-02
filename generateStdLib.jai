@@ -54,7 +54,7 @@ main :: () {
 		if name == "Toolchains"	 continue;	// Not a real module.
 
 
-		print("In module '%':\n", name, to_standard_error=true);
+		print("[%] In module '%':\n", it_index, name, to_standard_error=true);
 		mod := find_or_add(*table, name);
 		subMod: Mod;
 		if parseModule(path, name, *subMod) {
@@ -195,6 +195,12 @@ ModuleParams :: enum {
 };
 
 parseModule :: (path: string, name: string, mod: *Mod) -> bool {
+	if ends_with(path, "Bucket_Allocator/module.jai") {
+		print(" ! Skipping non-stdLib module %.\n", path, to_standard_error=true);
+		return false;
+	}
+
+
 	print("  Parsing file '%'\n", path, to_standard_error=true);
 	content, success := read_entire_file(path);
 	if contains(path, "ps5") || ends_with(path, "switch.jai") || contains(path, "intendo") || ends_with(path, "ounce.jai") {
@@ -378,7 +384,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 			if line[index] == #char "/" {
 				if index + 1 < line.count {
-					if line[index + 1] == #char "/" {
+					if line[index + 1] == #char "/" && !commentDepth {
 						// line comment; next line:
 						break;
 					} else if line[index + 1] == #char "*" {
@@ -424,7 +430,8 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 			if line[index] == ":" {
 				if commentDepth || !public {
 					// inside a block comment or non-public scope, ignore.
-					break;
+					advance(*line, index + 1);
+					continue;
 				}
 
 
@@ -447,7 +454,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 							advance(*line, index + 2);
 							line = eat_spaces(line);
-							isProc := line[0] == #char "(" || starts_with(line, "inline") || starts_with(line, "no_inline");
+							isProc := line[0] == #char "(" || starts_with(line, "inline") || starts_with(line, "no_inline") || starts_with(line, "#type");
 							if isProc {
 								if proc == "get_plugin" && name != "Program_Print" {
 									print("    <Skipping plugin %\n", name, to_standard_error=true);
@@ -457,7 +464,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								if !(proc == "main" || proc == "for_expansion") {
 									array_add_if_unique(*mod.procs, proc);
 								}
-							} else if starts_with(line, "struct") || starts_with(line, "enum") || starts_with(line, "#type") || isPrimative(line) {
+							} else if starts_with(line, "struct") || starts_with(line, "enum") || isPrimative(line) {
 								array_add_if_unique(*mod.types, proc);
 
 								if proc == "Context_Base" {
