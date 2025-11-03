@@ -461,7 +461,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 							advance(*line, index + 2);
 							line = eat_spaces(line);
-							isProc := line[0] == #char "(" || starts_with(line, "inline") || starts_with(line, "no_inline") || starts_with(line, "#type");
+							isProc := line[0] == #char "(" || starts_with(line, "inline") || starts_with(line, "no_inline");
 							if isProc {
 								if proc == "get_plugin" && name != "Program_Print" {
 									print("    <Skipping plugin %\n", name, to_standard_error=true);
@@ -471,7 +471,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								if !(proc == "main" || proc == "for_expansion") {
 									array_add_if_unique(*mod.procs, proc);
 								}
-							} else if starts_with(line, "struct") || starts_with(line, "enum") || isPrimative(line) {
+							} else if starts_with(line, "struct") || starts_with(line, "enum") || isPrimative(line) || starts_with(line, "#type") {
 								array_add_if_unique(*mod.types, proc);
 
 								if proc == "Context_Base" {

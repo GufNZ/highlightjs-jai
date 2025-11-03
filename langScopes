@@ -35,7 +35,6 @@ built_in.stdLib.GetRect_LeftHanded
 built_in.stdLib.Hash
 built_in.stdLib.Hash_Table
 built_in.stdLib.Ico_File
-built_in.stdLib.ImGui
 built_in.stdLib.Input
 built_in.stdLib.IntroSort
 built_in.stdLib.Iprof
@@ -115,7 +114,6 @@ built_in.stdLib.meow_hash
 built_in.stdLib.meshoptimizer
 built_in.stdLib.nvidia_aftermath
 built_in.stdLib.nvtt
-built_in.stdLib.pl_mpeg
 built_in.stdLib.rpmalloc
 built_in.stdLib.stb_image
 built_in.stdLib.stb_image_resize
@@ -217,6 +215,7 @@ params.moduleOrProgram
 property
 property.constant
 property.constant.enum
+property.declaration
 punctuation
 punctuation.backslash
 punctuation.brace
@@ -435,6 +434,7 @@ type.stdLib.nvtt
 type.stdLib.pl_mpeg
 type.stdLib.stb_image
 type.stdLib.stb_image_resize
+type.stdLib.stb_image_write
 type.stdLib.stb_vorbis
 type.stdLib.xxHash
 type.string

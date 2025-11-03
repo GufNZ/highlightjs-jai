@@ -34,6 +34,13 @@
 
 <body>
 	<pre id="it"><code class="language-jai">
+Fruit_\ Transaction :: struct {
+	id: int;
+	#as using pos: Vector3;
+	using #as vel: Vector3;
+	fruit:    Fruits_We_Sell;
+	quantity: u64;
+}
 
 pthread_setschedprio :: (__pthread: pthread_t, __priority: s32) -> s32 #foreign libc;
 

@@ -1039,6 +1039,14 @@
 			text-decoration: var(--field-enum-decoration, var(--field-constant-decoration, var(--field-decoration, --default-decoration)));
 		}
 	}
+
+	&.declaration_ {
+		color: var(--field-declaration-fg, var(--field-fg, --default-fg));
+		background-color: var(--field-declaration-bg, var(--field-bg, --default-bg));
+		font-style: var(--field-declaration-style, var(--field-style, --default-style));
+		font-weight: var(--field-declaration-weight, var(--field-weight, --default-weight));
+		text-decoration: var(--field-declaration-decoration, var(--field-decoration, --default-decoration));
+	}
 }
 
 .hljs-punctuation {

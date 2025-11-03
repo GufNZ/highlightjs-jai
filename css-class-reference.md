@@ -141,6 +141,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--declaration`|All declarations - if they fall back to this.|`--default`|
 |`--variable-declaration`|A variable being declared.|`--declaration`=>`--variable`=>`--default`|
 |`--struct-declaration`|A struct being declared.|`--declaration`=>`--struct`=>`--title`=>`--default`|
+|`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
 |`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--type-declaration`|A type-alias being declared.|`--declaration`=>`--type`=>`--default`|
 |`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
@@ -163,6 +164,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Fields**|
 |`--field`|Struct field references (things following the `.` operator).|`--default`|
+|`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
 |`--field-constant`|Struct constant-field references (`ALL_UPPER`).|`--field`=>`--default`|
 |`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
 ||||
@@ -397,7 +399,8 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 ### Fields
 | CSS class | Definition |
 |-|-|
-|`.hljs-property`|An field reference (`something.camelCase`)|
+|`.hljs-property`|A field reference (`something.camelCase`)|
+|`.hljs-property.declaration_`|A field declaration (`camelCase: type` inside a struct definition)|
 |`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
 |`.hljs-property.constant_.enum__`|An enum value reference (`.ALL_UPPER` or `.PascalCase`)|
 
