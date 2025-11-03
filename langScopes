@@ -211,7 +211,9 @@ operator.rotate
 operator.shift
 operator.shift.modifier
 operator.uninitialised
+params.declaration
 params.moduleOrProgram
+params.moduleOrProgram.declaration
 property
 property.constant
 property.constant.enum

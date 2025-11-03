@@ -28450,7 +28450,10 @@ function jai(hljs) {
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
-		end: `(?=${skipWSAndCommentsREFn()}::)`
+		end: `(?=${skipWSAndCommentsREFn()}::)`,
+		starts: {
+		}
+		//starts - :ForwardRefForProc
 	};
 
 	const ENUM_DECLARATION = {
@@ -30282,12 +30285,10 @@ function jai(hljs) {
 				keywords,
 				contains: [
 					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST]),
-					...COMMON_EXCEPT_IMPORT_AND_CAST
 				],
 				end: /;/,
 				returnEnd: true
-			},
-			...COMMON_EXCEPT_IMPORT_AND_CAST
+			}
 		],
 		end: /;/,
 		returnEnd: true
@@ -30342,6 +30343,7 @@ function jai(hljs) {
 		SEMICOLON
 	];
 
+	// :ForwardRefForStruct:
 	STRUCT_DECLARATION.starts = {
 		$name: '_structBlock',
 		begin: /{/,
@@ -30365,13 +30367,37 @@ function jai(hljs) {
 							: r
 				),
 				{
-					keywords: keywordsExceptStdLib,
 					endsParent: true
 				}
 			)
 		],
 		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	}
+
+	// :ForwardRefForProc:
+	PROC_DECLARATION.starts = {
+		$name: '_procParams',
+		begin: /\(/,
+		returnBegin: true,
+		contains: [
+			balancedParen(
+				NEARLY_ALL.map(
+					r => r.scope === 'variable.declaration'
+						? {
+							...r,
+							scope: 'params.declaration',
+							keywords: keywordsExceptStdLib
+						}
+						: r
+				),
+				{
+					endsParent: true,
+				}
+			)
+		],
+		end: /;|\{/,
+		returnEnd: true
+	};
 
 	const MODULE_PARAMETERS_DIRECTIVE = {
 		scope: 'meta.directive',
@@ -30387,7 +30413,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
-				scope: 'params.moduleOrProgram',
+				scope: 'params.moduleOrProgram.declaration',
 				begin: /\(/,
 				returnBegin: true,
 				keywords,

@@ -315,10 +315,10 @@ verifyCSSClassesInReference :: (langScopes: []string, ref: string, expected: []s
 		if !contains(ref, tprint("|`%`|", cssClass)) {
 			if array_find(reported, cssClass)  continue;
 			array_add(*reported, cssClass);
-			if array_find(expected, line) {
-				print("(%)\n", line);
+			if array_find(expected, cssClass) {
+				print("(%)\n", cssClass);
 			} else {
-				print("%\n", line);
+				print("%\n", cssClass);
 			}
 		}
 	}

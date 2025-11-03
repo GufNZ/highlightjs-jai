@@ -143,9 +143,12 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--struct-declaration`|A struct being declared.|`--declaration`=>`--struct`=>`--title`=>`--default`|
 |`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
 |`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
+|`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
 |`--type-declaration`|A type-alias being declared.|`--declaration`=>`--type`=>`--default`|
 |`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 |`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
+|`--module-params-declaration`|Module parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--module-params`=>`--params`=>`--default`|
+|`--program-params-declaration`|Program parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--program-params`=>`--params`=>`--default`|
 ||||
 |**Variables**|
 |`--variable`|All otherwise-uncategorised variable identifiers.|`--default`|
@@ -199,6 +202,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |**Procs/Functions**|
 |`--proc`|Procedures & functions.|`--title`=>`--default`|
 |`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
+|`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
 |**Specials**|
 |`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--title`=>`--default`|
@@ -219,6 +223,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
 |`--directive-module_parameters`|The `#module_parameters` directive.|`--directive`=>`--meta`=>`--default`|
+|`--module-params-declaration`|Module parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--module-params`=>`--params`=>`--default`|
+|`--program-params-declaration`|Program parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--program-params`=>`--params`=>`--default`|
 |`--directive-module_parameters-block`|The block that is optionally part of the `#module_parameters` directive, where things to be used in the module parameters are defined.|`--directive-module_parameters`=>`--directive`=>`--meta`=>`--default`|
 ||||
 |**Specifics**|
@@ -437,6 +443,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-title.function_`|Proc/Function call.|
 |`.hljs-title.function_.declaration__`|Proc/Function declaraion.|
+|`.hljs-params.declaration_`|All proc parameter declarations in the proc signature.|
 
 #### Specials
 | CSS class | Definition |
@@ -474,7 +481,9 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |||
 |`.hljs-meta.directive_.import__`|Import directives.|
 |`.hljs-string.path_.import__`|The module name or path in import directives.|
+|`.hljd-params`|All `#import` or `#module_parameters` parameters.|
 |`.hljs-params.moduleOrProgram_`|The module or program parameters in either an import directive or the `#module_parameters` directive.|
+|`.hljs-params.moduleOrProgram_.declaration__`|The module or program parameters in the `#module_parameters` directive.|
 |`.hljs-meta.directive_.module_parameters__`|The `#module_parameters` directive.|
 |`.hljs-meta.directive_.module_parameters__.block___`|The block that is optionally part of the `#module_parameters` directive, where things to be used in the module parameters are defined.|
 

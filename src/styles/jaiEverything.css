@@ -26,7 +26,7 @@
 	--variable-context-fg: #C43;
 	--variable-context-constant-fg: #CC0;
 
-	--field-fg: #808;
+	--field-fg: #C0C;
 	--field-enum-fg: #0AC;
 
 	--builtIn-fg: #80F;
@@ -83,6 +83,7 @@
 	--proc-fg: #F80;
 	--forExpansion-fg: #F40;
 
+	--params-fg: #CC0;
 	--params-bg: #400;
 	--module-params-bg: #033;
 	--program-params-bg: #006;
@@ -998,6 +999,14 @@
 	font-weight: var(--params-weight, --default-weight);
 	text-decoration: var(--params-decoration, --default-decoration);
 
+	&.declaration_ {
+		color: var(--params-declaration-fg, var(--declaration-fg, var(--params-fg, --default-fg)));
+		background-color: var(--params-declaration-bg, var(--declaration-bg, var(--params-bg, --default-bg)));
+		font-style: var(--params-declaration-style, var(--declaration-style, var(--params-style, --default-style)));
+		font-weight: var(--params-declaration-weight, var(--declaration-weight, var(--params-weight, --default-weight)));
+		text-decoration: var(--params-declaration-decoration, var(--declaration-decoration, var(--params-decoration, --default-decoration)));
+	}
+
 	/* Module Parameters: */
 	&.moduleOrProgram_ {
 		color: var(--module-params-fg, var(--params-fg, --default-fg));
@@ -1013,6 +1022,23 @@
 			font-style: var(--program-params-style, var(--params-style, --default-style));
 			font-weight: var(--program-params-weight, var(--params-weight, --default-weight));
 			text-decoration: var(--program-params-decoration, var(--params-decoration, --default-decoration));
+		}
+	}
+	/* Module Parameters: */
+	&.moduleOrProgram_.declaration__ {
+		color: var(--module-params-declaration-fg, var(--declaration-fg, var(--module-params-fg, var(--params-fg, --default-fg))));
+		background-color: var(--module-params-declaration-bg, var(--declaration-bg, var(--module-params-bg, var(--params-bg, --default-bg))));
+		font-style: var(--module-params-declaration-style, var(--declaration-style, var(--module-params-style, var(--params-style, --default-style))));
+		font-weight: var(--module-params-declaration-weight, var(--declaration-weight, var(--module-params-weight, var(--params-weight, --default-weight))));
+		text-decoration: var(--module-params-declaration-decoration, var(--declaration-decoration, var(--module-params-decoration, var(--params-decoration, --default-decoration))));
+
+		/* Program Parameters: */
+		& > .hljs-_BalancedParens:nth-of-type(2) {
+			color: var(--program-params-declaration-fg, var(--declaration-fg, var(--program-params-fg, var(--params-fg, --default-fg))));
+			background-color: var(--program-params-declaration-bg, var(--declaration-bg, var(--program-params-bg, var(--params-bg, --default-bg))));
+			font-style: var(--program-params-declaration-style, var(--declaration-style, var(--program-params-style, var(--params-style, --default-style))));
+			font-weight: var(--program-params-declaration-weight, var(--declaration-weight, var(--program-params-weight, var(--params-weight, --default-weight))));
+			text-decoration: var(--program-params-declaration-decoration, var(--declaration-decoration, var(--program-params-decoration, var(--params-decoration, --default-decoration))));
 		}
 	}
 }
