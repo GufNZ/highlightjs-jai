@@ -28481,13 +28481,15 @@ function jai(hljs) {
 			{
 				$name: 'EnumValueConstDeclaration',
 				...CONST_DECLARATION,
-				begin: CONST_DECLARATION.begin.replace(/\)$/, `(?!${skipWSAndCommentsREFn()}enum))`),
-				scope: 'type.enum.value.declaration'
+				scope: 'type.enum.value.declaration',
+				keywords: keywordsExceptStdLib,
+				begin: CONST_DECLARATION.begin.replace(/\)$/, `(?!${skipWSAndCommentsREFn()}enum))`)
 			},
 			{
 				$name: 'EnumValueConst',
 				...CONST,
 				scope: 'type.enum.value.declaration',
+				keywords: keywordsExceptStdLib,
 				begin: `${CONST.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
 				end: /;/,
 				returnEnd: true
@@ -28496,6 +28498,7 @@ function jai(hljs) {
 				$name: 'EnumValueType',
 				...TYPE,
 				scope: 'type.enum.value.declaration',
+				keywords: keywordsExceptStdLib,
 				begin: `${TYPE.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
 				end: /;/,
 				returnEnd: true
@@ -28504,6 +28507,7 @@ function jai(hljs) {
 				$name: 'EnumValueVar',
 				...VAR,
 				scope: 'type.enum.value.declaration',
+				keywords: keywordsExceptStdLib,
 				begin: `${VAR.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
 				end: /;/,
 				returnEnd: true
