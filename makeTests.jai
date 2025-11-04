@@ -77,72 +77,73 @@ main :: () {
 
 
 	indexBuilder: String_Builder;
-	data: struct {
-		outputPath: string;
-		template: string;
-		basePathCount: int;
-		prevFile: string;
-		indexHtml: *String_Builder;
-	} = .{outputPath, template, basePath.count, "", *indexBuilder};
+	prevFile: string;
 
+	array_reset(*files);
 	assert(
 		visit_files(
 			basePath,
 			recursive = true,
-			*data,
-			(info, data) => {
+			*files,
+			(info, list) => {
 				if !ends_with(info.full_name, ".jai")  return;
 
-				//push_allocator(temp);
-				//auto_release_temp();
+				array_add(list, copy_string(info.full_name));
+			}
+		)
+	);
 
-				code, ok := read_entire_file(info.full_name);
-				assert(ok);
-				title := advance(info.full_name, data.basePathCount);
-				print("%\n", title);
-				path_overwrite_separators(title, "/");
-				test := copy_string(data.template);
-				if data.prevFile {
-					test = replace(test, "*", data.prevFile);
-				} else {
-					test = replace(test, "*", "\" style=\"display:none");
-				}
-				test = replace(
-					replace(
-						test,
-						"{}",
-						title
-					),
-					"[]",
+	sorted = quick_sort(files, compare_strings);
+
+	for sorted {
+		//push_allocator(temp);
+		//auto_release_temp();
+
+		code, ok := read_entire_file(it);
+		assert(ok);
+		title := advance(it, basePath.count);
+		print("%\n", title);
+		path_overwrite_separators(title, "/");
+		test := copy_string(template);
+		if prevFile {
+			test = replace(test, "*", prevFile);
+		} else {
+			test = replace(test, "*", "\" style=\"display:none");
+		}
+		test = replace(
+			replace(
+				test,
+				"{}",
+				title
+			),
+			"[]",
+			replace(
+				replace(
 					replace(
 						replace(
 							replace(
-								replace(
-									replace(
-										code,
-										"&",
-										"&amp;"
-									),
-									"<",
-									"&lt;"
-								),
-								">",
-								"&gt;"
+								code,
+								"&",
+								"&amp;"
 							),
-							"'",
-							"&apos;"
+							"<",
+							"&lt;"
 						),
-						"\"",
-						"&quot;"
-					)
-				);
-				path := path_join(data.outputPath, replace(replace(title, ".jai", ".html"), "/", "$"));
-				data.prevFile = copy_string(path,, context.default_allocator);
-				append(data.indexHtml, tprint("<a href=\"file:///%\">%1</a><br/>\n", path));
-				assert(write_entire_file(path, test));
-			},
-		)
-	);
+						">",
+						"&gt;"
+					),
+					"'",
+					"&apos;"
+				),
+				"\"",
+				"&quot;"
+			)
+		);
+		path := path_join(outputPath, replace(replace(title, ".jai", ".html"), "/", "$"));
+		prevFile = copy_string(path,, context.default_allocator);
+		append(*indexBuilder, tprint("<a href=\"file:///%\">%1</a><br/>\n", path));
+		assert(write_entire_file(path, test));
+	}
 
 	index := path_join(outputPath, "index.html");
 	assert(write_entire_file(index, replace(INDEX_HTML, "{}", builder_to_string(*indexBuilder))));

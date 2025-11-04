@@ -28451,8 +28451,6 @@ function jai(hljs) {
 		keywords,
 		contains: [ALIGNMENT_WS],
 		end: `(?=${skipWSAndCommentsREFn()}::)`,
-		starts: {
-		}
 		//starts - :ForwardRefForProc
 	};
 
@@ -30343,6 +30341,9 @@ function jai(hljs) {
 		SEMICOLON
 	];
 
+	//BUG: structDecl relies on :: so an inline decl as a type doesn't match.  Fix is to leave the lookahead then end, and add STRUCT as a begin:struct,starts:balanced{}...;
+	//FIXME: same for enum[_flags]
+
 	// :ForwardRefForStruct:
 	STRUCT_DECLARATION.starts = {
 		$name: '_structBlock',
@@ -30352,7 +30353,10 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			NOTE,
-			OPERATOR,
+			{
+				...OPERATOR,
+				variants: OPERATOR.variants.filter(v => v.scope === 'operator.define.constant')
+			},
 			DIRECTIVE,
 			balancedBrace(
 				NEARLY_ALL.map(
@@ -30383,10 +30387,14 @@ function jai(hljs) {
 		$name: '_procParams',
 		begin: /\(/,
 		returnBegin: true,
+		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
-			OPERATOR,
+			{
+				...OPERATOR,
+				variants: OPERATOR.variants.filter(v => v.scope === 'operator.define.constant')
+			},
 			DIRECTIVE,
 			balancedParen(
 				NEARLY_ALL.map(

@@ -1,5 +1,7 @@
 function emitterStack() {
-	return $emitter.stack.map((s, i) => typeof (s) === 'string' ? `${i}"${s}"` : `${i}!${s._id}:${s.scope ?? s.$name ?? '???'}[${s.children?.length ?? '-'}]{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`).toReversed();
+	return $emitter.stack.map((s, i) => typeof (s) === 'string' ? `${i}"${s}"` : `${i}!${s._id}:${s.scope ?? s.$name ?? '???'}[${s.children?.length ?? '-'}]`
+	//{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`
+	).toReversed();
 }
 function matchMode($m) {
 	return $m.map((e, i) => ({ e, i })).filter(e => e.e !== undefined).map(e => `${e.i}:[${e.e}]`).concat([$m.type, (typeof ($r = $m.rule) != 'undefined' ? $r.scope ?? (($b = $r.beginScope) && JSON.stringify($b)) ?? $r.$name ?? $r.beginRe : `${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`)]);
