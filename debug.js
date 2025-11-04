@@ -114,6 +114,26 @@ function regexDebugPre(lang) {
 	return () => defn;
 }
 
+function clearHilight() {
+	[...document.getElementsByClassName('hover')].forEach(el => {
+		el.setAttribute('class', el.getAttribute('class').replace(/ hover d\d/, ''));
+	});
+}
+function hilightPath(clear) {
+	return (e) => {
+		if (clear) {
+			clearHilight();
+		}
+
+		let el = e.target;
+		for (let i = 1; el.tagName === 'SPAN'; i++) {
+			el.classList.add('hover');
+			el.classList.add(`d${i}`);
+			el = el.parentElement;
+		}
+	};
+}
+
 hljs.debugMode();
 hljs.unregisterLanguage('jai');
 hljs.registerLanguage('jai', regexDebugPre(jai));
@@ -121,6 +141,13 @@ console.log('starting...');
 console.time('hilight');
 hljs.highlightElement(document.getElementById('it').firstChild);
 console.timeEnd('hilight');
+setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => {
+	span.setAttribute('title', span.getAttribute('class'));
+	span.onmouseenter = hilightPath(true);
+	span.onmousemove = hilightPath(false);
+	span.onmouseleave = clearHilight;
+}), 1000);
+
 //Breakpoints: processLexeme(bef; [const match = this.matcherRe.exec(s);]+1.
 //Live expressions:
 //emitterStack()

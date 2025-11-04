@@ -1,0 +1,56 @@
+#notIt {
+	display: none;
+}
+
+body {
+	background-color: #00F0;
+}
+
+body,
+pre {
+	margin: 0;
+	padding: 0;
+	display: grid;
+	height: 100vh;
+	font-weight: bold;
+	font-size: 11px;
+}
+
+span.hover {
+	position: relative;
+
+	&.d1 {
+		outline: 1px solid red;
+		z-index: 10;
+	}
+	&.d2 {
+		outline: 1px solid #08F;
+		outline-offset: 1px;
+		z-index: 9;
+	}
+	&.d3 {
+		outline: 1px solid #07D;
+		outline-offset: 2px;
+		z-index: 8;
+	}
+	&.d4 {
+		outline: 1px solid #06B;
+		outline-offset: 3px;
+		z-index: 7;
+	}
+	&.d5 {
+		outline: 1px solid #059;
+		outline-offset: 4px;
+		z-index: 6;
+	}
+	&.d6 {
+		outline: 1px dashed #047;
+		outline-offset: 5px;
+		z-index: 5;
+	}
+	&.d7 {
+		outline: 1px dotted #035;
+		outline-offset: 6px;
+		z-index: 4;
+	}
+}

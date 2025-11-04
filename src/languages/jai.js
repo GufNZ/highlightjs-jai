@@ -30348,8 +30348,12 @@ function jai(hljs) {
 		$name: '_structBlock',
 		begin: /{/,
 		returnBegin: true,
+		keywords: keywordsExceptStdLib,
 		contains: [
+			...COMMENTS,
+			NOTE,
 			OPERATOR,
+			DIRECTIVE,
 			balancedBrace(
 				NEARLY_ALL.map(
 					r => r.scope === 'variable.declaration'
@@ -30380,6 +30384,10 @@ function jai(hljs) {
 		begin: /\(/,
 		returnBegin: true,
 		contains: [
+			...COMMENTS,
+			NOTE,
+			OPERATOR,
+			DIRECTIVE,
 			balancedParen(
 				NEARLY_ALL.map(
 					r => r.scope === 'variable.declaration'

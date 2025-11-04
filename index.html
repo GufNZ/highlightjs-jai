@@ -9,22 +9,7 @@
 		<script type="text/javascript" src="jai.min.js"></script>
 	-->
 	<link rel="stylesheet" type="text/css" href="src/styles/jaiEverything.css" />
-	<style type="text/css">
-		#notIt {
-			display: none;
-		}
-
-		body,
-		pre {
-			margin: 0;
-			padding: 0;
-			display: grid;
-			height: 100vh;
-			font-weight: bold;
-			font-size: 11px;
-
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="debug.css" />
 	<script type="text/javascript" src="localHilightDebug.js"></script>
 	<script type="text/javascript" src="src/languages/jai.js"></script>
 	<script type="text/javascript">
@@ -34,6 +19,12 @@
 
 <body>
 	<pre id="it"><code class="language-jai">
+makeBucket\  Allocator :: inline #no_abc () -&gt; Alloc\ ator {
+	ba := New(BucketAllocator);
+	init(ba);
+	return .{ pr\ oc = bucket_allocator_proc, data = xx ba };
+} @note @"note with spaces"
+
 sscanf :: (unknown0: *u8, unknown1: *u8, __args: ..Any) -> s32 #foreign libc;
 
 Fruit_\ Transaction :: struct {
