@@ -216,6 +216,7 @@ params.moduleOrProgram
 params.moduleOrProgram.declaration
 property
 property.constant
+property.constant.declaration
 property.constant.enum
 property.declaration
 punctuation
@@ -325,6 +326,7 @@ symbol.size.numeric
 symbol.size.type
 title.class.declaration
 title.class.inherited
+title.enum.declaration
 title.function
 title.function.declaration
 title.function.forExpansion
@@ -340,6 +342,8 @@ type.declaration
 type.enum.declaration
 type.enum.value.declaration
 type.float
+type.function.declaration
+type.function.declaration.quickLambda
 type.integer.signed
 type.integer.unsigned
 type.stdLib.Adpcm
@@ -440,6 +444,7 @@ type.stdLib.stb_image_write
 type.stdLib.stb_vorbis
 type.stdLib.xxHash
 type.string
+type.struct.declaration
 type.type
 type.void
 variable

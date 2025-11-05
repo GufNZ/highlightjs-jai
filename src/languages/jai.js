@@ -28354,6 +28354,28 @@ function jai(hljs) {
 		],
 	};
 
+	const CHAR_DIRECTIVE = {
+		scope: 'char',
+		relevance: 7,
+		begin: [
+			/#/,
+			/char/,
+			`\\s${skipWSAndCommentsREFn()}`,
+			/"(?=(?:\\.|[^\\])")/,
+			/(?:\\.(?="))?/,
+			/(?:[^\\](?="))?/,
+			/"/
+		],
+		beginScope: {
+			1: 'operator.hash.directive',
+			2: 'keyword.char',
+			4: 'punctuation.quote',
+			5: 'char.escape',
+			6: 'char',
+			7: 'punctuation.quote'
+		}
+	};
+
 	const AS_REF = {
 		scope: 'title.class.inherited',
 		relevance: 3,
@@ -28393,7 +28415,9 @@ function jai(hljs) {
 		AS_REF,
 		...SHIFTS,
 		OPERATOR,
-		PUNCTUATION
+		PUNCTUATION,
+		CHAR_DIRECTIVE,
+		DIRECTIVE
 	];
 
 	const FUNCTION_CALL = {
@@ -28447,89 +28471,24 @@ function jai(hljs) {
 		scope: 'title.function.declaration',
 		relevance: 5,
 		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::(?:${skipWSAndCommentsREFn(0)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(0)}\\()`,
-		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
-		end: `(?=${skipWSAndCommentsREFn()}::)`,
-		//starts - :ForwardRefForProc
 	};
 
 	const ENUM_DECLARATION = {
-		scope: 'type.enum.declaration',
+		scope: 'title.enum.declaration',
 		relevance: 5,
 		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}enum(?:_flags)?)`,
-		returnBegin: true,
 		keywords,
-		contains: [
-			ALIGNMENT_WS,
-			...ATOMIC
-				.filter(r => !['type', 'variable', 'variable.constant'].includes(r.scope))
-				.map(
-					r => r.scope === 'punctuation'
-						? {
-							...r,
-							variants: r.variants.map(
-								v => v.scope === 'punctuation.brace'
-									? {
-										...v,
-										begin: /\{/
-									}
-									: v
-							)
-						}
-						: r
-				),
-			{
-				$name: 'EnumValueConstDeclaration',
-				...CONST_DECLARATION,
-				scope: 'type.enum.value.declaration',
-				keywords: keywordsExceptStdLib,
-				begin: CONST_DECLARATION.begin.replace(/\)$/, `(?!${skipWSAndCommentsREFn()}enum))`)
-			},
-			{
-				$name: 'EnumValueConst',
-				...CONST,
-				scope: 'type.enum.value.declaration',
-				keywords: keywordsExceptStdLib,
-				begin: `${CONST.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
-				end: /;/,
-				returnEnd: true
-			},
-			{
-				$name: 'EnumValueType',
-				...TYPE,
-				scope: 'type.enum.value.declaration',
-				keywords: keywordsExceptStdLib,
-				begin: `${TYPE.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
-				end: /;/,
-				returnEnd: true
-			},
-			{
-				$name: 'EnumValueVar',
-				...VAR,
-				scope: 'type.enum.value.declaration',
-				keywords: keywordsExceptStdLib,
-				begin: `${VAR.begin}(?=${skipWSAndCommentsREFn()}(?:;|::(?!${skipWSAndCommentsREFn(0)}enum)))`,
-				end: /;/,
-				returnEnd: true
-			},
-			DIRECTIVE,
-			SEMICOLON
-			//...CASTS - :forwardRefForEnum
-		],
-		end: /\}/,
-		returnEnd: true
+		contains: [ALIGNMENT_WS],
 	};
 
 	const STRUCT_DECLARATION = {
 		scope: 'title.class.declaration',
 		relevance: 5,
 		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}struct)`,
-		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
-		end: /(?=\s*::)/
-		//starts - :ForwardRefForStruct
 	};
 
 	function balancedPair(contents, options, pairName, pairChars) {
@@ -28583,11 +28542,10 @@ function jai(hljs) {
 		PROC_DECLARATION,
 		ENUM_DECLARATION,
 		STRUCT_DECLARATION,
-		TYPE_DECLARATION,
 		CONST_DECLARATION,
+		TYPE_DECLARATION,
 		VAR_DECLARATION,
-		...ATOMIC,
-		DIRECTIVE
+		...ATOMIC
 	];
 
 	const CAST_MODIFIER = {
@@ -28640,8 +28598,6 @@ function jai(hljs) {
 			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		}
 	];
-
-	ENUM_DECLARATION.contains.push(...CASTS);	// :forwardRefForEnum
 
 	const asmKeywords = {
 		"type.asm": [
@@ -30223,35 +30179,12 @@ function jai(hljs) {
 		returnEnd: true
 	}
 
-	const CHAR_DIRECTIVE = {
-		scope: 'char',
-		relevance: 7,
-		begin: [
-			/#/,
-			/char/,
-			`\\s${skipWSAndCommentsREFn()}`,
-			/"(?=(?:\\.|[^\\])")/,
-			/(?:\\.(?="))?/,
-			/(?:[^\\](?="))?/,
-			/"/
-		],
-		beginScope: {
-			1: 'operator.hash.directive',
-			2: 'keyword.char',
-			4: 'punctuation.quote',
-			5: 'char.escape',
-			6: 'char',
-			7: 'punctuation.quote'
-		}
-	};
-
 	const COMMON_EXCEPT_IMPORT_AND_CAST = [
 		ASM,
 		PRINTLIKE,
 		...COMMON_EXCEPT_STRING,
 		STRING,
-		HERESTRING,
-		CHAR_DIRECTIVE
+		HERESTRING
 	];
 
 	const COMMON_EXCEPT_IMPORT = [
@@ -30334,42 +30267,60 @@ function jai(hljs) {
 
 	const NEARLY_ALL = [
 		...COMMON_EXCEPT_IMPORT,
-		CHAR_DIRECTIVE,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
 		MODIFY_DIRECTIVE,
 		SEMICOLON
 	];
 
-	//BUG: structDecl relies on :: so an inline decl as a type doesn't match.  Fix is to leave the lookahead then end, and add STRUCT as a begin:struct,starts:balanced{}...;
-	//FIXME: same for enum[_flags]
-
-	// :ForwardRefForStruct:
-	STRUCT_DECLARATION.starts = {
-		$name: '_structBlock',
-		begin: /{/,
+	const ENUM_TYPE_DECLARATION = {
+		scope: 'type.enum.declaration',
+		begin: /\benum(?:_flags)?\b/,
 		returnBegin: true,
 		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
-			{
-				...OPERATOR,
-				variants: OPERATOR.variants.filter(v => v.scope === 'operator.define.constant')
-			},
 			DIRECTIVE,
 			balancedBrace(
 				NEARLY_ALL.map(
-					r => r.scope === 'variable.declaration'
+					r => r.scope?.startsWith('variable') || r.scope === 'type.declaration'
+						? {
+							...r,
+							scope: 'type.enum.value.declaration',
+							keywords: keywordsExceptStdLib
+						}
+						: r
+				),
+				{
+					endsParent: true
+				}
+			)
+		],
+		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+	};
+
+	const STRUCT_TYPE_DECLARATION = {
+		scope: 'type.struct.declaration',
+		begin: /\bstruct\b/,
+		keywords: keywordsExceptStdLib,
+		contains: [
+			'self',
+			...COMMENTS,
+			NOTE,
+			DIRECTIVE,
+			balancedBrace(
+				NEARLY_ALL.map(
+					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
 						? {
 							...r,
 							scope: 'property.declaration',
 							keywords: keywordsExceptStdLib
 						}
-						: r.scope === 'type.declaration'
+						: r.scope === 'variable.constant.declaration'
 							? {
 								...r,
-								scope: 'property.declaration',
+								scope: 'property.constant.declaration',
 								keywords: keywordsExceptStdLib
 							}
 							: r
@@ -30380,25 +30331,22 @@ function jai(hljs) {
 			)
 		],
 		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-	}
+	};
 
-	// :ForwardRefForProc:
-	PROC_DECLARATION.starts = {
-		$name: '_procParams',
-		begin: /\(/,
+	const PROC_TYPE_DECLARATION = {
+		scope: 'type.function.declaration',
+		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}(?:->(?=(.+?))\\2)?${skipWSAndCommentsREFn(1)}(?:#modify|\\{))`,
 		returnBegin: true,
 		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
-			{
-				...OPERATOR,
-				variants: OPERATOR.variants.filter(v => v.scope === 'operator.define.constant')
-			},
+			OPERATOR,
+			MODIFY_DIRECTIVE,
 			DIRECTIVE,
 			balancedParen(
 				NEARLY_ALL.map(
-					r => r.scope === 'variable.declaration'
+					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
 						? {
 							...r,
 							scope: 'params.declaration',
@@ -30411,9 +30359,44 @@ function jai(hljs) {
 				}
 			)
 		],
-		end: /;|\{/,
-		returnEnd: true
+		end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
+
+	const QUICKLAMBDA_TYPE_DECLARATION = {
+		scope: 'type.function.declaration.quickLambda',
+		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}=>)`,
+		returnBegin: true,
+		keywords: keywordsExceptStdLib,
+		contains: [
+			...COMMENTS,
+			NOTE,
+			OPERATOR,
+			MODIFY_DIRECTIVE,
+			DIRECTIVE,
+			balancedParen(
+				NEARLY_ALL.map(
+					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
+						? {
+							...r,
+							scope: 'params.declaration',
+							keywords: keywordsExceptStdLib
+						}
+						: r
+				),
+				{
+					endsParent: true,
+				}
+			)
+		],
+	};
+
+	PROC_TYPE_DECLARATION.contains.push(STRUCT_TYPE_DECLARATION);
+	PROC_TYPE_DECLARATION.contains.push(ENUM_TYPE_DECLARATION);
+	PROC_TYPE_DECLARATION.contains.push(QUICKLAMBDA_TYPE_DECLARATION);
+
+	STRUCT_TYPE_DECLARATION.contains.push(ENUM_TYPE_DECLARATION);
+	STRUCT_TYPE_DECLARATION.contains.push(PROC_TYPE_DECLARATION);
+	STRUCT_TYPE_DECLARATION.contains.push(QUICKLAMBDA_TYPE_DECLARATION);
 
 	const MODULE_PARAMETERS_DIRECTIVE = {
 		scope: 'meta.directive',
@@ -30453,8 +30436,12 @@ function jai(hljs) {
 	};
 
 	const ALL = [
-		...NEARLY_ALL,
-		MODULE_PARAMETERS_DIRECTIVE
+		STRUCT_TYPE_DECLARATION,
+		ENUM_TYPE_DECLARATION,
+		PROC_TYPE_DECLARATION,
+		QUICKLAMBDA_TYPE_DECLARATION,
+		MODULE_PARAMETERS_DIRECTIVE,
+		...NEARLY_ALL
 	];
 
 	return {

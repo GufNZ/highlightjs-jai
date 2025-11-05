@@ -136,6 +136,16 @@ function hilightPath(clear) {
 	};
 }
 
+function getClassPath(el) {
+	const classes = [];
+	let e = el;
+	while (e && e.tagName === 'SPAN') {
+		classes.unshift('.' + e.getAttribute('class').replace(/ /g, '.'));
+		e = e.parentElement;
+	}
+	return classes.reverse().join('\n <- ');
+}
+
 hljs.debugMode();
 hljs.unregisterLanguage('jai');
 hljs.registerLanguage('jai', regexDebugPre(jai));
@@ -144,7 +154,7 @@ console.time('hilight');
 hljs.highlightElement(document.getElementById('it').firstChild);
 console.timeEnd('hilight');
 setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => {
-	span.setAttribute('title', span.getAttribute('class'));
+	span.setAttribute('title', getClassPath(span));
 	span.onmouseenter = hilightPath(true);
 	span.onmousemove = hilightPath(false);
 	span.onmouseleave = clearHilight;

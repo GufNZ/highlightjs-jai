@@ -101,11 +101,9 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
 		stack.*[top.*] = s;
 		top.* += 1;
 	};
-	pop :: (top: *int, n: int = 1) {
+	pop :: (stack: *[STACK_SIZE]string, top: *int, n: int = 1) {
 		top.* -= n;
-	};
-	reset :: (top: *int) {
-		top.* = 0;
+		stack.*[top.*] = "---";
 	};
 	stackScope :: (stack: [STACK_SIZE]string, top: int) -> string {
 		result: String_Builder;
@@ -140,7 +138,7 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
 
 		if trimmed == "}" {
 			if debug  print("%\n", replace(line, "\t", "  "), to_standard_error=true);
-			pop(*stackTop);
+			pop(*operatorStack, *stackTop);
 		} else if starts_with(trimmed, ".hljs-") || starts_with(trimmed, "&.") {
 			spaceIdx := find_index_from_left(trimmed, " ");
 			if spaceIdx == -1 {
@@ -470,8 +468,11 @@ main :: () {
 		"symbol.size_",
 		"title",
 		"title.class_",
+		"title.enum_",
 		"type.enum_",
+		"type.function_",
 		"type.integer_",
+		"type.struct_",
 		"literal.bool_"
 	);
 
@@ -484,6 +485,7 @@ main :: () {
 		".hljs-symbol.size_",
 		".hljs-type.integer_",
 		".hljs-type.enum_",
+		".hljs-type.function_",
 		".hljs-symbol",
 		".hljs-symbol.<flag>_",
 		".hljs-_BalancedParens",

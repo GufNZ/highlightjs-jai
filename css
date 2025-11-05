@@ -103,6 +103,7 @@ params.moduleOrProgram_
 params.moduleOrProgram_.declaration__
 property
 property.constant_
+property.constant_.declaration__
 property.constant_.enum__
 property.declaration_
 punctuation
@@ -130,6 +131,8 @@ title
 title.class_
 title.class_.declaration__
 title.class_.inherited__
+title.enum_
+title.enum_.declaration__
 title.function_
 title.function_.declaration__
 title.function_.forExpansion__
@@ -146,11 +149,16 @@ type.enum_
 type.enum_.declaration__
 type.enum_.value__.declaration___
 type.float_
+type.function_
+type.function_.declaration__
+type.function_.declaration__.quickLambda___
 type.integer_
 type.integer_.signed__
 type.integer_.unsigned__
 type.stdLib_
 type.string_
+type.struct_
+type.struct_.declaration__
 type.type_
 type.void_
 variable

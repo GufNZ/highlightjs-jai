@@ -28,11 +28,19 @@ Vertex :: struct {
   vertex_binding_descriptor :: #run do(type_of(base));
 }
 
+Fruits_We_Sell :: enum u32 {
+	BANANA :: 5;
+	APPLE;
+	JOHANNISBEEREN;
+	APRICOT :: 12;
+	WATERMELON;
+}
+
 Fruit_\ Transaction :: struct {
-	id: int;
-	#as using pos: Vector3;
 	using #as vel: Vector3;
+	id: int;
 	fruit:    Fruits_We_Sell;
+	#as using pos: Vector3;
 	quantity: u64;
 }
 

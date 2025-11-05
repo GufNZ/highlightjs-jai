@@ -4,6 +4,7 @@
 	"description": "Highlight.JS syntax definition for jai files.",
 	"main": "src/languages/jai.js",
 	"scripts": {
+		"compileAll": "ls *.jai | xargs -n 1 jai",
 		"generateStdLib": "jai generateStdLib.jai && ./generateStdLib >stdLib.js",
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && ./checkRef >check",

@@ -139,12 +139,13 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Declarations**|
 |`--declaration`|All declarations - if they fall back to this.|`--default`|
-|`--variable-declaration`|A variable being declared.|`--declaration`=>`--variable`=>`--default`|
-|`--struct-declaration`|A struct being declared.|`--declaration`=>`--struct`=>`--title`=>`--default`|
-|`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
-|`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
+|`--variable-declaration`|Variable declarations.|`--declaration`=>`--variable`=>`--default`|
+|`--struct-declaration`|Struct variable declarations.|`--declaration`=>`--struct`=>`--title`=>`--default`|
+|`--field-declaration`|Struct field declarations.|`--declaration`=>`--field`=>`--default`|
+|`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
+|`--proc-declaration`|Proc/functions declarations.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
-|`--type-declaration`|A type-alias being declared.|`--declaration`=>`--type`=>`--default`|
+|`--type-declaration`|Type declarations.|`--declaration`=>`--type`=>`--default`|
 |`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 |`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 |`--module-params-declaration`|Module parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--module-params`=>`--params`=>`--default`|
@@ -163,17 +164,21 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--variable-stdLib-context`|Context additions defined a module.|`--variable-stdLib`=>`--variable`=>`--default`|
 |`--variable-stdLib-moduleParam`|A standard lib module's module-parameter.|`--params`=>`--variable`=>`--default`|
 |`--variable-stdLib-programParam`|A standard lib module's program-parameter.|`--params`=>`--variable`=>`--default`|
-|`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
-||||
-|**Fields**|
 |`--field`|Struct field references (things following the `.` operator).|`--default`|
 |`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
 |`--field-constant`|Struct constant-field references (`ALL_UPPER`).|`--field`=>`--default`|
 |`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
+|`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
+||**Fields**|
+|`--field`|Struct field references (things following the `.` operator).|`--default`|
+|`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
+|`--field-constant`|Struct constant-field references (`ALL_UPPER`).|`--field`=>`--default`|
+|`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
+|`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
 ||||
 |**Types**|
 |`--type`|All types (PascalCase).|`--default`|
-|`--type-declaration`|A type-alias being declared.|`--declaration`=>`--type`=>`--default`|
+|`--type-declaration`|Type declarations.|`--declaration`=>`--type`=>`--default`|
 |`--type-enum`|All Enum types.|`--type`=>`--default`|
 |`--type-any`|The `Any` type.|`--type`=>`--default`|
 |`--type-bool`|The `bool` type.|`--type`=>`--default`|
@@ -182,15 +187,24 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--type-enum-declaration`|An `enum` or `enum_flags` type being declared.|`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 |`--type-enum-value-declaration`|An enum value being declared.|`--type-enum-declaration`=>`--type-declaration`=>`--declaration`=>`--type`=>`--default`|
 |`--type-float`|Both floating point types (`float`, `float64`).|`--type`=>`--default`|
+|`--type-function`|All procs/functions.|`--type`=>`--default`|
+|`--type-function-declaration`|Proc/function declarations.|`--type-declaration`=>`--declaration`=>`--type-function`=>`--type`=>`--default`|
+|`--type-function-declaration-quickLambda`|QuickLambda declarations.|`--type-function-declaration`=>`--type-declaration`=>`--declaration`=>`--type-function`=>`--type`=>`--default`|
 |`--type-integer`|All integer types.|`--type`=>`--default`|
 |`--type-integer-signed`|All signed integer types (`int`, `s8`, `s16`, `s32`, `s64`).|`--type-integer`=>`--type`=>`--default`|
 |`--type-integer-unsigned`|All unsigned integer types (`u8`, `u16`, `u32`, `u64`).|`--type-integer`=>`--type`=>`--default`|
 |`--type-string`|The `string` type.|`--type`=>`--default`|
 |`--type-stdLib`|Any types defined in the standard library.|`--type`=>`--default`|
+|`--type-struct`|All struct types.|`--type`=>`--default`|
+|`--type-struct-declaration`|Struct type declarations.|`--type-declaration`=>`--declaration`=>`--struct`=>`--type`=>`--default`|
 |`--type-type`|The `Type` type.|`--type`=>`--default`|
 |`--type-void`|The `void` type.|`--type`=>`--default`|
 |`--type-asm`|The `reg` (and `__reg`) types.|`--type`=>`--default`|
 |`--type-baked`|Any polymorphic type that is baked, e.g. `$T`.|`--type`=>`--default`|
+||||
+|**Enums**|
+|`--enum`|All enums.|`--title`=>`--default`|
+|`--enum-declaration`|Enum type declarations.|`--declaration`=>`--enum`=>`--title`=>`--default`|
 ||||
 |`--title`|The names of structs, procs & functions.|`--default`|
 ||||
@@ -407,6 +421,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-property`|A field reference (`something.camelCase`)|
 |`.hljs-property.declaration_`|A field declaration (`camelCase: type` inside a struct definition)|
+|`.hljs-property.constant_.declaration__`|A constant field declaration in a struct definition.|
 |`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
 |`.hljs-property.constant_.enum__`|An enum value reference (`.ALL_UPPER` or `.PascalCase`)|
 
@@ -424,18 +439,27 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-type.integer_.unsigned__`|Any unsigned integer type: `u8`, `u16` etc.|
 |`.hljs-type.string_`|The `string` type.|
 |`.hljs-type.context_`|The special `#Context` type.|
-|`.hljs-type.enum_`|All enums declaration.|
+|`.hljs-type.enum_`|All enums declarations.|
 |`.hljs-type.enum_.declaration__`|Enum type declarations.|
 |`.hljs-type.enum_.value__.declaration___`|Enum value declarations.|
+|`.hljs-type.function_`|All proc/function/quickLambda declarations.|
+|`.hljs-type.function_.declaration__`|Proc/function type declarations.|
+|`.hljs-type.function_.declaration__.quickLambda___`|QuickLambda declarations.|
+|`.hljs-type.struct_.declaration__`|Struct type declarations.|
 |`.hljs-type.code_`|The `Code` type.|
 |`.hljs-type.void_`|The `void` type.|
 |`.hljs-type.baked_`|Types on parameters that are being baked (`$`-prefixed).|
 |`.hljs-type.asm_`|Register types: `reg`, `gpr` and `vec`.|
 
+### Enums
+| CSS class | Definition |
+|-|-|
+|`.hljs-title.enum_.declaration__`|Enum variable declaration.|
+
 ### Structs
 | CSS class | Definition |
 |-|-|
-|`.hljs-title.class_.declaration__`|Struct declaration.|
+|`.hljs-title.class_.declaration__`|Struct variable declaration.|
 |`.hljs-title.class_.inherited__`|`#as` fields.|
 
 ### Procs/Functions

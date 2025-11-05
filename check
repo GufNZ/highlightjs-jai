@@ -18,8 +18,11 @@
 (symbol.size_)
 (title)
 (title.class_)
+(title.enum_)
 (type.enum_)
+(type.function_)
 (type.integer_)
+(type.struct_)
 
 #CSS classes missing from reference:
 
@@ -29,6 +32,7 @@
 (.hljs-keyword)
 (.hljs-type.integer_)
 (.hljs-type.enum_)
+(.hljs-type.function_)
 (.hljs-symbol.size_)
 (.hljs-symbol)
 (.hljs-symbol.<flag>_)
