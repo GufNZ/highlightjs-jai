@@ -1090,6 +1090,14 @@
 	font-weight: var(--punctuation-weight, --default-weight);
 	text-decoration: var(--punctuation-decoration, --default-decoration);
 
+	&.alignmentWS_ {
+		color: var(--punctuation-alignmentWS-fg, var(--punctuation-fg, --default-fg));
+		background-color: var(--punctuation-alignmentWS-bg, var(--punctuation-bg, --default-bg));
+		font-style: var(--punctuation-alignmentWS-style, var(--punctuation-style, --default-style));
+		font-weight: var(--punctuation-alignmentWS-weight, var(--punctuation-weight, --default-weight));
+		text-decoration: var(--punctuation-alignmentWS-decoration, var(--punctuation-decoration, --default-decoration));
+	}
+
 	&.backslash_ {
 		color: var(--punctuation-backslash-fg, var(--punctuation-fg, --default-fg));
 		background-color: var(--punctuation-backslash-bg, var(--punctuation-bg, --default-bg));
@@ -1136,6 +1144,14 @@
 		font-style: var(--punctuation-forExpansionInvoke-style, var(--punctuation-style, --default-style));
 		font-weight: var(--punctuation-forExpansionInvoke-weight, var(--punctuation-weight, --default-weight));
 		text-decoration: var(--punctuation-forExpansionInvoke-decoration, var(--punctuation-decoration, --default-decoration));
+	}
+
+	&.forModifier_ {
+		color: var(--punctuation-forModifier-fg, var(--punctuation-fg, --default-fg));
+		background-color: var(--punctuation-forModifier-bg, var(--punctuation-bg, --default-bg));
+		font-style: var(--punctuation-forModifier-style, var(--punctuation-style, --default-style));
+		font-weight: var(--punctuation-forModifier-weight, var(--punctuation-weight, --default-weight));
+		text-decoration: var(--punctuation-forModifier-decoration, var(--punctuation-decoration, --default-decoration));
 	}
 
 	&.paren_ {
@@ -1351,6 +1367,14 @@
 			font-weight: var(--operatorProc-weight, var(--proc-weight, var(--title-weight, --default-weight)));
 			text-decoration: var(--operatorProc-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
 		}
+
+		&.printLike__ {
+			color: var(--proc-printLike-fg, var(--proc-fg, var(--title-fg, --default-fg)));
+			background-color: var(--proc-printLike-bg, var(--proc-bg, var(--title-bg, --default-bg)));
+			font-style: var(--proc-printLike-style, var(--proc-style, var(--title-style, --default-style)));
+			font-weight: var(--proc-printLike-weight, var(--proc-weight, var(--title-weight, --default-weight)));
+			text-decoration: var(--proc-printLike-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
+		}
 	}
 }
 
@@ -1561,11 +1585,11 @@
 		text-decoration: var(--variable-constant-decoration, var(--variable-decoration, --default-decoration));
 
 		&.declaration__ {
-			color: var(--variable-declaration-fg, var(--declaration-fg, var(--variable-fg, --default-fg)));
-			background-color: var(--variable-declaration-bg, var(--declaration-bg, var(--variable-bg, --default-bg)));
-			font-style: var(--variable-declaration-style, var(--declaration-style, var(--variable-style, --default-style)));
-			font-weight: var(--variable-declaration-weight, var(--declaration-weight, var(--variable-weight, --default-weight)));
-			text-decoration: var(--variable-declaration-decoration, var(--declaration-decoration, var(--variable-decoration, --default-decoration)));
+			color: var(--variable-constant-declaration-fg, var(--variable-declaration-fg, var(--declaration-fg, var(--variable-constant-fg, var(--variable-fg, --default-fg)))));
+			background-color: var(--variable-constant-declaration-bg, var(--variable-declaration-bg, var(--declaration-bg, var(--variable-constant-bg, var(--variable-bg, --default-bg)))));
+			font-style: var(--variable-constant-declaration-style, var(--variable-declaration-style, var(--declaration-style, var(--variable-constant-style, var(--variable-style, --default-style)))));
+			font-weight: var(--variable-constant-declaration-weight, var(--variable-declaration-weight, var(--declaration-weight, var(--variable-constant-weight, var(--variable-weight, --default-weight)))));
+			text-decoration: var(--variable-constant-declaration-decoration, var(--variable-declaration-decoration, var(--declaration-decoration, var(--variable-constant-decoration, var(--variable-decoration, --default-decoration)))));
 		}
 	}
 

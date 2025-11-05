@@ -107,12 +107,14 @@ property.constant_.declaration__
 property.constant_.enum__
 property.declaration_
 punctuation
+punctuation.alignmentWS_
 punctuation.backslash_
 punctuation.brace_
 punctuation.bracket_
 punctuation.commaComma_
 punctuation.comma_
 punctuation.forExpansionInvoke_
+punctuation.forModifier_
 punctuation.paren_
 punctuation.quote_
 punctuation.semicolon_
@@ -137,6 +139,7 @@ title.function_
 title.function_.declaration__
 title.function_.forExpansion__
 title.function_.operatorProc__
+title.function_.printLike__
 type
 type.any_
 type.asm_

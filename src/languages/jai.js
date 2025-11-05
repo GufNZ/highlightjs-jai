@@ -68,16 +68,32 @@ function jai(hljs) {
 	const typeIdentifierRE 	= '\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const identifierRE 		= '\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
 	const noteRE = '@(?:"[^"]+"|\\S+)';
+
 	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
-	//const skipWSAndCommentsRE = '(?:(?://[^\\n]*\\n|/\\*[\\s\\S]*\\*/)|\\s)*';
 	let backRefCount = 1;
-	const skipWSAndCommentsREFn = offset => {
+	/**
+	 * Make `re` atomic.
+	 * @param {string} re The string of the regex to be made atomic.
+	 * @param {number | undefined} offset The integer to offset the `backRefCount` by, or `undefined` to reset it.
+	 * @returns The atomic version of `re`.
+	 */
+	const atomic = (re, offset) => {
 		if (offset === undefined) {
 			backRefCount = 1;
 		} else {
 			backRefCount += offset;
 		}
-		return `(?:(?=(//[^\\n]*\\n))\\${backRefCount++}|(?=(/\\*[\\s\\S]*\\*/))\\${backRefCount++}|(?=(\\s+))\\${backRefCount++})*`;
+
+		return `(?=(${re}))\\${backRefCount++}`;
+	};
+	/**
+	 * Regex matching WS and comments.
+	 * @param {number | undefined} offset The backRefCount offset to apply - see `atomic`.
+	 * @param {boolean} excludeNewline @default false; If true, match only space & tab rather than any whitespace.
+	 * @returns The requested regex.
+	 */
+	const skipWSAndCommentsREFn = (offset, excludeNewline = false) => {
+		return `(?:${atomic('//[^\\n]*(?=\\n)', offset)}|${atomic('/\\*[\\s\\S]*\\*/', 0)}|${atomic(excludeNewline ? '[ \\t]+' : '\\s+', 0)})*`;
 	};
 
 	/* Begin generated content [Version: beta 0.2.018, built on 11 October 2025]: */
@@ -28194,14 +28210,21 @@ function jai(hljs) {
 				scope: 'meta.directive',
 				begin: /string/
 			},
-			COMMA,
 			...COMMENTS,
 			{
-				scope: 'meta.directive.modifier',
-				begin: `(?<=,${skipWSAndCommentsREFn()})\\bcr\\b`
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					/\bcr\b/
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				}
 			}
 		],
-		end: /(?=(\w+)[ \t]*\n)/,
+		end: `(?=(\\w+)${skipWSAndCommentsREFn(undefined, true)}\\n)`,
 		starts: {
 			contains: [
 				{
@@ -28233,9 +28256,15 @@ function jai(hljs) {
 	};
 
 	const ALIGNMENT_WS = {
-		scope: 'punctuation.backslash',
 		relevance: 5,
-		begin: /\\\s*/
+		begin: [
+			/\\/,
+			/\s*/
+		],
+		beginScope: {
+			1: 'punctuation.backslash',
+			2: 'punctuation.alignmentWS'
+		}
 	};
 
 	const CONST = {
@@ -28369,6 +28398,7 @@ function jai(hljs) {
 		beginScope: {
 			1: 'operator.hash.directive',
 			2: 'keyword.char',
+			3: 'comment',
 			4: 'punctuation.quote',
 			5: 'char.escape',
 			6: 'char',
@@ -28387,20 +28417,28 @@ function jai(hljs) {
 		returnEnd: true
 	}
 
-	const FOR_EXPANSION = {
+	const FOR = {
+		$name: 'for',
 		begin: [
-			`(?<=\\bfor${skipWSAndCommentsREFn()}(?:[<*]${skipWSAndCommentsREFn(0)}){0,2})`,
+			/\bfor\b/,
+			skipWSAndCommentsREFn(),
+			/(?:\*(?:\s*<(?:\s*#v2))?|<(?:\s*#v2)?(?:\s*\*)?)/,
+			skipWSAndCommentsREFn(),
 			/:/,
 			`${identifierRE}`
 		],
 		beginScope: {
-			2: 'punctuation.forExpansionInvoke',
-			3: 'title.function.forExpansion'
+			1: 'keyword.for',
+			2: 'comment',
+			3: 'punctuation.forModifier',
+			4: 'comment',
+			5: 'punctuation.forExpansionInvoke',
+			6: 'title.function.forExpansion'
 		},
 		relevance: 5
 	};
 
-	const ATOMIC = [
+	const _ATOMIC = [
 		NOTE,
 		...COMMENTS,
 		CONST_REF,
@@ -28411,7 +28449,7 @@ function jai(hljs) {
 		VAR,
 		NUMBER,
 		...BAKES,
-		FOR_EXPANSION,
+		FOR,
 		AS_REF,
 		...SHIFTS,
 		OPERATOR,
@@ -28471,24 +28509,30 @@ function jai(hljs) {
 		scope: 'title.function.declaration',
 		relevance: 5,
 		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::(?:${skipWSAndCommentsREFn(0)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(0)}\\()`,
+		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
+		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
 
 	const ENUM_DECLARATION = {
 		scope: 'title.enum.declaration',
 		relevance: 5,
 		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}enum(?:_flags)?)`,
+		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
+		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
 
 	const STRUCT_DECLARATION = {
 		scope: 'title.class.declaration',
 		relevance: 5,
 		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}struct)`,
+		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
+		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
 
 	function balancedPair(contents, options, pairName, pairChars) {
@@ -28537,7 +28581,7 @@ function jai(hljs) {
 		return balancedPair(contents, options, 'brace', '{}');
 	}
 
-	const COMMON_EXCEPT_STRING = [
+	const _COMMON_EXCEPT_STRING = [
 		FUNCTION_CALL,
 		PROC_DECLARATION,
 		ENUM_DECLARATION,
@@ -28545,7 +28589,7 @@ function jai(hljs) {
 		CONST_DECLARATION,
 		TYPE_DECLARATION,
 		VAR_DECLARATION,
-		...ATOMIC
+		..._ATOMIC
 	];
 
 	const CAST_MODIFIER = {
@@ -28562,10 +28606,10 @@ function jai(hljs) {
 			returnBegin: true,
 			keywords,
 			contains: [
-				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
+				balancedParen([CAST_MODIFIER, COMMA, ..._COMMON_EXCEPT_STRING], { endsParent: true }),
 				CAST_MODIFIER,
 				COMMA,
-				...COMMON_EXCEPT_STRING
+				..._COMMON_EXCEPT_STRING
 			],
 			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
@@ -28576,24 +28620,23 @@ function jai(hljs) {
 			returnBegin: true,
 			keywords,
 			contains: [
-				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
+				balancedParen([CAST_MODIFIER, COMMA, ..._COMMON_EXCEPT_STRING], { endsParent: true }),
 				CAST_MODIFIER,
 				COMMA,
-				...COMMON_EXCEPT_STRING
+				..._COMMON_EXCEPT_STRING
 			],
 			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
 		{	// Option 3: value.(type[,modifier...])
 			scope: 'operator.cast.v3',
 			relevance: 5,
-			begin: /\.(?=\()/,
 			begin: `\\.(?=\\((?!${skipWSAndCommentsREFn()}\\)))`,
 			keywords,
 			contains: [
-				balancedParen([CAST_MODIFIER, COMMA, ...COMMON_EXCEPT_STRING], { endsParent: true }),
+				balancedParen([CAST_MODIFIER, COMMA, ..._COMMON_EXCEPT_STRING], { endsParent: true }),
 				CAST_MODIFIER,
 				COMMA,
-				...COMMON_EXCEPT_STRING,
+				..._COMMON_EXCEPT_STRING,
 			],
 			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		}
@@ -30038,7 +30081,7 @@ function jai(hljs) {
 			},
 			{	// {...}
 				scope: 'meta.directive.asm.block',
-				begin: `${skipWSAndCommentsREFn()}\\{`,
+				begin: /\{/,
 				returnBegin: true,
 				keywords: asmKeywords,
 				contains: [
@@ -30052,7 +30095,8 @@ function jai(hljs) {
 						],
 						beginScope: {
 							1: 'operator.asm.size.dot',
-							4: 'symbol.size.numeric'
+							2: 'comment',
+							3: 'symbol.size.numeric'
 						},
 						contains: [...COMMENTS]
 					},
@@ -30064,7 +30108,8 @@ function jai(hljs) {
 						],
 						beginScope: {
 							1: 'operator.asm.size.clue',
-							4: 'symbol.size.const'
+							2: 'comment',
+							3: 'symbol.size.const'
 						},
 						contains: [...COMMENTS]
 					},
@@ -30076,7 +30121,8 @@ function jai(hljs) {
 						],
 						beginScope: {
 							1: 'operator.asm.size.clue',
-							4: 'symbol.size.type'
+							2: 'comment',
+							3: 'symbol.size.type'
 						},
 						contains: [...COMMENTS]
 					},
@@ -30149,12 +30195,11 @@ function jai(hljs) {
 	};
 
 	const PRINTLIKE = {
-		$name: 'PrintLike',
+		scope: 'title.function.printLike',
 		begin: /(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)(?=\()/,
-		returnBegin: true,
-		keywords,
+		keywords: keywordsExceptStdLib,
 		contains: [
-			COMMON_EXCEPT_STRING,
+			..._COMMON_EXCEPT_STRING,
 			{
 				...STRING,
 				contains: [
@@ -30179,17 +30224,17 @@ function jai(hljs) {
 		returnEnd: true
 	}
 
-	const COMMON_EXCEPT_IMPORT_AND_CAST = [
+	const _COMMON_EXCEPT_IMPORT_AND_CAST = [
 		ASM,
 		PRINTLIKE,
-		...COMMON_EXCEPT_STRING,
+		..._COMMON_EXCEPT_STRING,
 		STRING,
 		HERESTRING
 	];
 
-	const COMMON_EXCEPT_IMPORT = [
+	const _COMMON_EXCEPT_IMPORT = [
 		...CASTS,
-		...COMMON_EXCEPT_IMPORT_AND_CAST
+		..._COMMON_EXCEPT_IMPORT_AND_CAST
 	];
 
 	const IMPORT_DIRECTIVE = {
@@ -30215,7 +30260,7 @@ function jai(hljs) {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([COMMON_EXCEPT_IMPORT_AND_CAST]),
+					balancedParen([_COMMON_EXCEPT_IMPORT_AND_CAST]),
 				],
 				end: /;/,
 				returnEnd: true
@@ -30238,7 +30283,7 @@ function jai(hljs) {
 		},
 		contains: [
 			...COMMENTS,
-			balancedBrace([...COMMON_EXCEPT_IMPORT, IMPORT_DIRECTIVE], { endsParent: true }),
+			balancedBrace([..._COMMON_EXCEPT_IMPORT, IMPORT_DIRECTIVE], { endsParent: true }),
 		],
 		end: /(?<=\})/,
 	};
@@ -30265,8 +30310,8 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
-	const NEARLY_ALL = [
-		...COMMON_EXCEPT_IMPORT,
+	const _NEARLY_ALL = [
+		..._COMMON_EXCEPT_IMPORT,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
 		MODIFY_DIRECTIVE,
@@ -30283,7 +30328,7 @@ function jai(hljs) {
 			NOTE,
 			DIRECTIVE,
 			balancedBrace(
-				NEARLY_ALL.map(
+				_NEARLY_ALL.map(
 					r => r.scope?.startsWith('variable') || r.scope === 'type.declaration'
 						? {
 							...r,
@@ -30310,7 +30355,7 @@ function jai(hljs) {
 			NOTE,
 			DIRECTIVE,
 			balancedBrace(
-				NEARLY_ALL.map(
+				_NEARLY_ALL.map(
 					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
 						? {
 							...r,
@@ -30335,7 +30380,7 @@ function jai(hljs) {
 
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}(?:->(?=(.+?))\\2)?${skipWSAndCommentsREFn(1)}(?:#modify|\\{))`,
+		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}(?:->${atomic('.+?', 0)})?${skipWSAndCommentsREFn(0)}(?:#modify|\\{))`,
 		returnBegin: true,
 		keywords: keywordsExceptStdLib,
 		contains: [
@@ -30345,7 +30390,7 @@ function jai(hljs) {
 			MODIFY_DIRECTIVE,
 			DIRECTIVE,
 			balancedParen(
-				NEARLY_ALL.map(
+				_NEARLY_ALL.map(
 					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
 						? {
 							...r,
@@ -30374,7 +30419,7 @@ function jai(hljs) {
 			MODIFY_DIRECTIVE,
 			DIRECTIVE,
 			balancedParen(
-				NEARLY_ALL.map(
+				_NEARLY_ALL.map(
 					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
 						? {
 							...r,
@@ -30417,7 +30462,7 @@ function jai(hljs) {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen(NEARLY_ALL)
+					balancedParen(_NEARLY_ALL)
 				],
 				end: /;|\{/,
 				returnEnd: true
@@ -30427,7 +30472,7 @@ function jai(hljs) {
 				begin: /\{/,
 				returnBegin: true,
 				contains: [
-					balancedBrace(NEARLY_ALL, { endsParent: true })
+					balancedBrace(_NEARLY_ALL, { endsParent: true })
 				]
 			}
 		],
@@ -30435,13 +30480,14 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
-	const ALL = [
+	const _ALL = [
+		PRINTLIKE,
 		STRUCT_TYPE_DECLARATION,
 		ENUM_TYPE_DECLARATION,
 		PROC_TYPE_DECLARATION,
 		QUICKLAMBDA_TYPE_DECLARATION,
 		MODULE_PARAMETERS_DIRECTIVE,
-		...NEARLY_ALL
+		..._NEARLY_ALL.filter(r => r !== PRINTLIKE)
 	];
 
 	return {
@@ -30449,7 +30495,7 @@ function jai(hljs) {
 		case_sensitive: true,
 		aliases: ['theLanguage', 'the_language'],
 		keywords,
-		contains: ALL
+		contains: _ALL
 	};
 }
 

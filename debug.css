@@ -1,4 +1,4 @@
-#notIt {
+#notIt, #it:not(:first-of-type) {
 	display: none;
 }
 

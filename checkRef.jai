@@ -456,7 +456,6 @@ main :: () {
 		//true,	// Debug css parse.
 		expectedFromCSS = .["_BalancedBraces"],
 		"built_in",
-		"comment",
 		"keyword",
 		"_BalancedParens",
 		"number.prefix__",
@@ -480,7 +479,6 @@ main :: () {
 		langScopes,
 		refStr,
 		.[],
-		".hljs-comment",
 		".hljs-keyword",
 		".hljs-symbol.size_",
 		".hljs-type.integer_",

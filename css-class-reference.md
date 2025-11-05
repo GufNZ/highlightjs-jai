@@ -135,11 +135,15 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--punctuation-comma`|`,`s.|`--punctuation`=>`--default`|
 |`--punctuation-commaComma`|The `,,` context-arg delimiter.|`--punctuation-comma`=>`--punctuation`=>`--default`|
 |`--punctuation-semicolon`|`;`s.|`--punctuation`=>`--default`|
+|`--punctuation-forModifier`|The `<` and `*` modifiers for a `for` statement.|`--punctuation`=>`--default`|
 |`--punctuation-forExpansionInvoke`|The `:` prefix on for-expansion invocations.|`--punctuation`=>`--default`|
+|`--punctuation-backslash`|Mid-identifier alignment backslash.|`--punctuation`=>`--default`|
+|`--punctuation-alignmentWS`|Mid-identifier alignment whitespace.|`--punctuation`=>`--default`|
 ||||
 |**Declarations**|
 |`--declaration`|All declarations - if they fall back to this.|`--default`|
 |`--variable-declaration`|Variable declarations.|`--declaration`=>`--variable`=>`--default`|
+|`--variable-constant-declaration`|A constant being declared.|`--variable-declaration`=>`--declaration`=>`--variable-constant`=>`--variable`=>`--default`|
 |`--struct-declaration`|Struct variable declarations.|`--declaration`=>`--struct`=>`--title`=>`--default`|
 |`--field-declaration`|Struct field declarations.|`--declaration`=>`--field`=>`--default`|
 |`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
@@ -156,6 +160,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--variable-declaration`|A variable being declared.|`--declaration`=>`--variable`=>`--default`|
 |`--variable-language`|Language-defined variables: `context`, `it`, `it_index` & `temp`.|`--variable`=>`--default`|
 |`--variable-constant`|Constants (`ALL_UPPER` names).|`--variable`=>`--default`|
+|`--variable-constant-declaration`|A constant being declared.|`--variable-declaration`=>`--declaration`=>`--variable-constant`=>`--variable`=>`--default`|
 |`--variable-param-baked`|A parameter variable which is being value-baked, i.e. `$myVar`.|`--variable`=>`--default`|
 |`--variable-context`|Variables on the Context.|`--variable`=>`--default`|
 |`--variable-context-constant`|Constants on the Context.|`--variable-constant`=>`--variable`=>`--default`|
@@ -168,7 +173,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
 |`--field-constant`|Struct constant-field references (`ALL_UPPER`).|`--field`=>`--default`|
 |`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
-|`--punctuation-backslash`|Mid-identifier backslashed whitespace.|`--punctuation`=>`--default`|
+|`--punctuation-backslash`|Mid-identifier alignment backslash.|`--punctuation`=>`--default`|
+|`--punctuation-alignmentWS`|Mid-identifier alignment whitespace.|`--punctuation`=>`--default`|
 ||**Fields**|
 |`--field`|Struct field references (things following the `.` operator).|`--default`|
 |`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
@@ -203,8 +209,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--type-baked`|Any polymorphic type that is baked, e.g. `$T`.|`--type`=>`--default`|
 ||||
 |**Enums**|
-|`--enum`|All enums.|`--title`=>`--default`|
-|`--enum-declaration`|Enum type declarations.|`--declaration`=>`--enum`=>`--title`=>`--default`|
+|`--enum`|All enum variables.|`--title`=>`--default`|
+|`--enum-declaration`|Enum variable declarations.|`--declaration`=>`--enum`=>`--title`=>`--default`|
 ||||
 |`--title`|The names of structs, procs & functions.|`--default`|
 ||||
@@ -215,6 +221,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Procs/Functions**|
 |`--proc`|Procedures & functions.|`--title`=>`--default`|
+|`--proc-printLike`|Known stdLib procs marked with `@PrintLike`, enabling substitution marker highlighting.|`--proc`=>`--title`=>`--default`|
 |`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
@@ -359,7 +366,6 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-keyword.proc_`|`interface`, `inline` and `no_inline`.|
 |`.hljs-keyword.struct_`|`struct` and `union`.|
 |`.hljs-keyword.for_`|`for`, `while` and `remove`.|
-|`.hljs-punctuation.forExpansionInvoke_`|The `:` before a **for_expansion** name.|
 |`.hljs-title.function_.forExpansion__`|A named for_expansion invocation.|
 
 ### Operators
@@ -402,6 +408,10 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-punctuation.commaComma_`|`,,`, for overriding context values like allocator.|
 |`.hljs-punctuation.quote_`|`"`.|
 |`.hljs-punctuation.semicolon_`|`;`.|
+|`.hljs-punctuation.forModifier_`|The `<` and `*` modifiers for a `for` statement.|
+|`.hljs-punctuation.forExpansionInvoke_`|The `:` before a **for_expansion** name.|
+|`.hljs-punctuation.backslash_`|Mid-identifier alignment backslash, e.g. `my_var\   _name`|
+|`.hljs-punctuation.alignmentWS_`|Mid-identifier alignment whitespace, e.g. `my_var\   _name`|
 
 ### Variables
 | CSS class | Definition |
@@ -414,6 +424,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-variable.declaration_`|A variable being defined.|
 |`.hljs-variable.language_`|Language-special variables - `context`, `temp`, `it`, `it_index`.|
 |`.hljs-punctuation.backslash_`|Mid-identifier alignment backslash, e.g. `my_var\   _name`|
+|`.hljs-punctuation.alignmentWS_`|Mid-identifier alignment whitespace, e.g. `my_var\   _name`|
 |`.hljs-variable.param_.baked__`|A proc parameter that is being baked (`$`-prefixed).|
 
 ### Fields
@@ -466,6 +477,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 | CSS class | Definition |
 |-|-|
 |`.hljs-title.function_`|Proc/Function call.|
+|`.hljs-title.function_.printLike__`|Known stdLib procs marked with `@PrintLike`, enabling substitution marker highlighting.|
 |`.hljs-title.function_.declaration__`|Proc/Function declaraion.|
 |`.hljs-params.declaration_`|All proc parameter declarations in the proc signature.|
 

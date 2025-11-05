@@ -123,6 +123,7 @@ built_in.stdLib.telemetry3
 built_in.stdLib.xxHash
 char
 char.escape
+comment
 comment.block
 comment.line
 doctag
@@ -220,12 +221,14 @@ property.constant.declaration
 property.constant.enum
 property.declaration
 punctuation
+punctuation.alignmentWS
 punctuation.backslash
 punctuation.brace
 punctuation.bracket
 punctuation.comma
 punctuation.commaComma
 punctuation.forExpansionInvoke
+punctuation.forModifier
 punctuation.paren
 punctuation.quote
 punctuation.semicolon
@@ -331,6 +334,7 @@ title.function
 title.function.declaration
 title.function.forExpansion
 title.function.operatorProc
+title.function.printLike
 type
 type.any
 type.asm
