@@ -6,7 +6,8 @@
 	<script type="text/javascript" src="../../dist/jai.min.js"></script>~
 	<link id="$" disabled rel="stylesheet" type="text/css" href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/$.min.css"/>~
 	<link id="jaiEverything" rel="stylesheet" type="text/css" href="../../dist/styles/jaiEverything.css"/>
-	<link rel="stylesheet" type="text/css" href="debug.css" />
+	<link rel="stylesheet" type="text/css" href="../../debug.css"/>
+	<script type="text/javascript" src="../../debug.mjs"></script>
 	<style type="text/css">
 		.menu {
 			position: absolute;
@@ -48,7 +49,7 @@
 			[...document.getElementsByTagName("link")].forEach(el => { el.disabled = true; });
 			document.getElementById(e.target.value).disabled = false;
 		};
-		setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => span.setAttribute('title', span.getAttribute('class'))), 1000);
+		jaiDebug.applyDebugInfo();
 	</script>
 </body>
 </html>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<title>Jai for highlight.js</title>
 	<!--
@@ -8,15 +7,15 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.0/highlight.min.js"></script>
 		<script type="text/javascript" src="jai.min.js"></script>
 	-->
-	<link rel="stylesheet" type="text/css" href="src/styles/jaiEverything.css" />
-	<link rel="stylesheet" type="text/css" href="debug.css" />
+	<link rel="stylesheet" type="text/css" href="src/styles/jaiEverything.css"/>
+	<link rel="stylesheet" type="text/css" href="debug.css"/>
 	<script type="text/javascript" src="localHilightDebug.js"></script>
 	<script type="text/javascript" src="src/languages/jai.js"></script>
+	<script type="text/javascript" src="debug.mjs"></script>
 	<script type="text/javascript">
 		hljs.registerLanguage('jai', jai);
 	</script>
 </head>
-
 <body>
 	<pre id="it"><code class="language-jai">
 Vertex :: struct {
@@ -1275,10 +1274,8 @@ BucketItemRef :: struct {
 	}
 }
 		</code></pre>
-	<script type="text/javascript" src="debug.js"></script>
-	<!--<script type="text/javascript">
-		hljs.highlightAll();
-	</script>-->
+	<script type="text/javascript">
+		jaiDebug.debugInit();
+	</script>
 </body>
-
 </html>

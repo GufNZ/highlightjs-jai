@@ -137,6 +137,11 @@ function hilightPath(clear) {
 }
 
 function getClassPath(el) {
+	if (!el.classList.length) {
+		return '';
+	}
+
+
 	const classes = [];
 	let e = el;
 	while (e && e.tagName === 'SPAN') {
@@ -146,19 +151,25 @@ function getClassPath(el) {
 	return classes.reverse().join('\n <- ');
 }
 
-hljs.debugMode();
-hljs.unregisterLanguage('jai');
-hljs.registerLanguage('jai', regexDebugPre(jai));
-console.log('starting...');
-console.time('hilight');
-hljs.highlightElement(document.getElementById('it').firstChild);
-console.timeEnd('hilight');
-setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => {
-	span.setAttribute('title', getClassPath(span));
-	span.onmouseenter = hilightPath(true);
-	span.onmousemove = hilightPath(false);
-	span.onmouseleave = clearHilight;
-}), 1000);
+function applyDebugInfo() {
+	setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => {
+		span.setAttribute('title', getClassPath(span));
+		span.onmouseenter = hilightPath(true);
+		span.onmousemove = hilightPath(false);
+		span.onmouseleave = clearHilight;
+	}), 1000);
+}
+
+function debugInit() {
+	hljs.debugMode();
+	hljs.unregisterLanguage('jai');
+	hljs.registerLanguage('jai', regexDebugPre(jai));
+	console.log('starting...');
+	console.time('hilight');
+	hljs.highlightElement(document.getElementById('it').firstChild);
+	console.timeEnd('hilight');
+	applyDebugInfo();
+}
 
 //Breakpoints: processLexeme(bef; [const match = this.matcherRe.exec(s);]+1.
 //Live expressions:
@@ -169,3 +180,17 @@ setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => {
 //textLeft(typeof index!=='undefined'?index:this.lastIndex, typeof codeToHighlight!='undefined'?codeToHighlight:s)
 //
 //matchNext(top !== window.top && typeof top.matcher !== undefined ? top.matcher : this)
+
+window.jaiDebug = {
+    emitterStack,
+    matchMode,
+    textLeft,
+    matchNext,
+    walk,
+    regexDebugPre,
+    clearHilight,
+    hilightPath,
+    getClassPath,
+    applyDebugInfo,
+    debugInit
+};
