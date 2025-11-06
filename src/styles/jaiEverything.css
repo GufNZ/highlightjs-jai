@@ -33,6 +33,7 @@
 	--builtIn-special-fg: #8F0;
 	--builtIn-stdLib-fg: #FC8;
 
+	--enum-fg: #3CF;
 	--type-fg: #088;
 	--type-stdLib-fg: #0AA;
 	--type-enum-fg: #0AC;
@@ -81,6 +82,7 @@
 	--struct-inherited-decoration: underline;
 
 	--proc-fg: #F80;
+	--proc-printLike-fg: #8F0;
 	--forExpansion-fg: #F40;
 
 	--params-fg: #CC0;
@@ -569,6 +571,14 @@
 					text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma-decoration, var(--punctuation-decoration, --default-decoration)));
 				}
 			}
+		}
+
+		&.forV2__ {
+			color: var(--directive-forV2-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
+			background-color: var(--directive-forV2-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
+			font-style: var(--directive-forV2-style, var(--directive-style, var(--meta-style, --default-style)));
+			font-weight: var(--directive-forV2-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
+			text-decoration: var(--directive-forV2-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
 		}
 
 		&.import__ {

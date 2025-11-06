@@ -27979,6 +27979,24 @@ function jai(hljs) {
 		]
 	};
 
+	const PUNCTUATION_EXCEPT_BALANCED_PAIR = {
+		'()': {
+			...PUNCTUATION,
+			begin: PUNCTUATION.begin.source.replace(/\(\)/, ''),
+			variants: PUNCTUATION.variants.filter(v => v.scope !== 'punctuation.paren')
+		},
+		'{}': {
+			...PUNCTUATION,
+			begin: PUNCTUATION.begin.source.replace(/\{\}/, ''),
+			variants: PUNCTUATION.variants.filter(v => v.scope !== 'punctuation.brace')
+		},
+		'[]': {
+			...PUNCTUATION,
+			begin: PUNCTUATION.begin.source.replace(/\[\]/, ''),
+			variants: PUNCTUATION.variants.filter(v => v.scope !== 'punctuation.bracket')
+		}
+	};
+
 	const COMMA = PUNCTUATION.variants.find(v => v.scope === 'punctuation.comma');
 
 	const SEMICOLON = {
@@ -28417,27 +28435,6 @@ function jai(hljs) {
 		returnEnd: true
 	}
 
-	const FOR = {
-		$name: 'for',
-		begin: [
-			/\bfor\b/,
-			skipWSAndCommentsREFn(),
-			/(?:\*(?:\s*<(?:\s*#v2))?|<(?:\s*#v2)?(?:\s*\*)?)/,
-			skipWSAndCommentsREFn(),
-			/:/,
-			`${identifierRE}`
-		],
-		beginScope: {
-			1: 'keyword.for',
-			2: 'comment',
-			3: 'punctuation.forModifier',
-			4: 'comment',
-			5: 'punctuation.forExpansionInvoke',
-			6: 'title.function.forExpansion'
-		},
-		relevance: 5
-	};
-
 	const _ATOMIC = [
 		NOTE,
 		...COMMENTS,
@@ -28449,7 +28446,6 @@ function jai(hljs) {
 		VAR,
 		NUMBER,
 		...BAKES,
-		FOR,
 		AS_REF,
 		...SHIFTS,
 		OPERATOR,
@@ -28472,7 +28468,7 @@ function jai(hljs) {
 	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
-		begin: `${typeIdentifierRE}(?=${skipWSAndCommentsREFn()}:)`,
+		begin: `${typeIdentifierRE}(?=(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}${identifierRE})*${skipWSAndCommentsREFn(0)}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -28485,7 +28481,7 @@ function jai(hljs) {
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		relevance: 2,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::)`,
+		begin: `${identifierRE}(?=(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}${identifierRE})*${skipWSAndCommentsREFn(0)}::)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28495,7 +28491,7 @@ function jai(hljs) {
 	const VAR_DECLARATION = {
 		scope: 'variable.declaration',
 		relevance: 0,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}:)`,
+		begin: `${identifierRE}(?=(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}${identifierRE})*${skipWSAndCommentsREFn(0)}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -28561,13 +28557,9 @@ function jai(hljs) {
 					: 'self',
 				...contents
 					.map(
-						r => r.scope !== 'punctuation'
-							? r
-							: {
-								...r,
-								begin: r.begin.source.replace(pairChars, ''),
-								variants: r.variants.filter(v => v.scope !== `punctuation.${pairName}`)
-							}
+						r => r.scope === 'punctuation'
+							? PUNCTUATION_EXCEPT_BALANCED_PAIR[pairChars]
+							: r
 					)
 			],
 			end: `\\${pairChars[1]}`,
@@ -30318,6 +30310,52 @@ function jai(hljs) {
 		SEMICOLON
 	];
 
+	const FOR = {
+		scope: 'keyword.for',
+		begin: /\bfor\b/,
+		keywords,
+		contains: [
+			...COMMENTS,
+			{
+				scope: 'punctuation.forModifier',
+				relevance: 5,
+				begin: /[*<]/,
+			},
+			{
+				$name: 'forExpansionUse',
+				begin: [
+					/:/,
+					identifierRE
+				],
+				beginScope: {
+					1: 'punctuation.forExpansionInvoke',
+					2: 'title.function.forExpansion'
+				}
+			},
+			{
+				$name: '#v2',
+				begin: [
+					/#/,
+					/v2\b/
+				],
+				beginScope: {
+					1: 'operator.hash.directive',
+					2: 'meta.directive.forV2'
+				}
+			},
+			_NEARLY_ALL
+				.filter(r => r !== SEMICOLON)
+				.map(r =>
+					r.scope === 'punctuation'
+						? PUNCTUATION_EXCEPT_BALANCED_PAIR['{}']
+						: r
+				)
+		],
+		end: /;|\{/,
+		returnEnd: true,
+		relevance: 5
+	};
+
 	const ENUM_TYPE_DECLARATION = {
 		scope: 'type.enum.declaration',
 		begin: /\benum(?:_flags)?\b/,
@@ -30481,6 +30519,7 @@ function jai(hljs) {
 	};
 
 	const _ALL = [
+		FOR,
 		PRINTLIKE,
 		STRUCT_TYPE_DECLARATION,
 		ENUM_TYPE_DECLARATION,

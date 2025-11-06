@@ -31,9 +31,10 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 					.replace(/\./g, '\\.')
 					.replace(/\$/g, '\\$')
 					.replace(/:/g, '')
-					.replace(/(.+)\?/g, '(?<=$1)[^\[$]+')
+					.replace(/(.+)\?/g, '(?<=$1)[^\\[$]+')
 					.replace(/^\^/, '(?<!:)')
 					.replace(/\*/g, '[^.$]+')
+					.replace(/\//, '\\[\\d+\\]')
 					+ '$'
 			);
 			r.matchValue = m.endsWith(':');
@@ -44,7 +45,10 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 	matches.forEach(m => {
 		const match = m.exec(path);
 		if (match) {
-			proc(m.matchValue ? obj : match[0], parent, parent[key], key, path, grandParent);
+			const result = proc(m.matchValue ? obj : match[0], parent, obj, key, path, grandParent);
+			if (result !== obj) {
+				obj = result;
+			}
 		}
 	});
 
@@ -52,34 +56,41 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 	if (Array.isArray(obj)) {
 		if (seen.has(obj)) {
 			//console.log('already seen []', path);
-			return;
+			return obj;
 		}
 
 
 		seen.add(obj);
 		for (let i = 0; i < obj.length; i++) {
-			walk(obj[i], matches, proc, `${path}[${i}]`, key, obj, parent);
+			const result = walk(obj[i], matches, proc, `${path}[${i}]`, i, obj, parent);
+			if (result !== obj[i]) {
+				obj[i] = result;
+			}
 		}
 	} else if (obj && typeof obj === 'object') {
 		if (seen.has(obj)) {
 			//console.log('already seen {}', path);
-			return;
+			return obj;
 		}
 
 
 		seen.add(obj);
 		const keys = Object.keys(obj);
 		for (let key of keys) {
-			walk(obj[key], matches, proc, `${path}.${key}`, key, obj, parent);
+			const result = walk(obj[key], matches, proc, `${path}.${key}`, key, obj, parent);
+			if (result !== obj[key]) {
+				obj[key] = result;
+			}
 		}
 	}
+
+	return obj;
 }
 
 function regexDebugPre(lang) {
-	const defn = lang(hljs);
-	walk(defn, ['^begin', 'begin.?', '^end', 'end.?', '$pattern'], (match, parent, value, key, path, grandParent) => {
+	const defn = walk(lang(hljs), ['^begin', 'begin/', '^end', 'end/', '$pattern'], (match, parent, value, key, path, grandParent) => {
 		if (Array.isArray(value)) {
-			return;
+			return value;
 		}
 
 
@@ -97,21 +108,35 @@ function regexDebugPre(lang) {
 		let name = parent.$name
 			?? (
 				(key === "$pattern")
-					? grandParent.$name ?? grandParent.scope
+					? grandParent.$name ?? grandParent.scope ?? "$pattern"
 					: null
-			)?? (
+			) ?? (
 				isFinite(Number(key))
-					? grandParent[parentKey.replace("Scope", "")][+key]
+					? grandParent[parentKey.includes("Scope") ? parentKey.replace("Scope", "") : parentKey + "Scope"][+key]
 					: parent.$name ?? parent.scope
-			) ?? path.slice(2);
+			);
+
+		if (name) {
+			name = `\t${name}`;
+		} else {
+			if (key === 'keywords') {
+				name = `${key}\$pattern`;
+			} else if (parentKey === 'begin' || parentKey === 'end') {
+				name = `${grandParent.$name ?? grandParent.scope ?? grandParent[parentKey + 'Scope'][key] ?? '...'}`;
+			}
+
+			if (!name) {
+				name = '---';
+			}
+		}
 
 		if (key === 'end' || parentKey === 'endScope') {
-			name = 'end:' + name;
+			name = '\tend:' + name.replace(/^\t/, '');
 		}
 
 		re = `(?!\n'${name}')` + re;
 
-		parent[key] = re
+		return re;
 	});
 	return () => defn;
 }

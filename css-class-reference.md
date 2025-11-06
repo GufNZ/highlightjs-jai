@@ -240,6 +240,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |**Directives**|
 |`--directive`|Directives.|`--meta`=>`--default`|
 |`--directive-modifier`|Directive modifiers.|`--directive`=>`--meta`=>`--default`|
+|`--directive-forV2`|The temporary `#v2` directive for `for` statements that are reversed, indicating the bounds are also flipped - soon to become the default.|`--directive`=>`--meta`=>`--default`|
 |`--directive-import`|The `#import` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
@@ -515,6 +516,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-meta.directive_.load__`|Load directives.|
 |`.hljs-string.path_.load__`|The file-path in the load directive.|
 |||
+|`.hljs-meta.directive_.forV2__`|The temporary `#v2` directive for `for` statements that are reversed, indicating the bounds are also flipped - soon to become the default.|
 |`.hljs-meta.directive_.import__`|Import directives.|
 |`.hljs-string.path_.import__`|The module name or path in import directives.|
 |`.hljd-params`|All `#import` or `#module_parameters` parameters.|
