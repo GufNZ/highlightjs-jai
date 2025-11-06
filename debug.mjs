@@ -1,10 +1,32 @@
 function emitterStack() {
-	return $emitter.stack.map((s, i) => typeof (s) === 'string' ? `${i}"${s}"` : `${i}!${s._id}:${s.scope ?? s.$name ?? '???'}[${s.children?.length ?? '-'}]`
-	//{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`
+	return $emitter.stack.map(
+		(s, i) => typeof(s) === 'string'
+			? `${i}"${s}"`
+			: `${i}!${s._id}:${s.scope ?? s.$name ?? '???'}[${s.children?.length ?? '-'}]`
+				//{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`
 	).toReversed();
 }
-function matchMode($m) {
-	return $m.map((e, i) => ({ e, i })).filter(e => e.e !== undefined).map(e => `${e.i}:[${e.e}]`).concat([$m.type, (typeof ($r = $m.rule) != 'undefined' ? $r.scope ?? (($b = $r.beginScope) && JSON.stringify($b)) ?? $r.$name ?? $r.beginRe : `${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`)]);
+function matchMode($m, matcher) {
+	const extractName = re => /^\(\?!\n'([^']+).+$/.exec(re)?.[1];
+	return $m
+		.map((e, i) => ({ e, i }))
+		.filter(e => e.e !== undefined)
+		.map(e => `${e.i}:[${e.e}]`)
+		.concat(
+			[
+				$m.type,
+				(typeof($r = $m.rule) !== 'undefined'
+					? $r.scope
+						?? $r.$name
+						?? (($b = $r.beginScope) && JSON.stringify($b))
+						?? $r.beginRe
+					: `${
+						extractName(matcher?.rules?.[$m.position][0])
+							?? `${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`
+					}`//${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`
+				)
+			]
+		);
 }
 function textLeft(index, s) {
 	return `${index}[${s.substr(index)}]`;
@@ -117,7 +139,9 @@ function regexDebugPre(lang) {
 			);
 
 		if (name) {
-			name = `\t${name}`;
+			if (/variants\[\d+\].\w+$/.test(path)) {
+				name = `\t${name}`;
+			}
 		} else {
 			if (key === 'keywords') {
 				name = `${key}\$pattern`;
@@ -131,7 +155,7 @@ function regexDebugPre(lang) {
 		}
 
 		if (key === 'end' || parentKey === 'endScope') {
-			name = '\tend:' + name.replace(/^\t/, '');
+			name = 'end:' + name;
 		}
 
 		re = `(?!\n'${name}')` + re;

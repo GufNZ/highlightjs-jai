@@ -83,6 +83,9 @@ There is included an example theme.  It's mostly designed for testing the matchi
 
 See also the [css-class-reference](css-class-reference.md).
 
+## Known Limitations
+There are a few spots where we currently don't differentiate between line comments and block comments.
+
 ## License
 
 Highlight.js is released under the MIT License.

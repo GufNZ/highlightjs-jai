@@ -1801,7 +1801,7 @@ var hljs = (function () {
 							buf += match[0];
 						} else {
 							const cssClass = language.classNameAliases[kind] || kind;
-							emitKeyword(match[0], cssClass);console.info(`'${match[0]}': ${cssClass}`);
+							emitKeyword(match[0], cssClass);
 						}
 					} else {
 						buf += match[0];
@@ -1857,7 +1857,7 @@ var hljs = (function () {
 
 				emitter.startScope(scope);
 				emitter.addText(keyword);
-				emitter.endScope();
+				emitter.endScope();console.info(`'${keyword}': ${scope}`);
 			}
 
 			/**
@@ -2165,7 +2165,7 @@ var hljs = (function () {
 						const match = top.matcher.exec(codeToHighlight);
 						// console.log("match", match[0], match.rule && match.rule.begin)
 						if (!match) break;
-_sel(match.index, Math.max(1, match[0].length));console.log(matchMode(match));
+_sel(match.index, Math.max(1, match[0].length));console.log(matchMode(match, top.matcher));
 						const beforeMatch = codeToHighlight.substring(index, match.index);
 						const processedCount = processLexeme(beforeMatch, match);
 						index = match.index + processedCount;

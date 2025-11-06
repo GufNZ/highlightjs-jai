@@ -17,7 +17,56 @@
 	</script>
 </head>
 <body>
-	<pre id="it"><code class="language-jai">for :positive_vibes_only v, n: holder print("[%] %\n", n, v);
+	<pre id="it"><code class="language-jai">
+other :: /*x*/(a: b) -> int #dump {
+	x: myInt;
+	newContext := context;
+}
+pthread_setschedprio :: (__pthread: pthread_t, __priority: s32) -> s32 #foreign libc;
+__pthread_cleanup_push :: (c: *__pthread_cleanup_t, unknown0: #type () -> void #c_call, unknown1: *void) -> void
+makeBucket\  Allocator :: inline #no_abc () -&gt; Alloc\ ator {
+	ba := New(BucketAllocator);
+	init(ba);
+	return .{ pr\ oc = bucket_allocator_proc, data = xx ba };
+} @note @"note with spaces"
+#foreign libc;
+
+	for_expansion :: (a: My_Array, body: Code, flags: For_Flags) #expand {
+		//...
+	}
+
+modProc :: (a : $T)
+#modify {
+	T = s64;
+	return true;
+}
+{
+	print("a is %, of type %\n", a, T);
+}
+
+atomic_or :: (dest: *$T, value: T)
+#modify { return IsAtomicScalar(T); }
+{
+	#if CPU == .X64 {
+		#asm { lock_or?T [dest], value; }
+	} else {
+		old := dest.*;
+		while true {
+			new := old | value;
+			success := compare_and_swap(dest, old, new);
+			if success  break;
+			old = dest.*;
+		}
+	}
+}
+
+main :: (a: u8) {
+	newContext := New(context);
+	other(42, .VALUE);
+}
+
+
+for :positive_vibes_only v, n: holder print("[%] %\n", n, v);
 
 Vertex :: struct {
   #as using base: struct {
@@ -169,12 +218,6 @@ Fr\ ed :: enum_flags {
 	A :: 1;
 	B;
 };
-
-makeBucket\  Allocator :: inline #no_abc () -&gt; Alloc\ ator {
-	ba := New(BucketAllocator);
-	init(ba);
-	return .{ pr\ oc = bucket_allocator_proc, data = xx ba };
-} @note @"note with spaces"
 
 X\ Y :: 5;
 

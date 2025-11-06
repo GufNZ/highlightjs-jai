@@ -64,11 +64,6 @@ function jai(hljs) {
 		return mode;
 	}
 
-	const constIdentifierRE = '\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b';
-	const typeIdentifierRE 	= '\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
-	const identifierRE 		= '\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b';
-	const noteRE = '@(?:"[^"]+"|\\S+)';
-
 	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
 	let backRefCount = 1;
 	/**
@@ -86,6 +81,12 @@ function jai(hljs) {
 
 		return `(?=(${re}))\\${backRefCount++}`;
 	};
+
+	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b', offset);
+	const typeIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
+	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
+	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
+
 	/**
 	 * Regex matching WS and comments.
 	 * @param {number | undefined} offset The backRefCount offset to apply - see `atomic`.
@@ -28270,7 +28271,7 @@ function jai(hljs) {
 	const NOTE = {
 		scope: 'meta.note',
 		relevance: 5,
-		begin: noteRE
+		begin: noteREFn()
 	};
 
 	const ALIGNMENT_WS = {
@@ -28288,16 +28289,33 @@ function jai(hljs) {
 	const CONST = {
 		scope: 'variable.constant',
 		relevance: 0,
-		begin: constIdentifierRE,
+		begin: constIdentifierREFn(),
 		returnBegin: true,
 		contains: [ALIGNMENT_WS],
 		end: /(?=\W)/
 	};
 
+	const VAR_TYPE = {
+		$name: 'Var/Param Type',
+		relevance: 0,
+		begin: [
+			/(?<=:)/,
+			skipWSAndCommentsREFn(),
+			identifierREFn()
+		],
+		beginScope: {
+			2: 'comment',
+			3: 'type'
+		},
+		keywords,
+		contains: [ALIGNMENT_WS],
+		end: /(?=\W)/
+	}
+
 	const TYPE = {
 		scope: 'type',
 		relevance: 0,
-		begin: typeIdentifierRE,
+		begin: typeIdentifierREFn(),
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28307,7 +28325,7 @@ function jai(hljs) {
 	const VAR = {
 		scope: 'variable',
 		relevance: 0,
-		begin: identifierRE,
+		begin: identifierREFn(),
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28320,7 +28338,7 @@ function jai(hljs) {
 			relevance: 7,
 			begin: [
 				/\$\$/,
-				identifierRE
+				identifierREFn()
 			],
 			beginScope: {
 				1: 'operator.autobake',
@@ -28332,7 +28350,7 @@ function jai(hljs) {
 			relevance: 3,
 			begin: [
 				/\$/,
-				typeIdentifierRE
+				typeIdentifierREFn()
 			],
 			beginScope: {
 				1: 'operator.bake',
@@ -28344,7 +28362,7 @@ function jai(hljs) {
 			relevance: 2,
 			begin: [
 				/\$/,
-				identifierRE
+				identifierREFn()
 			],
 			beginScope: {
 				1: 'operator.bake',
@@ -28356,19 +28374,19 @@ function jai(hljs) {
 	const CONST_REF = {
 		scope: 'property.constant',
 		relevance: 0,
-		begin: `(?<=\\w)\\.${constIdentifierRE}`
+		begin: `(?<=\\w)\\.${constIdentifierREFn()}`
 	};
 
 	const ENUM_REF = {
 		scope: 'property.constant.enum',
 		relevance: 1,
-		begin: `(?<=^|\\W)\\.${typeIdentifierRE}`
+		begin: `(?<=^|\\W)\\.${typeIdentifierREFn()}`
 	};
 
 	const FIELD_REF = {
 		scope: 'property',
 		relevance: 0,
-		begin: `(?<=\\w)\\.${identifierRE}`
+		begin: `(?<=\\w)\\.${identifierREFn()}`
 	};
 
 	const DIRECTIVE = {
@@ -28376,7 +28394,7 @@ function jai(hljs) {
 		relevance: 7,
 		begin: [
 			/#/,
-			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|f(?:ile(?:path|)|oreign(?:(?:_system)?_library|))|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
+			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|f(?:ile(?:path|)|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|p(?:lace(?:holder|)|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
 			/\b/
 		],
 		beginScope: {
@@ -28386,7 +28404,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
-				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+`,
+				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn()}:)`,	// Try not to match , in an args list.
 				returnBegin: true,
 				contains: [
 					...COMMENTS,
@@ -28398,7 +28416,7 @@ function jai(hljs) {
 					}
 				]
 			}
-		],
+		]
 	};
 
 	const CHAR_DIRECTIVE = {
@@ -28457,7 +28475,7 @@ function jai(hljs) {
 	const FUNCTION_CALL = {
 		scope: 'title.function',
 		relevance: 0,
-		begin: `${identifierRE}(?=\\s*\\()`,
+		begin: `${identifierREFn()}(?=\\s*\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28468,7 +28486,7 @@ function jai(hljs) {
 	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
-		begin: `${typeIdentifierRE}(?=(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}${identifierRE})*${skipWSAndCommentsREFn(0)}:)`,
+		begin: `${typeIdentifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -28481,7 +28499,7 @@ function jai(hljs) {
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		relevance: 2,
-		begin: `${identifierRE}(?=(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}${identifierRE})*${skipWSAndCommentsREFn(0)}::)`,
+		begin: `${identifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}::)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28491,7 +28509,7 @@ function jai(hljs) {
 	const VAR_DECLARATION = {
 		scope: 'variable.declaration',
 		relevance: 0,
-		begin: `${identifierRE}(?=(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}${identifierRE})*${skipWSAndCommentsREFn(0)}:)`,
+		begin: `${identifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}:)`,
 		returnBegin: true,
 		keywords,
 		contains: [
@@ -28504,7 +28522,7 @@ function jai(hljs) {
 	const PROC_DECLARATION = {
 		scope: 'title.function.declaration',
 		relevance: 5,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::(?:${skipWSAndCommentsREFn(0)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(0)}\\()`,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::(?:${skipWSAndCommentsREFn(0)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(0)}\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28514,7 +28532,7 @@ function jai(hljs) {
 	const ENUM_DECLARATION = {
 		scope: 'title.enum.declaration',
 		relevance: 5,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}enum(?:_flags)?)`,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}enum(?:_flags)?)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28524,12 +28542,22 @@ function jai(hljs) {
 	const STRUCT_DECLARATION = {
 		scope: 'title.class.declaration',
 		relevance: 5,
-		begin: `${identifierRE}(?=${skipWSAndCommentsREFn()}::${skipWSAndCommentsREFn(0)}struct)`,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}struct)`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
 		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
+
+	const EXTERNAL_DECLARATION = {
+		scope: 'title.external.declaration',
+		relevance: 5,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#(?:foreign|(?:system_)?library))`,	//LATER: drop deprecated `#system_library` variant when it gets removed.
+		returnBegin: true,
+		keywords,
+		contains: [ALIGNMENT_WS],
+		end: `(?=${skipWSAndCommentsREFn()}::)`
+	}
 
 	function balancedPair(contents, options, pairName, pairChars) {
 		const keywordsToUse = (options?.keywords ?? keywords);
@@ -28575,11 +28603,13 @@ function jai(hljs) {
 
 	const _COMMON_EXCEPT_STRING = [
 		FUNCTION_CALL,
+		EXTERNAL_DECLARATION,
 		PROC_DECLARATION,
 		ENUM_DECLARATION,
 		STRUCT_DECLARATION,
 		CONST_DECLARATION,
 		TYPE_DECLARATION,
+		VAR_TYPE,
 		VAR_DECLARATION,
 		..._ATOMIC
 	];
@@ -30096,7 +30126,7 @@ function jai(hljs) {
 						begin: [
 							/\?/,
 							skipWSAndCommentsREFn(),
-							constIdentifierRE,
+							constIdentifierREFn(),
 						],
 						beginScope: {
 							1: 'operator.asm.size.clue',
@@ -30109,7 +30139,7 @@ function jai(hljs) {
 						begin: [
 							/\?/,
 							skipWSAndCommentsREFn(),
-							typeIdentifierRE,
+							typeIdentifierREFn(),
 						],
 						beginScope: {
 							1: 'operator.asm.size.clue',
@@ -30325,7 +30355,7 @@ function jai(hljs) {
 				$name: 'forExpansionUse',
 				begin: [
 					/:/,
-					identifierRE
+					identifierREFn()
 				],
 				beginScope: {
 					1: 'punctuation.forExpansionInvoke',
@@ -30416,9 +30446,47 @@ function jai(hljs) {
 		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
+	const FOREIGN_OR_LIBRARY_DIRECTIVE = {
+		scope: 'meta.foreignOrLibrary',
+		begin: [
+			/#/,
+			/foreign|(?:system_)?library/,	//LATER: drop deprecated `#system_library` variant when it gets removed.
+			skipWSAndCommentsREFn(),
+			`(?:"${identifierREFn()}")?`,
+			`(?:${identifierREFn()})?`,
+			skipWSAndCommentsREFn(),
+			/;/
+		],
+		beginScope: {
+			1: 'operator.hash.directive',
+			2: 'meta.directive.foreignOrLibrary',
+			3: 'comment',
+			4: 'title.libraryProcName',
+			5: 'title.libraryReference',
+			6: 'comment',
+			7: 'punctuation.semicolon'
+		},
+		contains: [
+			...COMMENTS,
+			{
+				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn()}:)`,	// Try not to match , in an args list.
+				returnBegin: true,
+				contains: [
+					...COMMENTS,
+					COMMA,
+					{
+						scope: 'meta.directive.modifier',
+						relevance: 2,
+						begin: /[A-Za-z]+/
+					}
+				]
+			}
+		]
+	};
+
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}(?:->${atomic('.+?', 0)})?${skipWSAndCommentsREFn(0)}(?:#modify|\\{))`,
+		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign${skipWSAndCommentsREFn(0)}${identifierREFn(0)}${skipWSAndCommentsREFn(0)};|modify)|(?=\\{)))`,
 		returnBegin: true,
 		keywords: keywordsExceptStdLib,
 		contains: [
@@ -30426,6 +30494,7 @@ function jai(hljs) {
 			NOTE,
 			OPERATOR,
 			MODIFY_DIRECTIVE,
+			FOREIGN_OR_LIBRARY_DIRECTIVE,
 			DIRECTIVE,
 			balancedParen(
 				_NEARLY_ALL.map(
@@ -30525,8 +30594,9 @@ function jai(hljs) {
 		ENUM_TYPE_DECLARATION,
 		PROC_TYPE_DECLARATION,
 		QUICKLAMBDA_TYPE_DECLARATION,
+		FOREIGN_OR_LIBRARY_DIRECTIVE,
 		MODULE_PARAMETERS_DIRECTIVE,
-		..._NEARLY_ALL.filter(r => r !== PRINTLIKE)
+		..._NEARLY_ALL.filter(r => r !== PRINTLIKE)	// PrintLike has to come sooner, but some things needed to reference it above too.
 	];
 
 	return {
