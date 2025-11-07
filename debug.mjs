@@ -43,8 +43,8 @@ function matchNext(m) {
 }
 
 const seen = new Set();
-function walk(obj, matches, proc, path = '$', key = "", parent = null, grandParent = null) {
-	if (path === '$') {
+function walk(obj, matches, proc, path = '$', key = "", parent = null, grandParent = null, parentName = null, grandParentName = null, namePath = []) {
+	if (path.length === 1) {
 		seen.clear();
 		matches = matches.map(m => {
 			const r = new RegExp(
@@ -64,10 +64,39 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 		});
 	}
 
+	const parentKey = grandParent && parent && Object.keys(grandParent).find(k => grandParent[k] === parent);
+	let name = (
+		obj.$name
+		?? obj.scope
+		?? obj.name
+		?? (
+			`${key}`.length && isFinite(Number(key))
+				&& grandParent?.[parentKey.includes("Scope") ? parentKey.replace("Scope", "") : parentKey + "Scope"]?.[key + 1]
+		)
+	 ) || '';
+
+	if (name) {
+		if (/variants\[\d+\].\w+$/.test(path)) {
+			name = `\t${name}`;
+		}
+	} else if (parentKey === 'begin' || parentKey === 'end') {
+		name = `${grandParentName ?? grandParent?.[parentKey + 'Scope']?.[key + 1] ?? '...'}`;
+	}
+
+	namePath = [
+		...namePath,
+		`${`${key}`.length ? isFinite(Number(key)) ? `[${key}]` : `.${key}` : ''}${name}`
+	];//console.debug(namePath.join(''));
+
+	let reName = namePath[namePath.length - 1].replace(/^\[\d+\]/, '');
+	if (reName == '.begin' || reName == '.end') {
+		reName = namePath[namePath.length - 2];
+	}
+
 	matches.forEach(m => {
 		const match = m.exec(path);
 		if (match) {
-			const result = proc(m.matchValue ? obj : match[0], parent, obj, key, path, grandParent);
+			const result = proc(reName, obj, path, namePath);
 			if (result !== obj) {
 				obj = result;
 			}
@@ -77,21 +106,19 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 	//console.log('walk', path, '\x1b[K\x1b[A');
 	if (Array.isArray(obj)) {
 		if (seen.has(obj)) {
-			//console.log('already seen []', path);
 			return obj;
 		}
 
 
 		seen.add(obj);
 		for (let i = 0; i < obj.length; i++) {
-			const result = walk(obj[i], matches, proc, `${path}[${i}]`, i, obj, parent);
+			const result = walk(obj[i], matches, proc, `${path}[${i}]`, i, obj, parent, name, parentName, namePath);
 			if (result !== obj[i]) {
 				obj[i] = result;
 			}
 		}
 	} else if (obj && typeof obj === 'object') {
 		if (seen.has(obj)) {
-			//console.log('already seen {}', path);
 			return obj;
 		}
 
@@ -99,7 +126,7 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 		seen.add(obj);
 		const keys = Object.keys(obj);
 		for (let key of keys) {
-			const result = walk(obj[key], matches, proc, `${path}.${key}`, key, obj, parent);
+			const result = walk(obj[key], matches, proc, `${path}.${key}`, key, obj, parent, name, parentName, namePath);
 			if (result !== obj[key]) {
 				obj[key] = result;
 			}
@@ -109,8 +136,63 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 	return obj;
 }
 
+function reError(re, i, path, message) {
+	const min = Math.max(0, i - 20);
+	const max = min + 40;
+	const error = `${message} at position ${i} for ${path}:\n${min ? '...' : ''}${re.slice(min, max)}${max <= re.length ? '...' : ''}\n${' '.repeat(max <= re.length ? i - min + 3 : i - min)}^\n${re}`;
+	console.error(error);
+	throw new Error(error);
+}
+
+function validateAtomics(re, path, validateParenthes = true) {
+	if (!/\(\?=\(.+?\\\d/.test(re) || !validateParenthes || re.indexOf(('(')) === -1) {
+		return;
+	}
+
+
+	const depthStack = [];
+	const groups = [-1];
+	const atomics = [];
+	for (let i = 0, len = re.length, end = len - 1; i < len; i++) {
+		if (/^\\[()]/.test(re.slice(i, i + 2))) {
+			i += 1;
+			continue;	// <- i++
+		} else if (re[i] === '(') {
+			depthStack.push(i);
+			if (!(re[i + 1] === '?' && ':=!<'.includes(re[i + 2]))) {
+				groups.push(i);
+			} else if (re.slice(i, i + 4) === '(?=(') {
+				atomics.push(i + 3);
+				i += 2;
+				continue;	// <- i++
+			}
+		} else if (re[i] === ')') {
+			if (!depthStack.length) {
+				reError(re, i, path, 'Unmatched )');
+			}
+
+
+			depthStack.pop();
+		} else if (match = /^\\(\d+)\b/.exec(re.slice(i))) {
+			groupNum = +match[1];
+			if (groupNum > groups.length) {
+				reError(re, i, path, `Invalid backreference \\${groupNum} (only ${groups.length} groups)`);
+			}
+
+
+			if (atomics[atomics.length - 1] === groups[groups.length - 1]) {
+				if (groupNum !== groups.length - 1) {
+					reError(re, i, path, `Mismatched Atomic backref \\${groupNum} (expected ${groups.length})`);
+				}
+			}
+		} else if (i === end && depthStack.length) {
+			reError(re, i, path, 'Unterminated (');
+		}
+	}
+}
+
 function regexDebugPre(lang) {
-	const defn = walk(lang(hljs), ['^begin', 'begin/', '^end', 'end/', '$pattern'], (match, parent, value, key, path, grandParent) => {
+	const defn = walk(lang(hljs), ['^begin', 'begin/', '^end', 'end/', '$pattern'], (name, value, _, namePath) => {
 		if (Array.isArray(value)) {
 			return value;
 		}
@@ -122,41 +204,12 @@ function regexDebugPre(lang) {
 		}
 
 		if (re === undefined) {
-			console.error('undefined regex at', path, value);
+			console.error('undefined regex at', namePath, value);
 			debugger;
 		}
 
-		const parentKey = Object.keys(grandParent).find(k => grandParent[k] === parent);
-		let name = parent.$name
-			?? (
-				(key === "$pattern")
-					? grandParent.$name ?? grandParent.scope ?? "$pattern"
-					: null
-			) ?? (
-				isFinite(Number(key))
-					? grandParent[parentKey.includes("Scope") ? parentKey.replace("Scope", "") : parentKey + "Scope"][+key]
-					: parent.$name ?? parent.scope
-			);
-
-		if (name) {
-			if (/variants\[\d+\].\w+$/.test(path)) {
-				name = `\t${name}`;
-			}
-		} else {
-			if (key === 'keywords') {
-				name = `${key}\$pattern`;
-			} else if (parentKey === 'begin' || parentKey === 'end') {
-				name = `${grandParent.$name ?? grandParent.scope ?? grandParent[parentKey + 'Scope'][key] ?? '...'}`;
-			}
-
-			if (!name) {
-				name = '---';
-			}
-		}
-
-		if (key === 'end' || parentKey === 'endScope') {
-			name = 'end:' + name;
-		}
+		let i = 0;
+		validateAtomics(re, namePath.reduce((s, p) => `${s}\n${'  '.repeat(i++)}${p}`, ''));
 
 		re = `(?!\n'${name}')` + re;
 
@@ -209,10 +262,10 @@ function applyDebugInfo() {
 	}), 1000);
 }
 
-function debugInit() {
+function debugInit(langName = 'jai', lang = jai) {
 	hljs.debugMode();
-	hljs.unregisterLanguage('jai');
-	hljs.registerLanguage('jai', regexDebugPre(jai));
+	hljs.unregisterLanguage(langName);
+	hljs.registerLanguage(langName, regexDebugPre(lang));
 	console.log('starting...');
 	console.time('hilight');
 	hljs.highlightElement(document.getElementById('it').firstChild);

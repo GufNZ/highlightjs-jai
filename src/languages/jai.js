@@ -28243,7 +28243,7 @@ function jai(hljs) {
 				}
 			}
 		],
-		end: `(?=(\\w+)${skipWSAndCommentsREFn(undefined, true)}\\n)`,
+		end: `(?=\\w+${skipWSAndCommentsREFn(undefined, true)}\\n)`,
 		starts: {
 			contains: [
 				{
@@ -28275,6 +28275,7 @@ function jai(hljs) {
 	};
 
 	const ALIGNMENT_WS = {
+		$name: '\\WS',
 		relevance: 5,
 		begin: [
 			/\\/,
@@ -28404,7 +28405,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
-				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn()}:)`,	// Try not to match , in an args list.
+				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn(0)}:)`,	// Try not to match , in an args list.
 				returnBegin: true,
 				contains: [
 					...COMMENTS,
@@ -30469,7 +30470,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
-				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn()}:)`,	// Try not to match , in an args list.
+				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn(0)}:)`,	// Try not to match , in an args list.
 				returnBegin: true,
 				contains: [
 					...COMMENTS,
@@ -30486,15 +30487,14 @@ function jai(hljs) {
 
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign${skipWSAndCommentsREFn(0)}${identifierREFn(0)}${skipWSAndCommentsREFn(0)};|modify)|(?=\\{)))`,
+		begin: `(?:(?<=#type${skipWSAndCommentsREFn()})|)\\((?=.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
 		returnBegin: true,
 		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
 			OPERATOR,
-			MODIFY_DIRECTIVE,
-			FOREIGN_OR_LIBRARY_DIRECTIVE,
+			'self',
 			DIRECTIVE,
 			balancedParen(
 				_NEARLY_ALL.map(
@@ -30505,13 +30505,10 @@ function jai(hljs) {
 							keywords: keywordsExceptStdLib
 						}
 						: r
-				),
-				{
-					endsParent: true,
-				}
+				)
 			)
 		],
-		end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
 	const QUICKLAMBDA_TYPE_DECLARATION = {
