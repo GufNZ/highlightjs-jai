@@ -90,7 +90,7 @@ function walk(obj, matches, proc, path = '$', key = "", parent = null, grandPare
 
 	let reName = namePath[namePath.length - 1].replace(/^\[\d+\]/, '');
 	if (reName == '.begin' || reName == '.end') {
-		reName = namePath[namePath.length - 2];
+		reName = namePath[namePath.length - 2].replace(/^\[\d+\]/, '');
 	}
 
 	matches.forEach(m => {

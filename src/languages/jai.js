@@ -28572,6 +28572,12 @@ function jai(hljs) {
 				[`punctuation.${pairName}`]: pairChars.split('')
 			},
 			contains: [
+				...contents
+					.map(
+						r => r.scope === 'punctuation'
+							? PUNCTUATION_EXCEPT_BALANCED_PAIR[pairChars]
+							: r
+					),
 				options?.endsParent
 					? balancedPair(
 						contents,
@@ -28583,13 +28589,7 @@ function jai(hljs) {
 						pairName,
 						pairChars
 					)
-					: 'self',
-				...contents
-					.map(
-						r => r.scope === 'punctuation'
-							? PUNCTUATION_EXCEPT_BALANCED_PAIR[pairChars]
-							: r
-					)
+					: 'self'
 			],
 			end: `\\${pairChars[1]}`,
 			...options
@@ -30485,32 +30485,6 @@ function jai(hljs) {
 		]
 	};
 
-	const PROC_TYPE_DECLARATION = {
-		scope: 'type.function.declaration',
-		begin: `(?:(?<=#type${skipWSAndCommentsREFn()})|)\\((?=.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
-		returnBegin: true,
-		keywords: keywordsExceptStdLib,
-		contains: [
-			...COMMENTS,
-			NOTE,
-			OPERATOR,
-			'self',
-			DIRECTIVE,
-			balancedParen(
-				_NEARLY_ALL.map(
-					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
-						? {
-							...r,
-							scope: 'params.declaration',
-							keywords: keywordsExceptStdLib
-						}
-						: r
-				)
-			)
-		],
-		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-	};
-
 	const QUICKLAMBDA_TYPE_DECLARATION = {
 		scope: 'type.function.declaration.quickLambda',
 		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}=>)`,
@@ -30539,9 +30513,69 @@ function jai(hljs) {
 		],
 	};
 
-	PROC_TYPE_DECLARATION.contains.push(STRUCT_TYPE_DECLARATION);
-	PROC_TYPE_DECLARATION.contains.push(ENUM_TYPE_DECLARATION);
-	PROC_TYPE_DECLARATION.contains.push(QUICKLAMBDA_TYPE_DECLARATION);
+	const PROC_TYPE_RETURNS_LIST = {
+		scope: 'type.function.returns',
+		contains: [
+			{
+				$name: '_commaSeparatedTypeList;',
+				endsParent: true
+			},
+			balancedParen(
+				[
+					//^1,
+					{
+						$name: '_name:type commaSeparatedList...'
+					}
+				]
+			)
+		]
+	};
+
+	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
+	const PROC_TYPE_DECLARATION = {
+		scope: 'type.function.declaration',
+		begin: `(?:#type${skipWSAndCommentsREFn()})?\\((?=.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
+		returnBegin: true,
+		//'on:begin': (match, resp) => {
+		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
+		//	lastMatchedProcTypeAt = match.index;
+		//},
+		keywords: keywordsExceptStdLib,
+		contains: [
+			...COMMENTS,
+			NOTE,
+			{
+				...OPERATOR,
+				variants: OPERATOR.variants.filter(r => r.scope !== 'operator.returns'),
+			},
+			{
+				...OPERATOR,
+				variants: OPERATOR.variants.filter(r => r.scope === 'operator.returns'),
+				starts: PROC_TYPE_RETURNS_LIST
+			},
+			DIRECTIVE,
+			balancedParen(
+				[
+					//PROC_TYPE_DECLARATION,
+					ENUM_TYPE_DECLARATION,
+					STRUCT_TYPE_DECLARATION,
+					QUICKLAMBDA_TYPE_DECLARATION,
+					..._NEARLY_ALL.map(
+						r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
+							? {
+								...r,
+								scope: 'params.declaration',
+								keywords: keywordsExceptStdLib
+							}
+							: r
+					)
+				]
+			)
+		],
+		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+	};
+
+	PROC_TYPE_DECLARATION.contains[PROC_TYPE_DECLARATION.contains.length - 1].contains.unshift(PROC_TYPE_DECLARATION);
 
 	STRUCT_TYPE_DECLARATION.contains.push(ENUM_TYPE_DECLARATION);
 	STRUCT_TYPE_DECLARATION.contains.push(PROC_TYPE_DECLARATION);

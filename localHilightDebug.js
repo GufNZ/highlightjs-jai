@@ -1919,7 +1919,7 @@ var hljs = (function () {
 					if (mode["on:end"]) {
 						const resp = new Response(mode);
 						mode["on:end"](match, resp);
-						if (resp.isMatchIgnored) matched = false;
+						if (resp.isMatchIgnored) {console.warn('^-= IGNORED!');matched = false;}
 					}
 
 					if (matched) {
@@ -1971,7 +1971,7 @@ var hljs = (function () {
 				for (const cb of beforeCallbacks) {
 					if (!cb) continue;
 					cb(match, resp);
-					if (resp.isMatchIgnored) return doIgnore(lexeme);
+					if (resp.isMatchIgnored) {console.warn('^-- IGNORED!');return doIgnore(lexeme);}
 				}
 
 				if (newMode.skip) {
