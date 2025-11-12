@@ -1,0 +1,8 @@
+//BUG: 0width re again...  near procTypeDecl I think
+//FIXME: polymorph...
+//TODO: compress polymorph use as much as possible.
+//TEST: proc type is often not matching, and needs to understand #dump etc
+//NOTE: for places where begin[],beginScope can't cover comments nicely, consider a starts chain for sequential things that need fuller definitions.
+//TEST: lots!  & specifically.
+//TEST: complete visualTests audit.
+//TODO: reDoc

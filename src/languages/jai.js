@@ -82,11 +82,6 @@ function jai(hljs) {
 		return `(?=(${re}))\\${backRefCount++}`;
 	};
 
-	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b', offset);
-	const typeIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
-	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
-	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
-
 	/**
 	 * Regex matching WS and comments.
 	 * @param {number | undefined} offset The backRefCount offset to apply - see `atomic`.
@@ -96,6 +91,11 @@ function jai(hljs) {
 	const skipWSAndCommentsREFn = (offset, excludeNewline = false) => {
 		return `(?:${atomic('//[^\\n]*(?=\\n)', offset)}|${atomic('/\\*[\\s\\S]*\\*/', 0)}|${atomic(excludeNewline ? '[ \\t]+' : '\\s+', 0)})*`;
 	};
+
+	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
+	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b', offset);
+	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
+	const typeIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);	//NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, sp we need to do that where this is used.
 
 	/* Begin generated content [Version: beta 0.2.018, built on 11 October 2025]: */
 	const STDLIB = {
@@ -27834,7 +27834,7 @@ function jai(hljs) {
 	}
 	/* :End generated content. */
 
-	const keywordsExceptStdLib =  {
+	const keywordsExceptStdLib = {
 		// noStdLib: $pattern: /\b(?:#Context|[Aa-filnNpr-tTu-x][_1-468ac-ik-pr-z]+)\b/,
 		$pattern: /\b(?:#Context|[_A-Za-z][_\dA-Za-z]+)\b/,
 		'keyword.if': [
@@ -27998,6 +27998,48 @@ function jai(hljs) {
 		}
 	};
 
+	function balancedPair(contents, options, pairName, pairChars) {
+		const keywordsToUse = (options?.keywords ?? keywords);
+		delete options?.keywords;
+		return {
+			scope: `_Balanced${pairName[0].toUpperCase() + pairName.slice(1)}s`,
+			begin: `\\${pairChars[0]}`,
+			keywords: {
+				...keywordsToUse,
+				$pattern: `(?:\\b(?:#Context|[A-Za-z][_\\dA-Za-z]+)\\b)|[${pairChars}]`,
+				[`punctuation.${pairName}`]: pairChars.split('')
+			},
+			contains: [
+				...contents
+					.map(
+						r => r.scope === 'punctuation'
+							? PUNCTUATION_EXCEPT_BALANCED_PAIR[pairChars]
+							: r
+					),
+				options?.endsParent
+					? balancedPair(
+						contents,
+						{
+							...options,
+							keywords: keywordsToUse,
+							endsParent: false
+						},
+						pairName,
+						pairChars
+					)
+					: 'self'
+			],
+			end: `\\${pairChars[1]}`,
+			...options
+		};
+	}
+	function balancedParen(contents, options) {
+		return balancedPair(contents, options, 'paren', '()');
+	}
+	function balancedBrace(contents, options) {
+		return balancedPair(contents, options, 'brace', '{}');
+	}
+
 	const COMMA = PUNCTUATION.variants.find(v => v.scope === 'punctuation.comma');
 
 	const SEMICOLON = {
@@ -28107,12 +28149,12 @@ function jai(hljs) {
 			},
 			{
 				scope: 'operator.define.constant',
-				begin: /:\s*:/,
+				begin: `:${skipWSAndCommentsREFn()}:`,
 				relevance: 5
 			},
 			{
 				scope: 'operator.define.assign',
-				begin: /:\s*=/,
+				begin: `:${skipWSAndCommentsREFn()}=`,
 				relevance: 7
 			},
 			{
@@ -28165,6 +28207,11 @@ function jai(hljs) {
 		]
 	};
 
+	const DEFINE = OPERATOR.variants.find(v => v.scope === 'operator.define');
+	const ASSIGN = OPERATOR.variants.find(v => v.scope === 'operator.assign');
+	const DEFINE_ASSIGN = OPERATOR.variants.find(v => v.scope === 'operator.define.assign');
+	const DEFINE_CONSTANT = OPERATOR.variants.find(v => v.scope === 'operator.define.constant');
+
 	const SHIFTS = [
 		{
 			scope: 'operator.shift',
@@ -28195,8 +28242,6 @@ function jai(hljs) {
 			]
 		}
 	];
-
-	const DEFINE = OPERATOR.variants.find(v => v.scope === 'operator.define');
 
 	const STRING_ESCAPE = {
 		scope: 'char.escape',
@@ -28296,7 +28341,7 @@ function jai(hljs) {
 		end: /(?=\W)/
 	};
 
-	const VAR_TYPE = {
+	const VAR_TYPE = {//FIXME: polymorph
 		$name: 'Var/Param Type',
 		relevance: 0,
 		begin: [
@@ -28319,7 +28364,7 @@ function jai(hljs) {
 		begin: typeIdentifierREFn(),
 		returnBegin: true,
 		keywords,
-		contains: [ALIGNMENT_WS],
+		contains: [ALIGNMENT_WS],//FIXME: polymorph
 		end: /(?=\W)/
 	}
 
@@ -28351,7 +28396,7 @@ function jai(hljs) {
 			relevance: 3,
 			begin: [
 				/\$/,
-				typeIdentifierREFn()
+				typeIdentifierREFn()	//NOTE can't be a polymorph, but //FIXME: that a type can contain a baked polymorphic param...
 			],
 			beginScope: {
 				1: 'operator.bake',
@@ -28381,7 +28426,7 @@ function jai(hljs) {
 	const ENUM_REF = {
 		scope: 'property.constant.enum',
 		relevance: 1,
-		begin: `(?<=^|\\W)\\.${typeIdentifierREFn()}`
+		begin: `(?<=^|\\W)\\.${typeIdentifierREFn()}`	//NOTE can't be a polymorph.
 	};
 
 	const FIELD_REF = {
@@ -28487,10 +28532,10 @@ function jai(hljs) {
 	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
-		begin: `${typeIdentifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}:)`,
+		begin: `${typeIdentifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}:)`,	//NOTE can't be a polymorph on that side of the =.
 		returnBegin: true,
 		keywords,
-		contains: [
+		contains: [//FIXME: polymorph
 			ALIGNMENT_WS,
 			...COMMENTS
 		],
@@ -28558,48 +28603,6 @@ function jai(hljs) {
 		keywords,
 		contains: [ALIGNMENT_WS],
 		end: `(?=${skipWSAndCommentsREFn()}::)`
-	}
-
-	function balancedPair(contents, options, pairName, pairChars) {
-		const keywordsToUse = (options?.keywords ?? keywords);
-		delete options?.keywords;
-		return {
-			scope: `_Balanced${pairName[0].toUpperCase() + pairName.slice(1)}s`,
-			begin: `\\${pairChars[0]}`,
-			keywords: {
-				...keywordsToUse,
-				$pattern: `(?:\\b(?:#Context|[A-Za-z][_\\dA-Za-z]+)\\b)|[${pairChars}]`,
-				[`punctuation.${pairName}`]: pairChars.split('')
-			},
-			contains: [
-				...contents
-					.map(
-						r => r.scope === 'punctuation'
-							? PUNCTUATION_EXCEPT_BALANCED_PAIR[pairChars]
-							: r
-					),
-				options?.endsParent
-					? balancedPair(
-						contents,
-						{
-							...options,
-							keywords: keywordsToUse,
-							endsParent: false
-						},
-						pairName,
-						pairChars
-					)
-					: 'self'
-			],
-			end: `\\${pairChars[1]}`,
-			...options
-		};
-	}
-	function balancedParen(contents, options) {
-		return balancedPair(contents, options, 'paren', '()');
-	}
-	function balancedBrace(contents, options) {
-		return balancedPair(contents, options, 'brace', '{}');
 	}
 
 	const _COMMON_EXCEPT_STRING = [
@@ -30140,7 +30143,7 @@ function jai(hljs) {
 						begin: [
 							/\?/,
 							skipWSAndCommentsREFn(),
-							typeIdentifierREFn(),
+							typeIdentifierREFn(),//FIXME: polymorph; starts trick...
 						],
 						beginScope: {
 							1: 'operator.asm.size.clue',
@@ -30247,7 +30250,7 @@ function jai(hljs) {
 		returnEnd: true
 	}
 
-	const _COMMON_EXCEPT_IMPORT_AND_CAST = [
+	const _COMMON_EXCEPT_DIRECTIVES_AND_CAST = [
 		ASM,
 		PRINTLIKE,
 		..._COMMON_EXCEPT_STRING,
@@ -30255,9 +30258,9 @@ function jai(hljs) {
 		HERESTRING
 	];
 
-	const _COMMON_EXCEPT_IMPORT = [
+	const _COMMON_EXCEPT_DIRECTIVES = [
 		...CASTS,
-		..._COMMON_EXCEPT_IMPORT_AND_CAST
+		..._COMMON_EXCEPT_DIRECTIVES_AND_CAST
 	];
 
 	const IMPORT_DIRECTIVE = {
@@ -30283,7 +30286,7 @@ function jai(hljs) {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([_COMMON_EXCEPT_IMPORT_AND_CAST]),
+					balancedParen([_COMMON_EXCEPT_DIRECTIVES_AND_CAST]),
 				],
 				end: /;/,
 				returnEnd: true
@@ -30306,7 +30309,7 @@ function jai(hljs) {
 		},
 		contains: [
 			...COMMENTS,
-			balancedBrace([..._COMMON_EXCEPT_IMPORT, IMPORT_DIRECTIVE], { endsParent: true }),
+			balancedBrace([..._COMMON_EXCEPT_DIRECTIVES, IMPORT_DIRECTIVE], { endsParent: true }),
 		],
 		end: /(?<=\})/,
 	};
@@ -30334,7 +30337,7 @@ function jai(hljs) {
 	};
 
 	const _NEARLY_ALL = [
-		..._COMMON_EXCEPT_IMPORT,
+		..._COMMON_EXCEPT_DIRECTIVES,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
 		MODIFY_DIRECTIVE,
@@ -30397,7 +30400,7 @@ function jai(hljs) {
 			NOTE,
 			DIRECTIVE,
 			balancedBrace(
-				_NEARLY_ALL.map(
+				_COMMON_EXCEPT_DIRECTIVES.map(
 					r => r.scope?.startsWith('variable') || r.scope === 'type.declaration'
 						? {
 							...r,
@@ -30414,35 +30417,136 @@ function jai(hljs) {
 		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
+	const paramDefaultDecls = [
+		..._COMMON_EXCEPT_DIRECTIVES,
+		ENUM_TYPE_DECLARATION,
+		// ...other decls go here.
+	];
+
+	const PARAM = (kind, includeConsts) => {
+		const result = {
+			scope: kind,
+			begin: identifierREFn(),
+			returnBegin: true,
+			contains: [
+				{
+					scope: `${kind}.declaration`,
+					begin: identifierREFn(),
+					keywords: keywordsExceptStdLib,
+				},
+				...COMMENTS,
+				{
+					begin: `:${skipWSAndCommentsREFn()}=`,
+					returnBegin: true,
+					contains: [
+						...COMMENTS,
+						DEFINE_ASSIGN,
+						{
+							scope: `${kind}.default`,
+							begin: /(?=[^,])/,
+							keywords,
+							contains: paramDefaultDecls
+						}
+					],
+					end: /(?=[,;#\)\{])/,
+					endsParent: true
+				},
+				{
+					begin: /:/,
+					returnBegin: true,
+					contains: [
+						...COMMENTS,
+						DEFINE,
+						{
+							scope: `${kind}.type`,
+							begin: typeIdentifierREFn(),//FIXME: polymorph
+							keywords,
+							contains: [
+								...COMMENTS,
+								{
+									begin: /=/,
+									returnBegin: true,
+									keywords,
+									contains: [
+										ASSIGN,
+										{
+											scope: `${kind}.default`,
+											begin: /(?=[^,])/,
+											keywords,
+											contains: paramDefaultDecls
+										}
+									],
+									end: /(?=[,;#\)\{])/,
+									endsParent: true
+								}
+							]
+						}
+					]
+				}
+			],
+			end: /(?=[,;#\)\{])/,
+			endsParent: true
+		};
+
+		if (includeConsts) {
+			result.contains.unshift({
+				scope: `${kind}.constant.declaration`,
+				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}(?:${typeIdentifierREFn(0)}${skipWSAndCommentsREFn(0)})?:${skipWSAndCommentsREFn(0)}:)`,//FIXME: polymorph
+				keywords: keywordsExceptStdLib,
+			});
+			result.contains.splice(
+				result.contains.length - 2,
+				0,
+				{
+					begin: `:${skipWSAndCommentsREFn()}:`,
+					returnBegin: true,
+					contains: [
+						...COMMENTS,
+						DEFINE_ASSIGN,
+						{
+							scope: `${kind}.constant.value`,
+							begin: /(?=[^,])/,
+							keywords,
+							contains: paramDefaultDecls
+						}
+					],
+					end: /(?=[,;#\)\{])/,
+					endsParent: true
+				}
+			);
+			const c = result.contains[result.contains.length - 1].contains;
+			const d = c[c.length - 1].contains[2];
+			d.begin = /:/;
+			d.contains[0] = DEFINE_CONSTANT;
+		}
+
+		return result;
+	};
+
 	const STRUCT_TYPE_DECLARATION = {
 		scope: 'type.struct.declaration',
 		begin: /\bstruct\b/,
 		keywords: keywordsExceptStdLib,
 		contains: [
-			'self',
 			...COMMENTS,
 			NOTE,
 			DIRECTIVE,
-			balancedBrace(
-				_NEARLY_ALL.map(
-					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
-						? {
-							...r,
-							scope: 'property.declaration',
-							keywords: keywordsExceptStdLib
-						}
-						: r.scope === 'variable.constant.declaration'
-							? {
-								...r,
-								scope: 'property.constant.declaration',
-								keywords: keywordsExceptStdLib
-							}
-							: r
-				),
-				{
-					endsParent: true
-				}
-			)
+			{
+				begin: /\(/,
+				returnBegin: true,
+				starts: balancedParen(
+					[
+						PARAM('property', true),
+						SEMICOLON,
+						...COMMENTS
+					],
+					{
+						keywords,
+						end: /(?<=})|(?<!\n)^/,	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+						endsParent: true
+					}
+				)
+			},
 		],
 		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
@@ -30485,50 +30589,50 @@ function jai(hljs) {
 		]
 	};
 
-	const QUICKLAMBDA_TYPE_DECLARATION = {
-		scope: 'type.function.declaration.quickLambda',
-		begin: `\\((?=.+?\\)${skipWSAndCommentsREFn()}=>)`,
-		returnBegin: true,
-		keywords: keywordsExceptStdLib,
+	const PROC_TYPE_RETURNS_LIST = {
+		scope: 'params.returns',
+		begin: `(?=\\(?${skipWSAndCommentsREFn()}${identifierREFn(0)})`,
 		contains: [
 			...COMMENTS,
 			NOTE,
-			OPERATOR,
-			MODIFY_DIRECTIVE,
 			DIRECTIVE,
-			balancedParen(
-				_NEARLY_ALL.map(
-					r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
-						? {
-							...r,
-							scope: 'params.declaration',
-							keywords: keywordsExceptStdLib
-						}
-						: r
-				),
-				{
-					endsParent: true,
-				}
-			)
-		],
-	};
-
-	const PROC_TYPE_RETURNS_LIST = {
-		scope: 'type.function.returns',
-		contains: [
 			{
-				$name: '_commaSeparatedTypeList;',
-				endsParent: true
-			},
-			balancedParen(
-				[
-					//^1,
+				begin: /\(/,
+				returnBegin: true,
+				starts: balancedParen(
+					[
+						PARAM('params.return'),
+						COMMA,
+						NOTE,
+						DIRECTIVE,
+						...COMMENTS
+					],
 					{
-						$name: '_name:type commaSeparatedList...'
+						keywords,
+						end: /(?=;|#)/,
+						endsParent: true
 					}
-				]
-			)
-		]
+				)
+			},
+			{
+				begin: identifierREFn(),
+				returnBegin: true,
+				starts: {
+					keywords,
+					contains: [
+						PARAM('params.return'),
+						COMMA,
+						NOTE,
+						DIRECTIVE,
+						...COMMENTS
+					]
+				},
+				end: /(?=;|#)/,
+				endsParent: true
+			}
+		],
+		end: /(?=;|#)/,
+		endsParent: true
 	};
 
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
@@ -30540,46 +30644,41 @@ function jai(hljs) {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;
 		//},
-		keywords: keywordsExceptStdLib,
+		keywords,
 		contains: [
 			...COMMENTS,
 			NOTE,
-			{
-				...OPERATOR,
-				variants: OPERATOR.variants.filter(r => r.scope !== 'operator.returns'),
-			},
+			DIRECTIVE,
+			MODIFY_DIRECTIVE,
 			{
 				...OPERATOR,
 				variants: OPERATOR.variants.filter(r => r.scope === 'operator.returns'),
 				starts: PROC_TYPE_RETURNS_LIST
 			},
-			DIRECTIVE,
-			balancedParen(
-				[
-					//PROC_TYPE_DECLARATION,
-					ENUM_TYPE_DECLARATION,
-					STRUCT_TYPE_DECLARATION,
-					QUICKLAMBDA_TYPE_DECLARATION,
-					..._NEARLY_ALL.map(
-						r => r.scope === 'variable.declaration' || r.scope === 'type.declaration'
-							? {
-								...r,
-								scope: 'params.declaration',
-								keywords: keywordsExceptStdLib
-							}
-							: r
-					)
-				]
-			)
+			{
+				begin: /\(/,
+				returnBegin: true,
+				starts: balancedParen(
+					[
+						PARAM('params'),
+						COMMA,
+						NOTE,
+						DIRECTIVE,
+						...COMMENTS
+					],
+					{
+						keywords,
+						end: /(?=;|#)/,
+						endsParent: true
+					}
+				)
+			}
 		],
 		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
-	PROC_TYPE_DECLARATION.contains[PROC_TYPE_DECLARATION.contains.length - 1].contains.unshift(PROC_TYPE_DECLARATION);
-
-	STRUCT_TYPE_DECLARATION.contains.push(ENUM_TYPE_DECLARATION);
-	STRUCT_TYPE_DECLARATION.contains.push(PROC_TYPE_DECLARATION);
-	STRUCT_TYPE_DECLARATION.contains.push(QUICKLAMBDA_TYPE_DECLARATION);
+	paramDefaultDecls.push(PROC_DECLARATION);
+	paramDefaultDecls.push(STRUCT_DECLARATION);
 
 	const MODULE_PARAMETERS_DIRECTIVE = {
 		scope: 'meta.directive',
@@ -30624,7 +30723,6 @@ function jai(hljs) {
 		STRUCT_TYPE_DECLARATION,
 		ENUM_TYPE_DECLARATION,
 		PROC_TYPE_DECLARATION,
-		QUICKLAMBDA_TYPE_DECLARATION,
 		FOREIGN_OR_LIBRARY_DIRECTIVE,
 		MODULE_PARAMETERS_DIRECTIVE,
 		..._NEARLY_ALL.filter(r => r !== PRINTLIKE)	// PrintLike has to come sooner, but some things needed to reference it above too.

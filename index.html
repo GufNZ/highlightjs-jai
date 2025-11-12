@@ -31,6 +31,16 @@ makeBucket\  Allocator :: inline #no_abc () -&gt; Alloc\ ator {
 } @note @"note with spaces"
 #foreign libc;
 
+proc :: (a:int, b:string) {}
+proc :: inline (a:int, b:string) {}
+proc :: (a:int, b:string := "s", c: ..u8) {}
+proc :: (a:int, b:string) #dump {}
+proc :: (a:int, b:string) #intrinsic;
+proc :: (a:int, b:string) -> int {}
+proc :: (a:int, b:string) -> (int) {}
+proc :: (a:int, b:string) -> r: int, s, f: bool {}
+proc :: (a:int, b:string) -> (r: int, s, f: bool) {}
+
 x := #string END
 a
 ...//,cr
