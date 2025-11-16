@@ -5,11 +5,11 @@
 	"main": "src/languages/jai.js",
 	"scripts": {
 		"compileAll": "ls *.jai | xargs -n 1 jai",
-		"generateStdLib": "jai generateStdLib.jai && ./generateStdLib >stdLib.js",
+		"generateStdLib": "jai generateStdLib.jai && generateStdLib >stdLib.js",
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
-		"checkCssReference": "jai checkRef.jai && ./checkRef >check",
+		"checkCssReference": "jai checkRef.jai && checkRef >check",
 		"browserTest": "start index.html",
-		"browserTestAll": "jai makeTests.jai && ./makeTests && start tests/visualTests/index.html",
+		"browserTestAll": "jai makeTests.jai && makeTests && start tests/visualTests/index.html",
 		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000"
 	},
 	"repository": {
