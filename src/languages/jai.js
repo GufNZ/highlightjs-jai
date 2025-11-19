@@ -89,7 +89,8 @@ function jai(hljs) {
 	 * @returns The requested regex.
 	 */
 	const skipWSAndCommentsREFn = (offset, excludeNewline = false) => {
-		return `(?:${atomic('//[^\\n]*(?=\\n)', offset)}|${atomic('/\\*[\\s\\S]*\\*/', 0)}|${atomic(excludeNewline ? '[ \\t]+' : '\\s+', 0)})*`;
+		//NOTE: block comment will end early if we encounter a nested block comment, but that's probably better than greedily consuming everything to the last */ in the file.
+		return `(?:${atomic('//[^\\n]*(?=\\n)', offset)}|${atomic('/\\*[\\s\\S]*?\\*/', 0)}|${atomic(excludeNewline ? '[ \\t]+' : '\\s+', 0)})*`;
 	};
 
 	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
@@ -27999,11 +28000,17 @@ function jai(hljs) {
 	};
 
 	function balancedPair(contents, options, pairName, pairChars) {
-		const keywordsToUse = (options?.keywords ?? keywords);
+		const keywordsToUse = options?.keywords ?? keywords;
+		const startInside = options?.startInside ?? false;
+		const endInside = options?.endInside ?? false;
+
 		delete options?.keywords;
+		delete options?.startInside;
+		delete options?.endInside;
+
 		return {
 			scope: `_Balanced${pairName[0].toUpperCase() + pairName.slice(1)}s`,
-			begin: `\\${pairChars[0]}`,
+			begin: startInside ? `(?<=\\${pairChars[0]})` : `\\${pairChars[0]}`,
 			keywords: {
 				...keywordsToUse,
 				$pattern: `(?:\\b(?:#Context|[A-Za-z][_\\dA-Za-z]+)\\b)|[${pairChars}]`,
@@ -28029,7 +28036,7 @@ function jai(hljs) {
 					)
 					: 'self'
 			],
-			end: `\\${pairChars[1]}`,
+			end: endInside ? `(?=\\${pairChars[1]})` : `\\${pairChars[1]}`,
 			...options
 		};
 	}
@@ -30639,7 +30646,6 @@ function jai(hljs) {
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
 		begin: `(?:#type${skipWSAndCommentsREFn()})?\\((?=.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
-		returnBegin: true,
 		//'on:begin': (match, resp) => {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;
@@ -30655,24 +30661,21 @@ function jai(hljs) {
 				variants: OPERATOR.variants.filter(r => r.scope === 'operator.returns'),
 				starts: PROC_TYPE_RETURNS_LIST
 			},
-			{
-				begin: /\(/,
-				returnBegin: true,
-				starts: balancedParen(
-					[
-						PARAM('params'),
-						COMMA,
-						NOTE,
-						DIRECTIVE,
-						...COMMENTS
-					],
-					{
-						keywords,
-						end: /(?=;|#)/,
-						endsParent: true
-					}
-				)
-			}
+			balancedParen(
+				[
+					PARAM('params'),
+					COMMA,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS
+				],
+				{
+					startInside: true,
+					keywords,
+					end: /(?=;|#)/,
+					endsParent: true
+				}
+			)
 		],
 		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};

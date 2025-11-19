@@ -259,15 +259,15 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 						staticIfDepth += 1;
 					}
 
-					advance(*line, 1);
+					advance(*line);
 				} else if line[0] == #char "\t" {
-					advance(*line, 1);
+					advance(*line);
 					index += 4;
 				} else if line[0] == #char " " && line.count > 3 && line[1] == #char " " && line[2] == #char " " && line[3] == #char " " {
 					advance(*line, 4);
 					index += 4;
 				} else if line[0] == #char "}" {
-					advance(*line, 1);
+					advance(*line);
 					line = eat_spaces(line);
 					if starts_with(line, "else") {
 						nextLine = true;
@@ -330,7 +330,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 						staticIfCaseDepth += 1;
 					}
 
-					advance(*line, 1);
+					advance(*line);
 					continue;
 				} else if starts_with(line, "#scope_file") || starts_with(line, "#scope_module") {
 					public = false;
@@ -439,7 +439,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 				if usingActive || !(starts_with(line, " ") || starts_with(line, "\t")) {
 					if usingActive {
 						while is_space(line[0]) {
-							advance(*line, 1);
+							advance(*line);
 							index -= 1;
 						}
 					}

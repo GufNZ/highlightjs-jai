@@ -132,7 +132,7 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
 		trimmed := line;
 		indentCount = 0;
 		while trimmed.count > 0 && trimmed[0] == #char "\t" {
-			advance(*trimmed, 1);
+			advance(*trimmed);
 			indentCount += 1;
 		}
 
