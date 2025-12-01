@@ -51,7 +51,11 @@ main :: () {
 	for path: files {
 		name := advance(path, 8);
 		name.count = find_index_of_any_from_left(name, "./");
-		if name == "Toolchains"	 continue;	// Not a real module.
+		//if name == "Toolchains"	 continue;	// Not a real module.  -- these moved.
+		if ends_with(path, "/module.jai") && !file_exists(path) {
+			print("  !Skipping missing file '%' - not a real module.\n", path, to_standard_error=true);
+			continue;
+		}
 
 
 		print("[%] In module '%':\n", it_index, name, to_standard_error=true);
