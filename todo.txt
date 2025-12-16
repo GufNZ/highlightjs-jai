@@ -6,5 +6,8 @@
 //FIXME: #intrinsic
 //TODO: compress polymorph use as much as possible.
 //TEST: lots!  & specifically.
-//TEST: complete visualTests audit.
+//TEST: complete visualTests audit.	//TODO: regen first post compiler update fixes
 //TODO: reDoc
+//TEST: (.*) prefix cast (<<x is gone)
+//TEST: #must gone, strSubst: %% is now (%)(%) not \%
+//FIXME: #place gone, #overlay exists.
