@@ -192,7 +192,7 @@ function validateAtomics(re, path, validateParenthes = true) {
 }
 
 function regexDebugPre(lang) {
-	const defn = walk(lang(hljs), ['^begin', 'begin/', '^end', 'end/', '$pattern'], (name, value, _, namePath) => {
+	const defn = walk(lang, ['^begin', 'begin/', '^end', 'end/', '$pattern'], (name, value, _, namePath) => {
 		if (Array.isArray(value)) {
 			return value;
 		}
@@ -262,7 +262,11 @@ function applyDebugInfo() {
 	}), 1000);
 }
 
-function debugInit(langName = 'jai', lang = jai) {
+function debugInit(langName = 'jai', lang) {
+	if (!lang) {
+		lang = hljs.getLanguage(langName);
+	}
+
 	hljs.debugMode();
 	hljs.unregisterLanguage(langName);
 	hljs.registerLanguage(langName, regexDebugPre(lang));

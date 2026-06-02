@@ -48,6 +48,7 @@ main :: () {
 	);
 
 	//NOTE: this will exclude things where the #import has a subpath, like Android/GLES, on purpose, to cut down on noise.
+	//TEST: make sure things like Basic/whatever still get included!
 	for path: files {
 		name := advance(path, 8);
 		name.count = find_index_of_any_from_left(name, "./");
@@ -199,7 +200,7 @@ ModuleParams :: enum {
 };
 
 parseModule :: (path: string, name: string, mod: *Mod) -> bool {
-	if ends_with(path, "Bucket_Allocator/module.jai") {
+	if ends_with(path, "Bucket_Allocator/module.jai") || ends_with(path, "AST_Utils.jai") {
 		print(" ! Skipping non-stdLib module %.\n", path, to_standard_error=true);
 		return false;
 	}
@@ -207,7 +208,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 	print("  Parsing file '%'\n", path, to_standard_error=true);
 	content, success := read_entire_file(path);
-	if contains(path, "ps5") || ends_with(path, "switch.jai") || contains(path, "intendo") || ends_with(path, "ounce.jai") {
+	if contains(path, "ps5") || ends_with(path, "switch.jai") || ends_with(path, "switch2.jai") || contains(path, "intendo") || ends_with(path, "ounce.jai") {
 		print("    404 file '%'\n", path, to_standard_error=true);
 		return false;
 	} else {

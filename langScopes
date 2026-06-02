@@ -1,5 +1,6 @@
 _BalancedBraces
 _BalancedParens
+built_in.stdLib.AST_Utils
 built_in.stdLib.Adpcm
 built_in.stdLib.Android
 built_in.stdLib.Atomics
@@ -14,6 +15,7 @@ built_in.stdLib.Check
 built_in.stdLib.Clipboard
 built_in.stdLib.Code_Visit
 built_in.stdLib.Codex
+built_in.stdLib.Color_Interpolation
 built_in.stdLib.Command_Line
 built_in.stdLib.Compiler
 built_in.stdLib.Crc
@@ -23,7 +25,6 @@ built_in.stdLib.Deep_Copy
 built_in.stdLib.Default_Allocator
 built_in.stdLib.Default_Metaprogram
 built_in.stdLib.File
-built_in.stdLib.File_Async
 built_in.stdLib.File_Utilities
 built_in.stdLib.File_Watcher
 built_in.stdLib.Flat_Pool
@@ -53,7 +54,6 @@ built_in.stdLib.Objective_C
 built_in.stdLib.Overwriting_Allocator
 built_in.stdLib.PCG
 built_in.stdLib.POSIX
-built_in.stdLib.POSIX_old
 built_in.stdLib.Pool
 built_in.stdLib.Preload
 built_in.stdLib.Print_Color
@@ -66,6 +66,7 @@ built_in.stdLib.Random
 built_in.stdLib.Reflection
 built_in.stdLib.Relative_Pointers
 built_in.stdLib.Remap_Context
+built_in.stdLib.Rewrite
 built_in.stdLib.Runtime_Support
 built_in.stdLib.Runtime_Support_Crash_Handler
 built_in.stdLib.SDL
@@ -82,7 +83,6 @@ built_in.stdLib.Srgb
 built_in.stdLib.String
 built_in.stdLib.Subtitles
 built_in.stdLib.System
-built_in.stdLib.Tagged_Union
 built_in.stdLib.Text_File_Handler
 built_in.stdLib.Treemap
 built_in.stdLib.Unicode
@@ -165,12 +165,14 @@ meta.directive.asm.block
 meta.directive.asm.flag
 meta.directive.asm.flags
 meta.directive.forV2
+meta.directive.foreignOrLibrary
 meta.directive.import
 meta.directive.load
 meta.directive.modifier
 meta.directive.modify
 meta.directive.module_parameters
 meta.directive.module_parameters.block
+meta.foreignOrLibrary
 meta.note
 meta.stringTerminator
 number
@@ -213,14 +215,25 @@ operator.rotate
 operator.shift
 operator.shift.modifier
 operator.uninitialised
+params
 params.declaration
+params.default
 params.moduleOrProgram
 params.moduleOrProgram.declaration
+params.return
+params.return.declaration
+params.return.default
+params.return.type
+params.returns
+params.type
 property
 property.constant
 property.constant.declaration
 property.constant.enum
+property.constant.value
 property.declaration
+property.default
+property.type
 punctuation
 punctuation.alignmentWS
 punctuation.backslash
@@ -331,11 +344,14 @@ symbol.size.type
 title.class.declaration
 title.class.inherited
 title.enum.declaration
+title.external.declaration
 title.function
 title.function.declaration
 title.function.forExpansion
 title.function.operatorProc
 title.function.printLike
+title.libraryProcName
+title.libraryReference
 type
 type.any
 type.asm
@@ -348,9 +364,9 @@ type.enum.declaration
 type.enum.value.declaration
 type.float
 type.function.declaration
-type.function.declaration.quickLambda
 type.integer.signed
 type.integer.unsigned
+type.stdLib.AST_Utils
 type.stdLib.Adpcm
 type.stdLib.Android
 type.stdLib.Basic
@@ -360,13 +376,13 @@ type.stdLib.Bucket_Array
 type.stdLib.BuildCpp
 type.stdLib.Code_Visit
 type.stdLib.Codex
+type.stdLib.Color_Interpolation
 type.stdLib.Command_Line
 type.stdLib.Compiler
 type.stdLib.Curl
 type.stdLib.Debug
 type.stdLib.Deep_Copy
 type.stdLib.File
-type.stdLib.File_Async
 type.stdLib.File_Utilities
 type.stdLib.File_Watcher
 type.stdLib.Flat_Pool
@@ -391,7 +407,6 @@ type.stdLib.MojoShader
 type.stdLib.Objective_C
 type.stdLib.Overwriting_Allocator
 type.stdLib.POSIX
-type.stdLib.POSIX_old
 type.stdLib.Pool
 type.stdLib.Preload
 type.stdLib.Print_Color
@@ -401,6 +416,7 @@ type.stdLib.Protocol_For_Memory_Visualization
 type.stdLib.RadixSort
 type.stdLib.Random
 type.stdLib.Relative_Pointers
+type.stdLib.Rewrite
 type.stdLib.Runtime_Support
 type.stdLib.Runtime_Support_Crash_Handler
 type.stdLib.SDL
@@ -413,7 +429,6 @@ type.stdLib.Socket
 type.stdLib.Sound_Player
 type.stdLib.Subtitles
 type.stdLib.System
-type.stdLib.Tagged_Union
 type.stdLib.Text_File_Handler
 type.stdLib.Thread
 type.stdLib.Treemap
@@ -460,8 +475,10 @@ variable.context.constant
 variable.declaration
 variable.language
 variable.param.baked
+variable.stdLib.AST_Utils
 variable.stdLib.Adpcm
 variable.stdLib.Adpcm.constant
+variable.stdLib.Android
 variable.stdLib.Android.constant
 variable.stdLib.Android.programParam
 variable.stdLib.Base64.constant
@@ -479,6 +496,7 @@ variable.stdLib.BuildCpp.constant
 variable.stdLib.BuildCpp.programParam
 variable.stdLib.Check.moduleParam
 variable.stdLib.Codex.moduleParam
+variable.stdLib.Color_Interpolation.constant
 variable.stdLib.Command_Line.constant
 variable.stdLib.Compiler.constant
 variable.stdLib.Curl.constant
@@ -496,6 +514,7 @@ variable.stdLib.Default_Metaprogram
 variable.stdLib.Default_Metaprogram.constant
 variable.stdLib.File
 variable.stdLib.File.constant
+variable.stdLib.File_Utilities.constant
 variable.stdLib.File_Watcher.constant
 variable.stdLib.Flat_Pool.constant
 variable.stdLib.Flat_Pool.moduleParam
@@ -504,6 +523,7 @@ variable.stdLib.GL
 variable.stdLib.GL.constant
 variable.stdLib.GL.moduleParam
 variable.stdLib.Gamepad
+variable.stdLib.Gamepad.constant
 variable.stdLib.GetRect
 variable.stdLib.GetRect.constant
 variable.stdLib.GetRect.context
@@ -519,11 +539,13 @@ variable.stdLib.ImGui.constant
 variable.stdLib.Input
 variable.stdLib.Input.constant
 variable.stdLib.Input.context
+variable.stdLib.Input.programParam
 variable.stdLib.Iprof
 variable.stdLib.Iprof.constant
 variable.stdLib.Iprof.context
 variable.stdLib.Iprof.moduleParam
 variable.stdLib.Jai_Lexer.constant
+variable.stdLib.Keymap
 variable.stdLib.Linux
 variable.stdLib.Linux.constant
 variable.stdLib.Math
@@ -536,8 +558,6 @@ variable.stdLib.Objective_C
 variable.stdLib.Objective_C.constant
 variable.stdLib.POSIX
 variable.stdLib.POSIX.constant
-variable.stdLib.POSIX_old
-variable.stdLib.POSIX_old.constant
 variable.stdLib.Pool.constant
 variable.stdLib.Pool.programParam
 variable.stdLib.Preload
@@ -549,6 +569,7 @@ variable.stdLib.Project_Generator
 variable.stdLib.Protocol_For_Memory_Visualization.constant
 variable.stdLib.Random.context
 variable.stdLib.Remap_Context.moduleParam
+variable.stdLib.Rewrite
 variable.stdLib.Runtime_Support
 variable.stdLib.Runtime_Support.constant
 variable.stdLib.Runtime_Support.moduleParam
@@ -570,7 +591,6 @@ variable.stdLib.Sound_Player.moduleParam
 variable.stdLib.String.constant
 variable.stdLib.Subtitles.constant
 variable.stdLib.System.constant
-variable.stdLib.Tagged_Union.moduleParam
 variable.stdLib.Thread.moduleParam
 variable.stdLib.Thread.programParam
 variable.stdLib.Unicode
@@ -595,6 +615,9 @@ variable.stdLib.d3d12.constant
 variable.stdLib.d3d12.programParam
 variable.stdLib.d3d_compiler.constant
 variable.stdLib.debug_info.constant
+variable.stdLib.dxc_compiler
+variable.stdLib.dxc_compiler.constant
+variable.stdLib.dxc_compiler.programParam
 variable.stdLib.dxgi.constant
 variable.stdLib.executable_formats.constant
 variable.stdLib.freetype

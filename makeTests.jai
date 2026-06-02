@@ -21,6 +21,8 @@ main :: () {
 	template, ok := read_entire_file("indexTemplate.html");
 	assert(ok);
 
+
+
 	files: [..]string;
 	visit_files(
 		"../highlight.js/src/styles",
@@ -40,6 +42,10 @@ main :: () {
 	sorted := quick_sort(files, compare_strings);
 	parts := split(template, "~");
 	builder: String_Builder;
+	if array_find(get_command_line_arguments(), "-debug") {
+		parts[0] = replace(parts[0], "https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js", "../../localHilightDebug.js");
+		parts[2] = replace(parts[2], "hljs.highlightAll();", "setTimeout(() => { debugger;debugInit(); hljs.highlightAll(); }, 1000);");
+	}
 	append(*builder, parts[0]);
 	for sorted {
 		append(*builder, replace(parts[1], "$", it));

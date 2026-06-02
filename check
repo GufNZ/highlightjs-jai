@@ -1,6 +1,21 @@
 
 #Scopes missing from CSS:
 (_BalancedBraces)
+meta.directive_.foreignOrLibrary__
+meta.foreignOrLibrary_
+params.default_
+params.return_
+params.return_.declaration__
+params.return_.default__
+params.return_.type__
+params.returns_
+params.type_
+property.constant_.value__
+property.default_
+property.type_
+title.external_.declaration__
+title.libraryProcName_
+title.libraryReference_
 
 
 #Extra CSS scopes:
@@ -11,7 +26,6 @@
 (number.prefix__)
 (operator.asm_)
 (operator.asm_.size__)
-(params)
 (string.path_)
 (symbol)
 (symbol.size_)
@@ -20,10 +34,27 @@
 (title.enum_)
 (type.enum_)
 (type.function_)
+1501: type.function_.declaration__.quickLambda___
 (type.integer_)
 (type.struct_)
 
 #CSS classes missing from reference:
+.hljs-meta.directive_.foreignOrLibrary__
+.hljs-meta.foreignOrLibrary_
+.hljs-params
+.hljs-params.default_
+.hljs-params.return_
+.hljs-params.return_.declaration__
+.hljs-params.return_.default__
+.hljs-params.return_.type__
+.hljs-params.returns_
+.hljs-params.type_
+.hljs-property.constant_.value__
+.hljs-property.default_
+.hljs-property.type_
+.hljs-title.external_.declaration__
+.hljs-title.libraryProcName_
+.hljs-title.libraryReference_
 
 #Extra CSS classes in reference:
 (.hljs-literal.bool_)
@@ -31,6 +62,7 @@
 (.hljs-type.integer_)
 (.hljs-type.enum_)
 (.hljs-type.function_)
+_459: .hljs-type.function_.declaration__.quickLambda___
 (.hljs-symbol.size_)
 (.hljs-symbol)
 (.hljs-symbol.<flag>_)

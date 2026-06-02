@@ -90,7 +90,6 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
 	vars: [..]Var;
 
 	seenScopes: Table(string, int);
-	init(*seenScopes);
 	indentCount := 0;
 
 	STACK_SIZE :: 10;

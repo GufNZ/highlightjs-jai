@@ -1,13 +1,60 @@
-//NOTE: skipComments is ungreedy for block comments so will break if nested.  Actual match is fine.
 //NOTE: for places where begin[],beginScope can't cover comments nicely, consider a starts chain for sequential things that need fuller definitions.
-//FIXME: compiler updated...
 //TEST: proc type is often not matching...
 //FIXME: polymorph...
 //FIXME: #intrinsic
 //TODO: compress polymorph use as much as possible.
 //TEST: lots!  & specifically.
 //TEST: complete visualTests audit.	//TODO: regen first post compiler update fixes
-//TODO: reDoc
+//TODO: RE-Docs
 //TEST: (.*) prefix cast (<<x is gone)
 //TEST: #must gone, strSubst: %% is now (%)(%) not \%
 //FIXME: #place gone, #overlay exists.
+
+
+#27	file:///d%3A/highlightjs-jai/src/languages/jai.js#121
+	NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
+
+#28	file:///d%3A/highlightjs-jai/src/languages/jai.js#26205
+	LATER: Deprecated, will go away sometime in favour of:
+
+#29	file:///d%3A/highlightjs-jai/src/languages/jai.js#26613
+	FIXME: polymorph
+
+#30	file:///d%3A/highlightjs-jai/src/languages/jai.js#26619
+	FIXME: polymorph tail...
+
+#31	file:///d%3A/highlightjs-jai/src/languages/jai.js#26630
+	FIXME: polymorph
+
+#32	file:///d%3A/highlightjs-jai/src/languages/jai.js#26636
+	FIXME: polymorph tail...
+
+#33	file:///d%3A/highlightjs-jai/src/languages/jai.js#26668
+	NOTE: can't be a polymorph, but //FIXME: that a type can contain a baked polymorphic param...
+
+#34	file:///d%3A/highlightjs-jai/src/languages/jai.js#26801
+	FIXME: polymorph
+
+#35	file:///d%3A/highlightjs-jai/src/languages/jai.js#26804
+	NOTE: can't be a polymorph on that side of the =.
+
+#36	file:///d%3A/highlightjs-jai/src/languages/jai.js#26807
+	FIXME: polymorph tail...
+
+#37	file:///d%3A/highlightjs-jai/src/languages/jai.js#26870
+	LATER: drop deprecated `#system_library` variant when it gets removed.
+
+#41	file:///d%3A/highlightjs-jai/src/languages/jai.js#26940
+	TODO: remove this and make the ASM stuff more generic.  #asm will change at some point so no point making it particulary robust yet.
+
+#58	file:///d%3A/highlightjs-jai/src/languages/jai.js#28416
+	FIXME: polymorph; starts trick...
+
+#60	file:///d%3A/highlightjs-jai/src/languages/jai.js#28732
+	FIXME: polymorph
+
+#61	file:///d%3A/highlightjs-jai/src/languages/jai.js#28764
+	FIXME: polymorph
+
+#64	file:///d%3A/highlightjs-jai/src/languages/jai.js#28828
+	LATER: drop deprecated `#system_library` variant when it gets removed.

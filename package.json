@@ -6,11 +6,15 @@
 	"scripts": {
 		"compileAll": "ls *.jai | xargs -n 1 jai",
 		"generateStdLib": "jai generateStdLib.jai && generateStdLib >stdLib.js",
+		"patchStdLib": "bash mergeStdLib.sh",
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && checkRef >check",
-		"browserTest": "start index.html",
-		"browserTestAll": "jai makeTests.jai && makeTests && start tests/visualTests/index.html",
-		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000"
+		"browserTest": "chrome test/visualTests/index.html",
+		"browserTestAll": "jai makeTests.jai && makeTests && npm run browserTest",
+		"browserTestAllDebug": "jai makeTests.jai && makeTests -debug && npm run browserTest",
+		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000",
+		"end2end": "npm run generateStdLib && npm run dumpLangScopes && npm run checkCssReference && npm run patchStdLib -- -y",
+		"end2endTest": "npm run end2end && npm test"
 	},
 	"repository": {
 		"type": "git",
