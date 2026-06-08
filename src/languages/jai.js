@@ -77,7 +77,7 @@ function jai(hljs) {
 	 */
 	function recurRegex(re, substitution, depth) {
 		return (depth === -1)
-			? ""
+			? "\x27"
 			: re.replace(substitution, _ => recurRegex(re, substitution, depth - 1));
 	}
 
@@ -85,7 +85,7 @@ function jai(hljs) {
 		'/\\*(?:[^*/]+|\\*(?!/)|/(?!\\*)|~~~)*\\*/',
 		/~~~/g,
 		depth
-	);
+	).replace(/\|\x27/g, "");
 
 	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
 	let backRefCount = 1;
@@ -26898,7 +26898,7 @@ function jai(hljs) {
 			scope: 'keyword.cast.v1',
 			relevance: 5,
 			begin: `\\b(?:cast\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?${skipWSAndCommentsREFn(0)}\\(`
-				+ `|\\bxx\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?)`,
+				+ `|\\bxx\\b(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?)`,
 			returnBegin: true,
 			keywords,
 			contains: [

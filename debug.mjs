@@ -141,7 +141,7 @@ function reError(re, i, path, message) {
 	const max = min + 40;
 	const error = `${message} at position ${i} for ${path}:\n${min ? '...' : ''}${re.slice(min, max)}${max <= re.length ? '...' : ''}\n${' '.repeat(max <= re.length ? i - min + 3 : i - min)}^\n${re}`;
 	console.error(error);
-	throw new Error(error);
+	//throw new Error(error);
 }
 
 function validateAtomics(re, path, validateParenthes = true) {
@@ -272,7 +272,7 @@ function debugInit(langName = 'jai', lang) {
 	hljs.registerLanguage(langName, regexDebugPre(lang));
 	console.log('starting...');
 	console.time('hilight');
-	hljs.highlightElement(document.getElementById('it').firstChild);
+	hljs.highlightAll();//Element(document.getElementById('it').firstChild);
 	console.timeEnd('hilight');
 	applyDebugInfo();
 }

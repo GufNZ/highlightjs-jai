@@ -9,6 +9,7 @@
 		"patchStdLib": "bash mergeStdLib.sh",
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && checkRef >check",
+		"build": "cd ../highlight.js && npm run build-cdn",
 		"browserTest": "chrome test/visualTests/index.html",
 		"browserTestAll": "jai makeTests.jai && makeTests && npm run browserTest",
 		"browserTestAllDebug": "jai makeTests.jai && makeTests -debug && npm run browserTest",
