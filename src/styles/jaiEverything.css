@@ -383,6 +383,14 @@
 			font-style: var(--keyword-cast-v1-style, var(--keyword-cast-style, var(--keyword-style, --default-style)));
 			font-weight: var(--keyword-cast-v1-weight, var(--keyword-cast-weight, var(--keyword-weight, --default-weight)));
 			text-decoration: var(--keyword-cast-v1-decoration, var(--keyword-cast-decoration, var(--keyword-decoration, --default-decoration)));
+
+			&.auto___ {
+				color: var(--keyword-cast-v1-auto-fg, var(--keyword-cast-v1-fg, var(--keyword-cast-fg, var(--keyword-fg, --default-fg))));
+				background-color: var(--keyword-cast-v1-auto-bg, var(--keyword-cast-v1-bg, var(--keyword-cast-bg, var(--keyword-bg, --default-bg))));
+				font-style: var(--keyword-cast-v1-auto-style, var(--keyword-cast-v1-style, var(--keyword-cast-style, var(--keyword-style, --default-style))));
+				font-weight: var(--keyword-cast-v1-auto-weight, var(--keyword-cast-v1-weight, var(--keyword-cast-weight, var(--keyword-weight, --default-weight))));
+				text-decoration: var(--keyword-cast-v1-auto-decoration, var(--keyword-cast-v1-decoration, var(--keyword-cast-decoration, var(--keyword-decoration, --default-decoration))));
+			}
 		}
 		&.v2__ {
 			color: var(--keyword-cast-v2-fg, var(--keyword-cast-fg, var(--keyword-fg, --default-fg)));
@@ -580,6 +588,14 @@
 			font-style: var(--directive-forV2-style, var(--directive-style, var(--meta-style, --default-style)));
 			font-weight: var(--directive-forV2-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
 			text-decoration: var(--directive-forV2-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
+		}
+
+		&.foreignOrLibrary__ {
+			color: var(--directive-foreignOrLibrary-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
+			background-color: var(--directive-foreignOrLibrary-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
+			font-style: var(--directive-foreignOrLibrary-style, var(--directive-style, var(--meta-style, --default-style)));
+			font-weight: var(--directive-foreignOrLibrary-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
+			text-decoration: var(--directive-foreignOrLibrary-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
 		}
 
 		&.import__ {
@@ -1016,6 +1032,62 @@
 		font-style: var(--params-declaration-style, var(--declaration-style, var(--params-style, --default-style)));
 		font-weight: var(--params-declaration-weight, var(--declaration-weight, var(--params-weight, --default-weight)));
 		text-decoration: var(--params-declaration-decoration, var(--declaration-decoration, var(--params-decoration, --default-decoration)));
+	}
+
+	&.default_ {
+		color: var(--params-default-fg, var(--params-fg, --default-fg));
+		background-color: var(--params-default-bg, var(--params-bg, --default-bg));
+		font-style: var(--params-default-style, var(--params-style, --default-style));
+		font-weight: var(--params-default-weight, var(--params-weight, --default-weight));
+		text-decoration: var(--params-default-decoration, var(--params-decoration, --default-decoration));
+	}
+
+	&.return_ {
+		color: var(--params-return-fg, var(--params-fg, --default-fg));
+		background-color: var(--params-return-bg, var(--params-bg, --default-bg));
+		font-style: var(--params-return-style, var(--params-style, --default-style));
+		font-weight: var(--params-return-weight, var(--params-weight, --default-weight));
+		text-decoration: var(--params-return-decoration, var(--params-decoration, --default-decoration));
+
+		&.declaration__ {
+			color: var(--params-returnDeclaration-fg, var(--declaration-fg, var(--params-return-fg, var(--params-fg, --default-fg))));
+			background-color: var(--params-returnDeclaration-bg, var(--declaration-bg, var(--params-return-bg, var(--params-bg, --default-bg))));
+			font-style: var(--params-returnDeclaration-style, var(--declaration-style, var(--params-return-style, var(--params-style, --default-style))));
+			font-weight: var(--params-returnDeclaration-weight, var(--declaration-weight, var(--params-return-weight, var(--params-weight, --default-weight))));
+			text-decoration: var(--params-returnDeclaration-decoration, var(--declaration-decoration, var(--params-return-decoration, var(--params-decoration, --default-decoration))));
+		}
+
+		&.default__ {
+			color: var(--params-returnDefault-fg, var(--params-return-fg, var(--params-fg, --default-fg)));
+			background-color: var(--params-returnDefault-bg, var(--params-return-bg, var(--params-bg, --default-bg)));
+			font-style: var(--params-returnDefault-style, var(--params-return-style, var(--params-style, --default-style)));
+			font-weight: var(--params-returnDefault-weight, var(--params-return-weight, var(--params-weight, --default-weight)));
+			text-decoration: var(--params-returnDefault-decoration, var(--params-return-decoration, var(--params-decoration, --default-decoration)));
+		}
+
+		&.type__ {
+			color: var(--params-returnType-fg, var(--params-return-fg, var(--params-type-fg, var(--type-fg, var(--params-fg, --default-fg)))));
+			background-color: var(--params-returnType-bg, var(--params-return-bg, var(--params-type-bg, var(--type-bg, var(--params-bg, --default-bg)))));
+			font-style: var(--params-returnType-style, var(--params-return-style, var(--params-type-style, var(--type-style, var(--params-style, --default-style)))));
+			font-weight: var(--params-returnType-weight, var(--params-return-weight, var(--params-type-weight, var(--type-weight, var(--params-weight, --default-weight)))));
+			text-decoration: var(--params-returnType-decoration, var(--params-return-decoration, var(--params-type-decoration, var(--type-decoration, var(--params-decoration, --default-decoration)))));
+		}
+	}
+
+	&.returns_ {
+		color: var(--params-returns-fg, var(--params-fg, --default-fg));
+		background-color: var(--params-returns-bg, var(--params-bg, --default-bg));
+		font-style: var(--params-returns-style, var(--params-style, --default-style));
+		font-weight: var(--params-returns-weight, var(--params-weight, --default-weight));
+		text-decoration: var(--params-returns-decoration, var(--params-decoration, --default-decoration));
+	}
+
+	&.type_ {
+		color: var(--params-type-fg, var(--type-fg, var(--params-fg, --default-fg)));
+		background-color: var(--params-type-bg, var(--type-bg, var(--params-bg, --default-bg)));
+		font-style: var(--params-type-style, var(--type-style, var(--params-style, --default-style)));
+		font-weight: var(--params-type-weight, var(--type-weight, var(--params-weight, --default-weight)));
+		text-decoration: var(--params-type-decoration, var(--type-decoration, var(--params-decoration, --default-decoration)));
 	}
 
 	/* Module Parameters: */

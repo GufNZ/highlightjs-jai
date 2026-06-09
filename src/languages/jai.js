@@ -28835,7 +28835,7 @@ function jai(hljs) {
 	};
 
 	const FOREIGN_OR_LIBRARY_DIRECTIVE = {
-		scope: 'meta.foreignOrLibrary',
+		scope: 'meta.directive.foreignOrLibrary',
 		begin: [
 			/#/,
 			/foreign|(?:system_)?library/,	//LATER: drop deprecated `#system_library` variant when it gets removed.

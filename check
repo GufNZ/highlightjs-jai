@@ -1,15 +1,6 @@
 
 #Scopes missing from CSS:
 (_BalancedBraces)
-meta.directive_.foreignOrLibrary__
-meta.foreignOrLibrary_
-params.default_
-params.return_
-params.return_.declaration__
-params.return_.default__
-params.return_.type__
-params.returns_
-params.type_
 property.constant_.value__
 property.default_
 property.type_
@@ -34,13 +25,13 @@ title.libraryReference_
 (title.enum_)
 (type.enum_)
 (type.function_)
-1501: type.function_.declaration__.quickLambda___
+1573: type.function_.declaration__.quickLambda___
 (type.integer_)
 (type.struct_)
 
 #CSS classes missing from reference:
+.hljs-keyword.cast_.v1__.auto___
 .hljs-meta.directive_.foreignOrLibrary__
-.hljs-meta.foreignOrLibrary_
 .hljs-params
 .hljs-params.default_
 .hljs-params.return_
@@ -70,6 +61,15 @@ _459: .hljs-type.function_.declaration__.quickLambda___
 (.hljs-_BalancedBraces)
 
 #CSS variables missing from reference:
+|`--keyword-cast-v1-auto`||`--keyword-cast-v1`=>`--keyword-cast`=>`--keyword`=>`--default`|
+|`--directive-foreignOrLibrary`||`--directive`=>`--meta`=>`--default`|
+|`--params-default`||`--params`=>`--default`|
+|`--params-return`||`--params`=>`--default`|
+|`--params-returnDeclaration`||`--declaration`=>`--params-return`=>`--params`=>`--default`|
+|`--params-returnDefault`||`--params-return`=>`--params`=>`--default`|
+|`--params-returnType`||`--params-return`=>`--params-type`=>`--type`=>`--params`=>`--default`|
+|`--params-returns`||`--params`=>`--default`|
+|`--params-type`||`--type`=>`--params`=>`--default`|
 
 #Extra CSS variables in the reference:
 (--declaration-fg)

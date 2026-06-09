@@ -1,6 +1,5 @@
 _BalancedBraces
 _BalancedParens
-built_in.stdLib.AST_Utils
 built_in.stdLib.Adpcm
 built_in.stdLib.Android
 built_in.stdLib.Atomics
@@ -143,6 +142,7 @@ doctag.todo
 doctag.xxx
 keyword.cast
 keyword.cast.v1
+keyword.cast.v1.auto
 keyword.cast.v2
 keyword.char
 keyword.context
@@ -172,7 +172,6 @@ meta.directive.modifier
 meta.directive.modify
 meta.directive.module_parameters
 meta.directive.module_parameters.block
-meta.foreignOrLibrary
 meta.note
 meta.stringTerminator
 number
@@ -366,7 +365,6 @@ type.float
 type.function.declaration
 type.integer.signed
 type.integer.unsigned
-type.stdLib.AST_Utils
 type.stdLib.Adpcm
 type.stdLib.Android
 type.stdLib.Basic
@@ -475,7 +473,6 @@ variable.context.constant
 variable.declaration
 variable.language
 variable.param.baked
-variable.stdLib.AST_Utils
 variable.stdLib.Adpcm
 variable.stdLib.Adpcm.constant
 variable.stdLib.Android

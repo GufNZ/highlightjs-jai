@@ -24,6 +24,7 @@ doctag.xxx_
 keyword
 keyword.cast_
 keyword.cast_.v1__
+keyword.cast_.v1__.auto___
 keyword.cast_.v2__
 keyword.char_
 keyword.context_
@@ -47,6 +48,7 @@ meta.directive_.asm__.block___
 meta.directive_.asm__.flag___
 meta.directive_.asm__.flags___
 meta.directive_.forV2__
+meta.directive_.foreignOrLibrary__
 meta.directive_.import__
 meta.directive_.load__
 meta.directive_.modifier__
@@ -100,8 +102,15 @@ operator.shift_.modifier__
 operator.uninitialised_
 params
 params.declaration_
+params.default_
 params.moduleOrProgram_
 params.moduleOrProgram_.declaration__
+params.return_
+params.return_.declaration__
+params.return_.default__
+params.return_.type__
+params.returns_
+params.type_
 property
 property.constant_
 property.constant_.declaration__
