@@ -28921,7 +28921,7 @@ function jai(hljs) {
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		begin: `(?:#type${skipWSAndCommentsREFn()})?\\((?=.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
+		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\(.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
 		//'on:begin': (match, resp) => {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;
@@ -28946,9 +28946,7 @@ function jai(hljs) {
 					...COMMENTS
 				],
 				{
-					startInside: true,
 					keywords,
-					end: /(?=;|#)/,
 					endsParent: true
 				}
 			)
