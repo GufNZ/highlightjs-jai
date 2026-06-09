@@ -23,6 +23,8 @@ Precedence table, high to low::
 */
 
 function jai(hljs) {
+	const primativesRE = 'u8|u16|u32|u64|s8|s16|s32|s64|float|float64|bool|string';
+
 	function fixDocTags(mode, scope) {
 		const doctags = [/TODO/, /NOTE/, /FIXME/, /BUG/, /HACK/, /MAYBE/, /LATER/, /QUESTION/, /TEST/, /NO_?CHECKIN/i, /OPTIMISE/, /OPTIMIZE/, /XXX/];
 
@@ -118,7 +120,12 @@ function jai(hljs) {
 	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
 	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b', offset);
 	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
-	const typeIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);	//NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
+	const typeIdentifierREFn	= (offset) => atomic(`\\b(?:${primativesRE}|[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*)\\b`, offset);	//NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
+
+	const WHITESPACE = {
+		begin: /\s+/,
+		relevance: 0
+	};
 
 	/* Begin generated content [Version: beta 0.2.029, built on 25 April 2026]: */
 	const STDLIB = {
@@ -26894,11 +26901,15 @@ function jai(hljs) {
 	};
 
 	const CASTS = [
+		{	// Option 0: xx value
+			scope: 'keyword.cast.v1.auto',
+			relevance: 8,
+			begin: `\\bxx\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?`
+		},
 		{	// Option 1: cast[,modifier...](type)value
 			scope: 'keyword.cast.v1',
 			relevance: 5,
-			begin: `\\b(?:cast\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?${skipWSAndCommentsREFn(0)}\\(`
-				+ `|\\bxx\\b(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?)`,
+			begin: `\\bcast\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?${skipWSAndCommentsREFn(0)}\\(`,
 			returnBegin: true,
 			keywords,
 			contains: [
@@ -26907,9 +26918,9 @@ function jai(hljs) {
 				COMMA,
 				..._COMMON_EXCEPT_STRING
 			],
-			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+			end: /(?<=\))|(?<!\n)^/			//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
-		{	// Option 2: cast(type, value[,modifier...])
+		{	// Option 2: cast(type, value[,modifier...]) | xx(value[,modifier...])
 			scope: 'keyword.cast.v2',
 			relevance: 5,
 			begin: `\\b(?:cast|xx)${skipWSAndCommentsREFn()}\\(`,
@@ -26921,7 +26932,7 @@ function jai(hljs) {
 				COMMA,
 				..._COMMON_EXCEPT_STRING
 			],
-			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+			end: /(?<=\))|(?<!\n)^/			//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		},
 		{	// Option 3: value.(type[,modifier...])
 			scope: 'operator.cast.v3',
@@ -26934,7 +26945,7 @@ function jai(hljs) {
 				COMMA,
 				..._COMMON_EXCEPT_STRING,
 			],
-			end: /(?<=\))|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+			end: /(?<=\))|(?<!\n)^/			//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		}
 	];
 
@@ -28685,7 +28696,7 @@ function jai(hljs) {
 				}
 			)
 		],
-		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		end: /(?<=})|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
 	const paramDefaultDecls = [
@@ -28728,6 +28739,7 @@ function jai(hljs) {
 					contains: [
 						...COMMENTS,
 						DEFINE,
+						WHITESPACE,
 						{
 							scope: `${kind}.type`,
 							begin: typeIdentifierREFn(),//FIXME: polymorph
@@ -28813,13 +28825,13 @@ function jai(hljs) {
 					],
 					{
 						keywords,
-						end: /(?<=})|(?<!\n)^/,	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+						end: /(?<=})|(?<!\n)^/,		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 						endsParent: true
 					}
 				)
 			},
 		],
-		end: /(?<=})|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		end: /(?<=})|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
 	const FOREIGN_OR_LIBRARY_DIRECTIVE = {
@@ -28941,7 +28953,7 @@ function jai(hljs) {
 				}
 			)
 		],
-		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
 	paramDefaultDecls.push(PROC_DECLARATION);
@@ -28980,7 +28992,7 @@ function jai(hljs) {
 				]
 			}
 		],
-		end: /;|(?<=\})|(?<!\n)^/,	//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		end: /;|(?<=\})|(?<!\n)^/,		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 		returnEnd: true
 	};
 

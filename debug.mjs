@@ -3,7 +3,7 @@ function emitterStack() {
 		(s, i) => typeof(s) === 'string'
 			? `${i}"${s}"`
 			: `${i}!${s._id}:${s.scope ?? s.$name ?? '???'}[${s.children?.length ?? '-'}]`
-				//{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`
+				//+ `{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`
 	).toReversed();
 }
 function matchMode($m, matcher) {
@@ -23,7 +23,7 @@ function matchMode($m, matcher) {
 					: `${
 						extractName(matcher?.rules?.[$m.position][0])
 							?? `${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`
-					}`//${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`
+					}`//+ `${($s = $emitter.stack.slice(-1)[0])._id}<${$s.scope}>`
 				)
 			]
 		);
@@ -283,7 +283,7 @@ function debugInit(langName = 'jai', lang) {
 //
 //matchMode(typeof match !== 'undefined'?match:result)
 //
-//textLeft(typeof index!=='undefined'?index:this.lastIndex, typeof codeToHighlight!='undefined'?codeToHighlight:s)
+//textLeft(typeof index==='number'?index:this.lastIndex, typeof codeToHighlight!='undefined'?codeToHighlight:s)
 //
 //matchNext(top !== window.top && typeof top.matcher !== undefined ? top.matcher : this)
 

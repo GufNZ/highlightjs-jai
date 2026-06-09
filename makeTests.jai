@@ -22,7 +22,6 @@ main :: () {
 	assert(ok);
 
 
-
 	files: [..]string;
 	visit_files(
 		"../highlight.js/src/styles",
@@ -43,8 +42,20 @@ main :: () {
 	parts := split(template, "~");
 	builder: String_Builder;
 	if array_find(get_command_line_arguments(), "-debug") {
-		parts[0] = replace(parts[0], "https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js", "../../localHilightDebug.js");
-		parts[2] = replace(parts[2], "hljs.highlightAll();", "setTimeout(() => { debugger;debugInit(); hljs.highlightAll(); }, 1000);");
+		parts[0] = replace(
+			replace(
+				parts[0],
+				"https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js",
+				"../../localHilightDebug.js"
+			),
+			"../../dist/jai.min.js",
+			"../../src/languages/jai.js"
+		);
+		parts[2] = replace(
+			parts[2],
+			"hljs.highlightAll();",
+			"hljs.registerLanguage('jai', jai);\n\t\tdebugInit();"
+		);
 	}
 	append(*builder, parts[0]);
 	for sorted {

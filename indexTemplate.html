@@ -3,15 +3,7 @@
 <head>
 	<title>Jai for highlight.js - {}</title>
 	<script type="text/javascript" src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
-
-	<!--<script type="text/javascript" src="../../dist/jai.min.js"></script>-->
-
-	<script type="text/javascript" src="../../src/languages/jai.js"></script>
-	<script type="text/javascript">
-		hljs.registerLanguage('jai', jai);
-	</script>
-
-	<script type="text/javascript" src="../../src/languages/jai.js"></script>
+	<script type="text/javascript" src="../../dist/jai.min.js"></script>~
 	<link id="$" disabled rel="stylesheet" type="text/css" href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/$.min.css"/>~
 	<link id="jaiEverything" rel="stylesheet" type="text/css" href="../../dist/styles/jaiEverything.css"/>
 	<link rel="stylesheet" type="text/css" href="../../debug.css"/>
@@ -52,11 +44,11 @@
 	</div>
 	<pre><code class="language-jai">[]</code></pre>
 	<script type="text/javascript">
+		hljs.highlightAll();
 		document.getElementById("theme").onchange = (e) => {
 			[...document.getElementsByTagName("link")].forEach(el => { el.disabled = true; });
 			document.getElementById(e.target.value).disabled = false;
 		};
-		debugInit();
 	</script>
 </body>
 </html>
