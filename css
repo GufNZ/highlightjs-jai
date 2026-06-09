@@ -47,7 +47,6 @@ meta.directive_.asm__
 meta.directive_.asm__.block___
 meta.directive_.asm__.flag___
 meta.directive_.asm__.flags___
-meta.directive_.forV2__
 meta.directive_.foreignOrLibrary__
 meta.directive_.import__
 meta.directive_.load__
@@ -115,7 +114,10 @@ property
 property.constant_
 property.constant_.declaration__
 property.constant_.enum__
+property.constant_.value__
 property.declaration_
+property.default_
+property.type_
 punctuation
 punctuation.alignmentWS_
 punctuation.backslash_
@@ -145,11 +147,15 @@ title.class_.declaration__
 title.class_.inherited__
 title.enum_
 title.enum_.declaration__
+title.external_
+title.external_.declaration__
 title.function_
 title.function_.declaration__
 title.function_.forExpansion__
 title.function_.operatorProc__
 title.function_.printLike__
+title.libraryProcName_
+title.libraryReference_
 type
 type.any_
 type.asm_
@@ -164,7 +170,6 @@ type.enum_.value__.declaration___
 type.float_
 type.function_
 type.function_.declaration__
-type.function_.declaration__.quickLambda___
 type.integer_
 type.integer_.signed__
 type.integer_.unsigned__

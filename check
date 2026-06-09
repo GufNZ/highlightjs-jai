@@ -1,13 +1,5 @@
-
 #Scopes missing from CSS:
 (_BalancedBraces)
-property.constant_.value__
-property.default_
-property.type_
-title.external_.declaration__
-title.libraryProcName_
-title.libraryReference_
-
 
 #Extra CSS scopes:
 (built_in)
@@ -23,29 +15,13 @@ title.libraryReference_
 (title)
 (title.class_)
 (title.enum_)
+(title.external_)
 (type.enum_)
 (type.function_)
-1573: type.function_.declaration__.quickLambda___
 (type.integer_)
 (type.struct_)
 
 #CSS classes missing from reference:
-.hljs-keyword.cast_.v1__.auto___
-.hljs-meta.directive_.foreignOrLibrary__
-.hljs-params
-.hljs-params.default_
-.hljs-params.return_
-.hljs-params.return_.declaration__
-.hljs-params.return_.default__
-.hljs-params.return_.type__
-.hljs-params.returns_
-.hljs-params.type_
-.hljs-property.constant_.value__
-.hljs-property.default_
-.hljs-property.type_
-.hljs-title.external_.declaration__
-.hljs-title.libraryProcName_
-.hljs-title.libraryReference_
 
 #Extra CSS classes in reference:
 (.hljs-literal.bool_)
@@ -53,7 +29,6 @@ title.libraryReference_
 (.hljs-type.integer_)
 (.hljs-type.enum_)
 (.hljs-type.function_)
-_459: .hljs-type.function_.declaration__.quickLambda___
 (.hljs-symbol.size_)
 (.hljs-symbol)
 (.hljs-symbol.<flag>_)
@@ -61,15 +36,6 @@ _459: .hljs-type.function_.declaration__.quickLambda___
 (.hljs-_BalancedBraces)
 
 #CSS variables missing from reference:
-|`--keyword-cast-v1-auto`||`--keyword-cast-v1`=>`--keyword-cast`=>`--keyword`=>`--default`|
-|`--directive-foreignOrLibrary`||`--directive`=>`--meta`=>`--default`|
-|`--params-default`||`--params`=>`--default`|
-|`--params-return`||`--params`=>`--default`|
-|`--params-returnDeclaration`||`--declaration`=>`--params-return`=>`--params`=>`--default`|
-|`--params-returnDefault`||`--params-return`=>`--params`=>`--default`|
-|`--params-returnType`||`--params-return`=>`--params-type`=>`--type`=>`--params`=>`--default`|
-|`--params-returns`||`--params`=>`--default`|
-|`--params-type`||`--type`=>`--params`=>`--default`|
 
 #Extra CSS variables in the reference:
 (--declaration-fg)

@@ -214,7 +214,8 @@ collectScopesFromCSS :: (lines: []string, debug: bool) -> ([]string, []Var) {
 verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, expectedFromCSS: []string, expectedExtra: ..string) -> []Var {
 	cssScopes, vars := collectScopesFromCSS(cssLines, debug);
 	reported: [..]string;
-	print("\n#Scopes missing from CSS:\n");
+	if debug  print("\n");
+	print("#Scopes missing from CSS:\n");
 	for langScopes {
 		cssClass := scopeToCSSClass(it, true);
 		if contains(cssClass, "*") {
@@ -250,7 +251,7 @@ verifyScopesInCSS :: (langScopes: []string, cssLines: []string, debug := false, 
 	}
 
 	array_reset(*reported);
-	print("\n#Extra CSS scopes:\n");
+	print("#Extra CSS scopes:\n");
 	for cssScopes {
 		if it == "---" || contains(it, "<")  continue;
 
@@ -453,7 +454,7 @@ main :: () {
 		langScopes,
 		css,
 		//true,	// Debug css parse.
-		expectedFromCSS = .["_BalancedBraces"],
+		expectedFromCSS = .["_BalancedBraces", "_BalancedParens"],
 		"built_in",
 		"keyword",
 		"_BalancedParens",
@@ -467,6 +468,7 @@ main :: () {
 		"title",
 		"title.class_",
 		"title.enum_",
+		"title.external_",
 		"type.enum_",
 		"type.function_",
 		"type.integer_",

@@ -392,6 +392,7 @@
 				text-decoration: var(--keyword-cast-v1-auto-decoration, var(--keyword-cast-v1-decoration, var(--keyword-cast-decoration, var(--keyword-decoration, --default-decoration))));
 			}
 		}
+
 		&.v2__ {
 			color: var(--keyword-cast-v2-fg, var(--keyword-cast-fg, var(--keyword-fg, --default-fg)));
 			background-color: var(--keyword-cast-v2-bg, var(--keyword-cast-bg, var(--keyword-bg, --default-bg)));
@@ -495,6 +496,7 @@
 			font-weight: var(--literal-bool-true-weight, var(--literal-bool-weight, var(--literal-weight, --default-weight)));
 			text-decoration: var(--literal-bool-true-decoration, var(--literal-bool-decoration, var(--literal-decoration, --default-decoration)));
 		}
+
 		&.false__ {
 			color: var(--literal-bool-false-fg, var(--literal-bool-fg, var(--literal-fg, --default-fg)));
 			background-color: var(--literal-bool-false-bg, var(--literal-bool-bg, var(--literal-bg, --default-bg)));
@@ -565,6 +567,7 @@
 				font-weight: var(--asm-directive-flag-weight, var(--asm-directive-flags-weight, var(--directive-modifier-weight, var(--directive-weight, var(--meta-weight, --default-weight)))));
 				text-decoration: var(--asm-directive-flag-decoration, var(--asm-directive-flags-decoration, var(--directive-modifier-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)))));
 			}
+
 			&.flags___ {
 				color: var(--asm-directive-flags-fg, var(--directive-modifier-fg, var(--directive-fg, var(--meta-fg, --default-fg))));
 				background-color: var(--asm-directive-flags-bg, var(--directive-modifier-bg, var(--directive-bg, var(--meta-bg, --default-bg))));
@@ -580,14 +583,6 @@
 					text-decoration: var(--asm-directive-flags-comma-decoration, var(--meta-comma-decoration, var(--punctuation-decoration, --default-decoration)));
 				}
 			}
-		}
-
-		&.forV2__ {
-			color: var(--directive-forV2-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
-			background-color: var(--directive-forV2-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
-			font-style: var(--directive-forV2-style, var(--directive-style, var(--meta-style, --default-style)));
-			font-weight: var(--directive-forV2-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
-			text-decoration: var(--directive-forV2-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
 		}
 
 		&.foreignOrLibrary__ {
@@ -1107,6 +1102,7 @@
 			text-decoration: var(--program-params-decoration, var(--params-decoration, --default-decoration));
 		}
 	}
+
 	/* Module Parameters: */
 	&.moduleOrProgram_.declaration__ {
 		color: var(--module-params-declaration-fg, var(--declaration-fg, var(--module-params-fg, var(--params-fg, --default-fg))));
@@ -1155,6 +1151,14 @@
 			font-weight: var(--field-enum-weight, var(--field-constant-weight, var(--field-weight, --default-weight)));
 			text-decoration: var(--field-enum-decoration, var(--field-constant-decoration, var(--field-decoration, --default-decoration)));
 		}
+
+		&.value__ {
+			color: var(--field-value-fg, var(--field-constant-fg, var(--field-fg, --default-fg)));
+			background-color: var(--field-value-bg, var(--field-constant-bg, var(--field-bg, --default-bg)));
+			font-style: var(--field-value-style, var(--field-constant-style, var(--field-style, --default-style)));
+			font-weight: var(--field-value-weight, var(--field-constant-weight, var(--field-weight, --default-weight)));
+			text-decoration: var(--field-value-decoration, var(--field-constant-decoration, var(--field-decoration, --default-decoration)));
+		}
 	}
 
 	&.declaration_ {
@@ -1163,6 +1167,22 @@
 		font-style: var(--field-declaration-style, var(--declaration-style, var(--field-style, --default-style)));
 		font-weight: var(--field-declaration-weight, var(--declaration-weight, var(--field-weight, --default-weight)));
 		text-decoration: var(--field-declaration-decoration, var(--declaration-decoration, var(--field-decoration, --default-decoration)));
+	}
+
+	&.default_ {
+		color: var(--field-default-fg, var(--declaration-fg, var(--field-fg, --default-fg)));
+		background-color: var(--field-default-bg, var(--declaration-bg, var(--field-bg, --default-bg)));
+		font-style: var(--field-default-style, var(--declaration-style, var(--field-style, --default-style)));
+		font-weight: var(--field-default-weight, var(--declaration-weight, var(--field-weight, --default-weight)));
+		text-decoration: var(--field-default-decoration, var(--declaration-decoration, var(--field-decoration, --default-decoration)));
+	}
+
+	&.type_ {
+		color: var(--field-type-fg, var(--declaration-fg, var(--field-fg, --default-fg)));
+		background-color: var(--field-type-bg, var(--declaration-bg, var(--field-bg, --default-bg)));
+		font-style: var(--field-type-style, var(--declaration-style, var(--field-style, --default-style)));
+		font-weight: var(--field-type-weight, var(--declaration-weight, var(--field-weight, --default-weight)));
+		text-decoration: var(--field-type-decoration, var(--declaration-decoration, var(--field-decoration, --default-decoration)));
 	}
 }
 
@@ -1363,6 +1383,7 @@
 			font-weight: var(--asm-size-const-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight)));
 			text-decoration: var(--asm-size-const-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration)));
 		}
+
 		&.type__ {
 			color: var(--asm-size-type-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg)));
 			background-color: var(--asm-size-type-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, --default-bg)));
@@ -1420,6 +1441,22 @@
 		}
 	}
 
+	&.external_ {
+		color: var(--external-fg, var(--title-fg, --default-fg));
+		background-color: var(--external-bg, var(--title-bg, --default-bg));
+		font-style: var(--external-style, var(--title-style, --default-style));
+		font-weight: var(--external-weight, var(--title-weight, --default-weight));
+		text-decoration: var(--external-decoration, var(--title-decoration, --default-decoration));
+
+		&.declaration__ {
+			color: var(--external-declaration-fg, var(--declaration-fg, var(--external-fg, var(--title-fg, --default-fg))));
+			background-color: var(--external-declaration-bg, var(--declaration-bg, var(--external-bg, var(--title-bg, --default-bg))));
+			font-style: var(--external-declaration-style, var(--declaration-style, var(--external-style, var(--title-style, --default-style))));
+			font-weight: var(--external-declaration-weight, var(--declaration-weight, var(--external-weight, var(--title-weight, --default-weight))));
+			text-decoration: var(--external-declaration-decoration, var(--declaration-decoration, var(--external-decoration, var(--title-decoration, --default-decoration))));
+		}
+	}
+
 	&.function_ {
 		color: var(--proc-fg, var(--title-fg, --default-fg));
 		background-color: var(--proc-bg, var(--title-bg, --default-bg));
@@ -1458,6 +1495,22 @@
 			font-weight: var(--proc-printLike-weight, var(--proc-weight, var(--title-weight, --default-weight)));
 			text-decoration: var(--proc-printLike-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
 		}
+	}
+
+	&.libraryProcName_ {
+		color: var(--libraryProcName-fg, var(--proc-fg, var(--title-fg, --default-fg)));
+		background-color: var(--libraryProcName-bg, var(--proc-bg, var(--title-bg, --default-bg)));
+		font-style: var(--libraryProcName-style, var(--proc-style, var(--title-style, --default-style)));
+		font-weight: var(--libraryProcName-weight, var(--proc-weight, var(--title-weight, --default-weight)));
+		text-decoration: var(--libraryProcName-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
+	}
+
+	&.libraryReference_ {
+		color: var(--libraryReference-fg, var(--proc-fg, var(--title-fg, --default-fg)));
+		background-color: var(--libraryReference-bg, var(--proc-bg, var(--title-bg, --default-bg)));
+		font-style: var(--libraryReference-style, var(--proc-style, var(--title-style, --default-style)));
+		font-weight: var(--libraryReference-weight, var(--proc-weight, var(--title-weight, --default-weight)));
+		text-decoration: var(--libraryReference-decoration, var(--proc-decoration, var(--title-decoration, --default-decoration)));
 	}
 }
 
@@ -1569,14 +1622,6 @@
 			font-style: var(--type-function-declaration-style, var(--type-declaration-style, var(--declaration-style, (--type-function-style, var(--type-style, --default-style)))));
 			font-weight: var(--type-function-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, (--type-function-weight, var(--type-weight, --default-weight)))));
 			text-decoration: var(--type-function-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, (--type-function-decoration, var(--type-decoration, --default-decoration)))));
-
-			&.quickLambda___ {
-				color: var(--type-function-declaration-quickLambda-fg, var(--type-function-declaration-fg, var(--type-declaration-fg, var(--declaration-fg, (--type-function-fg, var(--type-fg, --default-fg))))));
-				background-color: var(--type-function-declaration-quickLambda-bg, var(--type-function-declaration-bg, var(--type-declaration-bg, var(--declaration-bg, (--type-function-bg, var(--type-bg, --default-bg))))));
-				font-style: var(--type-function-declaration-quickLambda-style, var(--type-function-declaration-style, var(--type-declaration-style, var(--declaration-style, (--type-function-style, var(--type-style, --default-style))))));
-				font-weight: var(--type-function-declaration-quickLambda-weight, var(--type-function-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, (--type-function-weight, var(--type-weight, --default-weight))))));
-				text-decoration: var(--type-function-declaration-quickLambda-decoration, var(--type-function-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, (--type-function-decoration, var(--type-decoration, --default-decoration))))));
-			}
 		}
 	}
 
@@ -1730,6 +1775,7 @@
 			font-weight: var(--variable-stdLib-context-weight, var(--variable-stdLib-weight, var(--variable-weight, --default-weight)));
 			text-decoration: var(--variable-stdLib-context-decoration, var(--variable-stdLib-decoration, var(--variable-decoration, --default-decoration)));
 		}
+
 		&.constant___ {
 			color: var(--variable-stdLib-constant-fg, var(--variable-stdLib-fg, var(--variable-constant-fg, var(--variable-fg, --default-fg))));
 			background-color: var(--variable-stdLib-constant-bg, var(--variable-stdLib-bg, var(--variable-constant-bg, var(--variable-bg, --default-bg))));
@@ -1745,6 +1791,7 @@
 			font-weight: var(--variable-stdLib-moduleParam-weight, var(--params-weight, var(--variable-weight, --default-weight)));
 			text-decoration: var(--variable-stdLib-moduleParam-decoration, var(--params-decoration, var(--variable-decoration, --default-decoration)));
 		}
+
 		&.programParam___ {
 			color: var(--variable-stdLib-programParam-fg, var(--params-fg, var(--variable-fg, --default-fg)));
 			background-color: var(--variable-stdLib-programParam-bg, var(--params-bg, var(--variable-bg, --default-bg)));

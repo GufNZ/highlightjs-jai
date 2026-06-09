@@ -164,7 +164,6 @@ meta.directive.asm
 meta.directive.asm.block
 meta.directive.asm.flag
 meta.directive.asm.flags
-meta.directive.forV2
 meta.directive.foreignOrLibrary
 meta.directive.import
 meta.directive.load

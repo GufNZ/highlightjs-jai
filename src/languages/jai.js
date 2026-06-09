@@ -26716,7 +26716,7 @@ function jai(hljs) {
 		relevance: 7,
 		begin: [
 			/#/,
-			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|f(?:ile(?:path|)|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|overlay|p(?:laceholder|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|)|v2)/,
+			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|f(?:ile(?:path|)|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|overlay|p(?:laceholder|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|))/,
 			/\b/
 		],
 		beginScope: {
@@ -28646,17 +28646,6 @@ function jai(hljs) {
 				beginScope: {
 					1: 'punctuation.forExpansionInvoke',
 					2: 'title.function.forExpansion'
-				}
-			},
-			{
-				$name: '#v2',
-				begin: [
-					/#/,
-					/v2\b/
-				],
-				beginScope: {
-					1: 'operator.hash.directive',
-					2: 'meta.directive.forV2'
 				}
 			},
 			_NEARLY_ALL

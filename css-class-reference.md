@@ -95,6 +95,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--keyword-struct`|`struct` and `union`.|`--keyword`=>`--default`|
 |`--keyword-cast`|The `cast` keyword, its parameters, and `()`s and `,`, as used in Option 1 and Option 2, and the `xx` autocast keyword.|`--keyword`=>`--default` for the keyword;<br/>`--keyword`=>`--punctuation`=>`--default` for the `()`s and `,`;|
 |`--keyword-cast-v1`|The `cast` keyword & parameters, as used in Option 1.|`--keyword-cast`=>`--keyword`=>`--default`|
+|`--keyword-cast-v1-auto`|The `xx` keyword, as used in Option 1.|`--keyword-cast-v1`=>`--keyword-cast`=>`--keyword`=>`--default`|
 |`--keyword-cast-v2`|The `cast` keyword & parameters, as used in Option 2.|`--keyword-cast`=>`--keyword`=>`--default`|
 |`--operator-cast-v3`|The `.(Type)` Option 3 suffix cast.|`--operator`=>`--default`|
 ||||
@@ -146,7 +147,13 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--variable-constant-declaration`|A constant being declared.|`--variable-declaration`=>`--declaration`=>`--variable-constant`=>`--variable`=>`--default`|
 |`--struct-declaration`|Struct variable declarations.|`--declaration`=>`--struct`=>`--title`=>`--default`|
 |`--field-declaration`|Struct field declarations.|`--declaration`=>`--field`=>`--default`|
+|`--field-type`|The type of a field.|`--declaration`=>`--field`=>`--default`|
 |`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
+|`--field-value`|The value of a constant field.|`--field-constant`=>`--field`=>`--default`|
+|`--external`|External things (`#foreign`, `#library`, ~~`#system_library`~~ and `#elsewhere`).|`--title`=>`--default`|
+|`--libraryProcName`|The external proc name if specified.|`--proc`=>`--title`=>`--default`|
+|`--libraryReference`|The external library reference.|`--proc`=>`--title`=>`--default`|
+|`--external-declaration`|A declaration marked with `#foreign`, `#library`, ~~`#system_library`~~ or `#elsewhere`.|`--declaration`=>`--external`=>`--title`=>`--default`|
 |`--proc-declaration`|Proc/functions declarations.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
 |`--type-declaration`|Type declarations.|`--declaration`=>`--type`=>`--default`|
@@ -179,6 +186,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--field`|Struct field references (things following the `.` operator).|`--default`|
 |`--field-declaration`|A struct field declaration.|`--field`=>`--default`|
 |`--field-constant`|Struct constant-field references (`ALL_UPPER`).|`--field`=>`--default`|
+|`--field-default`|The default value of a field.|`--declaration`=>`--field`=>`--default`|
 |`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
 |`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
 ||||
@@ -195,7 +203,6 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--type-float`|Both floating point types (`float`, `float64`).|`--type`=>`--default`|
 |`--type-function`|All procs/functions.|`--type`=>`--default`|
 |`--type-function-declaration`|Proc/function declarations.|`--type-declaration`=>`--declaration`=>`--type-function`=>`--type`=>`--default`|
-|`--type-function-declaration-quickLambda`|QuickLambda declarations.|`--type-function-declaration`=>`--type-declaration`=>`--declaration`=>`--type-function`=>`--type`=>`--default`|
 |`--type-integer`|All integer types.|`--type`=>`--default`|
 |`--type-integer-signed`|All signed integer types (`int`, `s8`, `s16`, `s32`, `s64`).|`--type-integer`=>`--type`=>`--default`|
 |`--type-integer-unsigned`|All unsigned integer types (`u8`, `u16`, `u32`, `u64`).|`--type-integer`=>`--type`=>`--default`|
@@ -224,7 +231,14 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--proc-printLike`|Known stdLib procs marked with `@PrintLike`, enabling substitution marker highlighting.|`--proc`=>`--title`=>`--default`|
 |`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
+|`--params-type`|The type of a proc parameter.|`--type`=>`--params`=>`--default`|
+|`--params-default`|The default value for a parameter in the proc signature.|`--params`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
+|`--params-returns`|The list of returns in a proc signature.|`--params`=>`--default`|
+|`--params-return`|A return entry.|`--params`=>`--default`|
+|`--params-returnDeclaration`|The name of a return entry.|`--declaration`=>`--params-return`=>`--params`=>`--default`|
+|`--params-returnType`|The type of a return entry.|`--params-return`=>`--params-type`=>`--type`=>`--params`=>`--default`|
+|`--params-returnDefault`|The default value of a return entry.|`--params-return`=>`--params`=>`--default`|
 |**Specials**|
 |`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--title`=>`--default`|
 |`--operatorProc`|Procs named `operator`.|`--proc`=>`--title`=>`--default`|
@@ -240,7 +254,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |**Directives**|
 |`--directive`|Directives.|`--meta`=>`--default`|
 |`--directive-modifier`|Directive modifiers.|`--directive`=>`--meta`=>`--default`|
-|`--directive-forV2`|The temporary `#v2` directive for `for` statements that are reversed, indicating the bounds are also flipped - soon to become the default.|`--directive`=>`--meta`=>`--default`|
+|`--directive-foreignOrLibrary`|The `#foreign`, `#library` and ~~`#system_library`~~ directives.|`--directive`=>`--meta`=>`--default`|
 |`--directive-import`|The `#import` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
@@ -355,8 +369,9 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-keyword`|All keywords.|
 |`.hljs-keyword.cast_`|The `cast` and `xx` keywords.|
-|`.hljs-keyword.cast_.v1__`|Specifically the Option 1 cast kind.|
-|`.hljs-keyword.cast_.v2__`|Specifically the Option 2 cast kind.|
+|`.hljs-keyword.cast_.v1__`|Specifically the Option 1 `cast` kind.|
+|`.hljs-keyword.cast_.v1__.auto___`|Specifically the Option autocast `xx`.|
+|`.hljs-keyword.cast_.v2__`|Specifically the Option 2 `cast` kind.|
 ||_Note: Option 3 is an operator._|
 |`.hljs-keyword.char_`|The `char` keyword in the `#char` directive.|
 |`.hljs-keyword.context_`|The `push_context` keyword.|
@@ -433,8 +448,11 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-property`|A field reference (`something.camelCase`)|
 |`.hljs-property.declaration_`|A field declaration (`camelCase: type` inside a struct definition)|
+|`.hljs-property.type_`|A field declaration's type.|
+|`.hljs-property.default_`|A field declaration's default value.|
 |`.hljs-property.constant_.declaration__`|A constant field declaration in a struct definition.|
 |`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
+|`.hljs-property.constant_.value__`|A constant value.|
 |`.hljs-property.constant_.enum__`|An enum value reference (`.ALL_UPPER` or `.PascalCase`)|
 
 ### Types
@@ -456,7 +474,6 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-type.enum_.value__.declaration___`|Enum value declarations.|
 |`.hljs-type.function_`|All proc/function/quickLambda declarations.|
 |`.hljs-type.function_.declaration__`|Proc/function type declarations.|
-|`.hljs-type.function_.declaration__.quickLambda___`|QuickLambda declarations.|
 |`.hljs-type.struct_.declaration__`|Struct type declarations.|
 |`.hljs-type.code_`|The `Code` type.|
 |`.hljs-type.void_`|The `void` type.|
@@ -480,7 +497,15 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-title.function_`|Proc/Function call.|
 |`.hljs-title.function_.printLike__`|Known stdLib procs marked with `@PrintLike`, enabling substitution marker highlighting.|
 |`.hljs-title.function_.declaration__`|Proc/Function declaraion.|
-|`.hljs-params.declaration_`|All proc parameter declarations in the proc signature.|
+|`.hljs-params`|All proc parameter declarations in the proc signature.|
+|`.hljs-params.declaration_`|A proc parameter declaration.|
+|`.hljs-params.type_`|A proc parameter's type.|
+|`.hljs-params.default_`|A proc parameter's default value.|
+|`.hljs-params.returns_`|A proc's returns list.|
+|`.hljs-params.return_`|A proc's return entry.|
+|`.hljs-params.return_.declaration__`|A return entry's name.|
+|`.hljs-params.return_.type__`|A return entry's type.|
+|`.hljs-params.return_.default__`|A return entry's default value.|
 
 #### Specials
 | CSS class | Definition |
@@ -516,14 +541,20 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-meta.directive_.load__`|Load directives.|
 |`.hljs-string.path_.load__`|The file-path in the load directive.|
 |||
-|`.hljs-meta.directive_.forV2__`|The temporary `#v2` directive for `for` statements that are reversed, indicating the bounds are also flipped - soon to become the default.|
 |`.hljs-meta.directive_.import__`|Import directives.|
 |`.hljs-string.path_.import__`|The module name or path in import directives.|
 |`.hljd-params`|All `#import` or `#module_parameters` parameters.|
 |`.hljs-params.moduleOrProgram_`|The module or program parameters in either an import directive or the `#module_parameters` directive.|
 |`.hljs-params.moduleOrProgram_.declaration__`|The module or program parameters in the `#module_parameters` directive.|
 |`.hljs-meta.directive_.module_parameters__`|The `#module_parameters` directive.|
+||_Note: See also `.hljs-params*` as they also apply to module and program parameters._//TEST: confirm this.|
 |`.hljs-meta.directive_.module_parameters__.block___`|The block that is optionally part of the `#module_parameters` directive, where things to be used in the module parameters are defined.|
+|||
+|`.hljs-meta.directive_.foreignOrLibrary__`|The `#foreign`, `#library`, ~~`#system_library`~~ and `#elsewhere` directives.|
+|`.hljs-title.external_.declaration__`|The declaration using one of the above.|
+|`.hljs-title.libraryProcName_`|The external proc name, if present.|
+|`.hljs-title.libraryReference_`|The library reference.|
+
 
 ### Inline ASM
 | CSS class | Definition |
