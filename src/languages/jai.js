@@ -27546,7 +27546,16 @@ function jai(hljs) {
 						DEFINE_ASSIGN,
 						{
 							scope: `${kind}.default`,
-							begin: /(?=[^,])/,
+							// Complementary to parent end class - guarantees this child
+							// can never match at the same index as the parent's end
+							// (which is what triggers hl.js' "0 width match" crash).
+							// We also need an explicit end matching the parent's end:
+							// without one hl.js generates a fallback end of /\B|\b/ that
+							// matches at every position, which combined with our
+							// zero-width begin would always fire begin+end at the same
+							// index.
+							begin: /(?=[^,;#\){])/,
+							end: /(?=[,;#\)\{])/,
 							keywords,
 							contains: paramDefaultDecls
 						}
@@ -27576,7 +27585,10 @@ function jai(hljs) {
 										ASSIGN,
 										{
 											scope: `${kind}.default`,
-											begin: /(?=[^,])/,
+											// See note above on complementary begin/end classes
+											// and the explicit end requirement.
+											begin: /(?=[^,;#\){])/,
+											end: /(?=[,;#\)\{])/,
 											keywords,
 											contains: paramDefaultDecls
 										}
@@ -27610,7 +27622,10 @@ function jai(hljs) {
 						DEFINE_ASSIGN,
 						{
 							scope: `${kind}.constant.value`,
-							begin: /(?=[^,])/,
+							// See note above on complementary begin/end classes
+							// and the explicit end requirement.
+							begin: /(?=[^,;#\){])/,
+							end: /(?=[,;#\)\{])/,
 							keywords,
 							contains: paramDefaultDecls
 						}
@@ -27682,8 +27697,12 @@ function jai(hljs) {
 						// Complementary to the outer end class - guarantees this
 						// child can never match at the same index as the outer
 						// end (which is what triggers hl.js' "0 width match"
-						// crash).
+						// crash). Explicit end is required: without one hl.js
+						// generates a fallback end of /\B|\b/ that matches at
+						// every position, which would always fire begin+end at
+						// the same index given our zero-width begin.
 						begin: /(?=[^,;#\){])/,
+						end: /(?=[,;#\)\{])/,
 						keywords,
 						contains: paramDefaultDecls
 					}
