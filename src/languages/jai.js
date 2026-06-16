@@ -27627,6 +27627,73 @@ function jai(hljs) {
 		return result;
 	};
 
+	// A proc type used in a *type* slot (parameter type, local variable type)
+	// rather than as a top-level procedure declaration. Lets things like
+	// `mod: (q: T) -> T = null` parse without the lexer desyncing on the inner
+	// `)` of the parameter list. `kind` mirrors PARAM's so resulting scopes
+	// nest under the parent param's scope (e.g. `params.type.function`).
+	// Recursion (proc-type-as-type containing a PARAM containing another
+	// proc-type-as-type) is broken by passing includeProcType=false to the
+	// inner PARAM call below.
+	const makeProcTypeAsType = (kind) => ({
+		scope: `${kind}.type.function`,
+		// Optional `#type` prefix, then the start of `(`. The `(` itself is
+		// left unconsumed by the begin (it's a lookahead) so balancedParen
+		// below can take it.
+		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\()`,
+		keywords,
+		contains: [
+			...COMMENTS,
+			NOTE,
+			DIRECTIVE,
+			balancedParen(
+				[
+					PARAM('params', false, false),	// 3rd arg: don't recurse into another proc-type-as-type
+					COMMA,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS
+				],
+				{ keywords }
+			),
+			{
+				begin: /->/,
+				keywords,
+				contains: [
+					...COMMENTS,
+					NOTE,
+					{
+						scope: `${kind}.return.type`,
+						begin: typeIdentifierREFn(),
+						keywords
+					}
+				],
+				end: /(?=[,;#\)\{=])/
+			},
+			{
+				begin: /=/,
+				returnBegin: true,
+				keywords,
+				contains: [
+					ASSIGN,
+					{
+						scope: `${kind}.default`,
+						// Complementary to the outer end class - guarantees this
+						// child can never match at the same index as the outer
+						// end (which is what triggers hl.js' "0 width match"
+						// crash).
+						begin: /(?=[^,;#\){])/,
+						keywords,
+						contains: paramDefaultDecls
+					}
+				],
+				end: /(?=[,;#\)\{])/
+			}
+		],
+		end: /(?=[,;#\)\{])/,
+		endsParent: true
+	});
+
 	const STRUCT_TYPE_DECLARATION = {
 		scope: 'type.struct.declaration',
 		begin: /\bstruct\b/,
