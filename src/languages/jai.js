@@ -27526,7 +27526,7 @@ function jai(hljs) {
 		// ...other decls go here.
 	];
 
-	const PARAM = (kind, includeConsts) => {
+	const PARAM = (kind, includeConsts, includeProcType = false) => {
 		const result = {
 			scope: kind,
 			begin: identifierREFn(),
@@ -27561,6 +27561,7 @@ function jai(hljs) {
 						...COMMENTS,
 						DEFINE,
 						WHITESPACE,
+						...(includeProcType ? [makeProcTypeAsType(kind)] : []),
 						{
 							scope: `${kind}.type`,
 							begin: typeIdentifierREFn(),//FIXME: polymorph
