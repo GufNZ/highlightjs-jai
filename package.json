@@ -11,9 +11,9 @@
 		"checkCssReference": "jai checkRef.jai && checkRef >check",
 		"checks": "npm run dumpLangScopes && npm run checkCssReference",
 		"build": "cd ../highlight.js && npm run build-cdn",
-		"browserTest": "chrome test/visualTests/index.html",
+		"browserTest": "node browserTest.mjs",
 		"browserTestAll": "jai makeTests.jai && makeTests && npm run browserTest",
-		"browserTestAllDebug": "jai makeTests.jai && makeTests -debug && npm run browserTest",
+		"browserTestAllDebug": "jai makeTests.jai && makeTests -debug && npm run browserTest -- --debug",
 		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000",
 		"end2end": "npm run generateStdLib && npm run patchStdLib -- -y && npm run checks",
 		"end2endTest": "npm run end2end && npm test"

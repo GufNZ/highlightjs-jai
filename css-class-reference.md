@@ -275,17 +275,21 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--asm-directive-flags-comma`|`,`s in the CPU feature flags list on the `#asm` directive.|`--meta-comma`=>`--punctuation`=>`--default`|
 |`--asm-directive-flag`|Each CPU feature flags on the `#asm` directive.|`--asm-directive-flags`=>`--directive-modifier`=>`--directive`=>`--meta`=>`--default`|
 |`--asm-directive-block`|The entire `{}`-bounded block after the `#asm` directive.|`--asm`=>`--asm-directive`=>`--directive`=>`--meta`=>`--default`|
+|`--asm-statement`|An `#asm` instruction.|`--asm`=>`--meta`=>`--default`|
+|`--asm-comma`|Commas in `#asm` statements.|`--meta-comma`=>`--punctuation`=>`--default`|
 |`--operator-pinRegister`|The `===` operator.|`--operator`=>`--default`|
 |`--operator-asm-broadcastValueOrSuppressFloatExceptions`|The `!` operator in inline ASM.|`--operator`=>`--default`|
 |`--operator-asm-maskControl`|The `&` and `&*` operators in inline ASM.|`--operator`=>`--default`|
 |`--operator-asm-roundingControl`|The `!n`, `!d`, `!u` and `!z` operators in inline ASM.|`--operator`=>`--default`|
 ||||
 |`--asm-register`|CPU register names.|`--keyword`=>`--default`|
-|`--asm-mnemonic`|Instruction opcodes, e.g. `mov`.|`--default`|
-|`--asm-size`|A size specifier on an opcode, e.g. in `mov.8` or `mov?T`.|`--asm-mnemonic`=>`--default`|
-|`--asm-size-numeric`|A numeric-literal size specifier, e.g. `mov.8`.|`--asm-size`=>`--asm-mnemonic`=>`--default`|
-|`--asm-size-const`|A constant opcode size specifier, e.g. `mov.BITS`.|`--asm-size`=>`--asm-mnemonic`=>`--default`|
-|`--asm-size-type`|A variable opcode size specifier, e.g. `mov?T`.|`--asm-size`=>`--asm-mnemonic`=>`--default`|
+|`--symbol`|All symbols.|`--default`|
+|`--asm-symbol`|All mnemonics and size symbols.|`--symbol`=>`--default`|
+|`--asm-mnemonic`|Instruction opcodes, e.g. `mov`.|`--asm-symbol`=>`--symbol`=>`--default`|
+|`--asm-size`|A size specifier on an opcode, e.g. in `mov.8` or `mov?T`.|`--asm-mnemonic`=>`--asm-symbol`=>`--symbol`=>`--default`|
+|`--asm-size-numeric`|A numeric-literal size specifier, e.g. `mov.8`.|`--asm-size`=>`--asm-mnemonic`=>`--asm-symbol`=>`--symbol`=>`--default`|
+|`--asm-size-const`|A constant opcode size specifier, e.g. `mov.BITS`.|`--asm-size`=>`--asm-mnemonic`=>`--asm-symbol`=>`--symbol`=>`--default`|
+|`--asm-size-type`|A variable opcode size specifier, e.g. `mov?T`.|`--asm-size`=>`--asm-mnemonic`=>`--asm-symbol`=>`--symbol`=>`--default`|
 |`--operator-asm-size`|The `.` or `?` in an opcode size specifier, e.g. in `mov.8` or `mov?T`.|`--operator`=>`--default`|
 |`--operator-asm-size-clue`|The `?` in an opcode size specifier, e.g. in `mov?T`.|`--operator-asm-size`=>`--operator`=>`--default`|
 |`--operator-asm-size-dot`|The `.` in an opcode size specifier, e.g. in `mov.8`.|`--operator-asm-size`=>`--operator`=>`--default`|
@@ -564,8 +568,10 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-meta.directive_.asm__.flags___`|Any CPU FeatureFlags required for this `#asm` block.|
 |`.hljs-meta.directive_.asm__.flag___`|Individual CPU FeatureFlags.|
 |`.hljs-meta.directive_.asm__.block___`|The block containing the inline assembly.|
+|`.hljs-meta.asm_.statement__`|An `#asm` instruction.|
 |`.hljs-operator.asm_.size__.clue___`|`?` in `#asm` after mnemonics to specify data width based on a variable or type.|
 |`.hljs-operator.asm_.size__.dot___`|`.` in `#asm` after mnemonics to specify data width based a constant.|
+|`.hljs-symbol.asm_.mnemonic__`|All symbols below.|
 |`.hljs-symbol.size_`|All mnemonic data width specifiers.|
 |`.hljs-symbol.size_.numeric__`|The mnemonic data width specifier when specified using a number after the `.`.|
 |`.hljs-symbol.size_.type__`|The mnemonic data width specifier when specified using a variable or type after the `?`.|

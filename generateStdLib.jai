@@ -133,7 +133,7 @@ main :: () {
 		}
 	}
 
-	print("\t}\n\t/* :End generated content. */\n");
+	print("\t};\n\t/* :End generated content. */\n");
 }
 
 PRIMITIVES :: string.[

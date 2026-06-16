@@ -26101,7 +26101,7 @@ function jai(hljs) {
 			'XXH_VERSION_MINOR',
 			'XXH_VERSION_RELEASE',
 		],
-	}
+	};
 	/* :End generated content. */
 
 	const keywordsExceptStdLib = {
@@ -26523,7 +26523,7 @@ function jai(hljs) {
 		scope: 'char.escape',
 		relevance: 0,
 		begin: /\\(?:[0tenr%\\"]|d\d{3}|x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})/
-	}
+	};
 
 	const STRING = {
 		scope: 'string',
@@ -26632,7 +26632,7 @@ function jai(hljs) {
 		keywords,
 		contains: [ALIGNMENT_WS],
 		end: /(?=\W)/
-	}
+	};
 
 	const TYPE = {//FIXME: polymorph
 		scope: 'type',
@@ -26642,7 +26642,7 @@ function jai(hljs) {
 		keywords,
 		contains: [ALIGNMENT_WS],//FIXME: polymorph tail...
 		end: /(?=\W)/
-	}
+	};
 
 	const VAR = {
 		scope: 'variable',
@@ -26773,7 +26773,7 @@ function jai(hljs) {
 		contains: [DIRECTIVE],
 		end: /:/,
 		returnEnd: true
-	}
+	};
 
 	const _ATOMIC = [
 		NOTE,
@@ -26803,7 +26803,7 @@ function jai(hljs) {
 		contains: [ALIGNMENT_WS],
 		end: /\(/,
 		returnEnd: true
-	}
+	};
 
 	const TYPE_DECLARATION = {//FIXME: polymorph
 		scope: 'type.declaration',
@@ -26879,7 +26879,7 @@ function jai(hljs) {
 		keywords,
 		contains: [ALIGNMENT_WS],
 		end: `(?=${skipWSAndCommentsREFn()}::)`
-	}
+	};
 
 	const _COMMON_EXCEPT_STRING = [
 		FUNCTION_CALL,
@@ -26949,1213 +26949,17 @@ function jai(hljs) {
 		}
 	];
 
-	//TODO: remove this and make the ASM stuff more generic.  #asm will change at some point so no point making it particulary robust yet.
+	// We don't try to enumerate every x86/AVX/etc. mnemonic; instead the ASM block
+	// recognises the first identifier of each statement as the mnemonic (see ASM_STATEMENT
+	// below).  Only the register-class type names need to be recognised as keywords here,
+	// since they appear in operand position (e.g. `banana: gpr;`).
+	//
+	// The featureSet *flags* used to guard `#asm - FPU, AVX2 { ... }` are still enumerated
+	// in the `meta.directive.asm.flags` rule on the ASM mode itself.
 	const asmKeywords = {
 		"type.asm": [
 			"gpr",
 			"vec"
-		],
-		"symbol.BASELINE_X86_64": [
-			"mov",
-			"push",
-			"pop",
-			"xchg",
-			"lea",
-			"movsx",
-			"movzx",
-			"cmovcc",
-			"add",
-			"adc",
-			"sub",
-			"sbb",
-			"imul",
-			"mul",
-			"idiv",
-			"div",
-			"inc",
-			"dec",
-			"neg",
-			"cmp",
-			"and",
-			"or",
-			"xor",
-			"not",
-			"test",
-			"shl",
-			"shr",
-			"sar",
-			"rol",
-			"ror",
-			"rcl",
-			"rcr",
-			"jmp",
-			"call",
-			"ret",
-			"jcc",
-			"loop",
-			"loopcc",
-			"jcxz",
-			"jecxz",
-			"jrcxz",
-			"pushf",
-			"popf",
-			"stc",
-			"clc",
-			"cmc",
-			"lahf",
-			"sahf",
-			"movs",
-			"cmps",
-			"stos",
-			"lods",
-			"scas",
-			"rep",
-			"repe",
-			"repne",
-			"cpuid",
-			"rdtsc",
-			"rdtscp",
-			"hlt",
-			"nop",
-			"pause",
-			"lgdt",
-			"sgdt",
-			"lidt",
-			"sidt",
-			"lldt",
-			"sldt",
-			"ltr",
-			"str",
-			"in",
-			"out",
-			"ins",
-			"outs",
-			"bswap",
-			"xadd",
-			"cmpxchg",
-			"xlat",
-			"syscall",
-			"sysret",
-			"swapgs"
-		],
-		"symbol.FPU": [
-			"f2xm1",
-			"fabs",
-			"fadd",
-			"faddp",
-			"fbld",
-			"fbstp",
-			"fchs",
-			"fclex",
-			"fcom",
-			"fcomi",
-			"fcomip",
-			"fcomp",
-			"fdecstp",
-			"fdisi",
-			"fdiv",
-			"fdivp",
-			"fdivr",
-			"fdivrp",
-			"feni",
-			"ffree",
-			"fiadd",
-			"ficom",
-			"ficomp",
-			"fidiv",
-			"fidivr",
-			"fild",
-			"fimul",
-			"fincstp",
-			"finit",
-			"fist",
-			"fistp",
-			"fisttp",
-			"fisub",
-			"fisubr",
-			"fld",
-			"fld1",
-			"fldcw",
-			"fldenv",
-			"fldl2e",
-			"fldl2t",
-			"fldlg2",
-			"fldln2",
-			"fldpi",
-			"fldz",
-			"fmul",
-			"fmulp",
-			"fnclex",
-			"fninit",
-			"fnop",
-			"fnsave",
-			"fnstcw",
-			"fnstenv",
-			"fnstsw",
-			"fpatan",
-			"fprem",
-			"fprem1",
-			"fptan",
-			"frndint",
-			"frstor",
-			"fsave",
-			"fscale",
-			"fsetpm",
-			"fsin",
-			"fsincos",
-			"fsqrt",
-			"fst",
-			"fstp",
-			"fstcw",
-			"fstenv",
-			"fstsw",
-			"fsub",
-			"fsubp",
-			"fsubr",
-			"fsubrp",
-			"ftst",
-			"fucom",
-			"fucomi",
-			"fucomip",
-			"fucomp",
-			"fucompp",
-			"fxam",
-			"fxch",
-			"fyl2x",
-			"fyl2xp1"
-		],
-		"symbol.MSR": [
-			"rdmsr",
-			"wrmsr"
-		],
-		"symbol.CX8": [
-			"cmpxchg8b"
-		],
-		"symbol.APIC": [
-			"rdpmc"
-		],
-		"symbol.SEP": [
-			"sysenter",
-			"sysexit"
-		],
-		"symbol.CMOV": [
-			"cmovo",
-			"cmovno",
-			"cmovb",
-			"cmovnb",
-			"cmovz",
-			"cmovnz",
-			"cmovbe",
-			"cmovnbe",
-			"cmovs",
-			"cmovns",
-			"cmovp",
-			"cmovnp",
-			"cmovl",
-			"cmovnl",
-			"cmovle",
-			"cmovnle"
-		],
-		"symbol.CLFLUSH": [
-			"clflush"
-		],
-		"symbol.MMX": [
-			"emms",
-			"movd",
-			"movq",
-			"packssdw",
-			"packsswb",
-			"packuswb",
-			"punpckhbw",
-			"punpckhwd",
-			"punpckhdq",
-			"punpcklbw",
-			"punpcklwd",
-			"punpckldq",
-			"paddq",
-			"paddw",
-			"paddb",
-			"paddd",
-			"paddsw",
-			"paddsb",
-			"paddusw",
-			"paddusb",
-			"psubq",
-			"psubw",
-			"psubb",
-			"psubd",
-			"psubsw",
-			"psubsb",
-			"psubusw",
-			"psubusb",
-			"pmulhw",
-			"pmullw",
-			"pcmpeqb",
-			"pcmpeqw",
-			"pcmpeqd",
-			"pcmpgtb",
-			"pcmpgtw",
-			"pcmpgtd",
-			"pand",
-			"pandn",
-			"por",
-			"pxor"
-		],
-		"symbol.FXSR": [
-			"fxsave",
-			"fxrstor"
-		],
-		"symbol.SSE": [
-			"addss",
-			"subss",
-			"mulss",
-			"divss",
-			"sqrtss",
-			"maxss",
-			"minss",
-			"rsqrtss",
-			"rcpss",
-			"comiss",
-			"ucomiss",
-			"cvtss2si",
-			"cvttss2si",
-			"cvtsi2ss",
-			"addps",
-			"subps",
-			"mulps",
-			"divps",
-			"sqrtps",
-			"maxps",
-			"minps",
-			"rsqrtps",
-			"rcpps",
-			"andps",
-			"andnps",
-			"orps",
-			"xorps",
-			"cmpps",
-			"shufps",
-			"unpckhps",
-			"unpcklps",
-			"movaps",
-			"movups",
-			"movhlps",
-			"movlhps",
-			"movmskps",
-			"movss",
-			"cvtps2pi",
-			"cvtpi2ps",
-			"cvttps2pi"
-		],
-		"symbol.SSE2": [
-			"addsd",
-			"subsd",
-			"mulsd",
-			"divsd",
-			"sqrtsd",
-			"maxsd",
-			"minsd",
-			"comisd",
-			"ucomisd",
-			"cvtsd2si",
-			"cvttsd2si",
-			"cvtsi2sd",
-			"addpd",
-			"subpd",
-			"mulpd",
-			"divpd",
-			"sqrtpd",
-			"maxpd",
-			"minpd",
-			"andpd",
-			"andnpd",
-			"orpd",
-			"xorpd",
-			"cmppd",
-			"shufpd",
-			"unpckhpd",
-			"unpcklpd",
-			"movapd",
-			"movupd",
-			"movmskpd",
-			"movsd",
-			"movdq2q",
-			"movq2dq",
-			"pmuludq",
-			"psllw",
-			"pslld",
-			"psllq",
-			"psrlw",
-			"psrld",
-			"psrlq",
-			"psraw",
-			"psrad",
-			"pavgb",
-			"pavgw",
-			"pshufd",
-			"pshufhw",
-			"pshuflw",
-			"cvtdq2pd",
-			"cvtpd2dq",
-			"cvtdq2ps",
-			"cvtps2dq",
-			"cvttpd2dq",
-			"cvttps2dq",
-			"cvtpd2ps",
-			"cvtps2pd",
-			"lfence",
-			"mfence",
-			"sfence",
-			"movdqa",
-			"movdqu"
-		],
-		"symbol.SSE3": [
-			"addsubps",
-			"addsubpd",
-			"haddps",
-			"hsubps",
-			"haddpd",
-			"hsubpd",
-			"movddup",
-			"movshdup",
-			"movsldup",
-			"lddqu"
-		],
-		"symbol.PCLMULQDQ": [
-			"pclmulqdq"
-		],
-		"symbol.MONITOR": [
-			"monitor",
-			"mwait"
-		],
-		"symbol.VMX": [
-			"vmxon",
-			"vmxoff",
-			"vmlaunch",
-			"vmresume",
-			"vmclear",
-			"vmptrld",
-			"vmptrst",
-			"vmread",
-			"vmwrite",
-			"vmcall",
-			"invept",
-			"invvpid"
-		],
-		"symbol.SMX": [
-			"getsec"
-		],
-		"symbol.SSSE3": [
-			"pshufb",
-			"phaddw",
-			"phaddd",
-			"phaddsw",
-			"phsubw",
-			"phsubd",
-			"phsubsw",
-			"pmaddubsw",
-			"pmulhrsw",
-			"pabsb",
-			"pabsw",
-			"pabsd",
-			"palignr"
-		],
-		"symbol.FMA": [
-			//NOTE: v-prefix dropped.
-			"fmadd132ps",
-			"fmadd213ps",
-			"fmadd231ps",
-			"fmadd132pd",
-			"fmadd213pd",
-			"fmadd231pd",
-			"fmadd132ss",
-			"fmadd213ss",
-			"fmadd231ss",
-			"fmadd132sd",
-			"fmadd213sd",
-			"fmadd231sd",
-			"fmsub132ps",
-			"fmsub213ps",
-			"fmsub231ps",
-			"fmsub132pd",
-			"fmsub213pd",
-			"fmsub231pd",
-			"fmsub132ss",
-			"fmsub213ss",
-			"fmsub231ss",
-			"fmsub132sd",
-			"fmsub213sd",
-			"fmsub231sd",
-			"fnmadd132ps",
-			"fnmadd213ps",
-			"fnmadd231ps",
-			"fnmadd132pd",
-			"fnmadd213pd",
-			"fnmadd231pd",
-			"fnmadd132ss",
-			"fnmadd213ss",
-			"fnmadd231ss",
-			"fnmadd132sd",
-			"fnmadd213sd",
-			"fnmadd231sd",
-			"fnmsub132ps",
-			"fnmsub213ps",
-			"fnmsub231ps",
-			"fnmsub132pd",
-			"fnmsub213pd",
-			"fnmsub231pd",
-			"fnmsub132ss",
-			"fnmsub213ss",
-			"fnmsub231ss",
-			"fnmsub132sd",
-			"fnmsub213sd",
-			"fnmsub231sd"
-		],
-		"symbol.CX16": [
-			"cmpxchg16b"
-		],
-		"symbol.SSE4_1": [
-			"dpps",
-			"dppd",
-			"blendps",
-			"blendpd",
-			"pblendvb",
-			"pblendw",
-			"roundps",
-			"roundpd",
-			"roundss",
-			"roundsd",
-			"insertps",
-			"pinsrb",
-			"pinsrd",
-			"pinsrq",
-			"pextrb",
-			"pextrd",
-			"pextrq",
-			"extractps",
-			"pmovsxbw",
-			"pmovsxbd",
-			"pmovsxbq",
-			"pmovsxwd",
-			"pmovsxwq",
-			"pmovsxdq",
-			"pmovzxbw",
-			"pmovzxbd",
-			"pmovzxbq",
-			"pmovzxwd",
-			"pmovzxwq",
-			"pmovzxdq",
-			"pminsb",
-			"pmaxsb",
-			"pminuw",
-			"pmaxuw",
-			"pminud",
-			"pmaxud",
-			"pminsw",
-			"pmaxsw",
-			"pmuldq",
-			"pmulld",
-			"phminposuw",
-			"ptest",
-			"movntdqa",
-			"mpsadbw"
-		],
-		"symbol.SSE4_2": [
-			"pcmpestri",
-			"pcmpestrm",
-			"pcmpistri",
-			"pcmpistrm",
-			"pcmpgtq",
-			"crc32"
-		],
-		"symbol.MOVBE": [
-			"movbe"
-		],
-		"symbol.POPCNT": [
-			"popcnt"
-		],
-		"symbol.AES": [
-			"aesenc",
-			"aesenclast",
-			"aesdec",
-			"aesdeclast",
-			"aesimc",
-			"aeskeygenassist"
-		],
-		"symbol.XSAVE": [
-			"xsave",
-			"xrstor",
-			"xsetbv",
-			"xgetbv"
-		],
-		"symbol.AVX": [
-			//NOTE: v-prefix dropped.
-			"addps",
-			"subps",
-			"mulps",
-			"divps",
-			"sqrtps",
-			"maxps",
-			"minps",
-			"andps",
-			"andnps",
-			"orps",
-			"xorps",
-			"blendps",
-			"blendvps",
-			"roundps",
-			"shufps",
-			"unpckhps",
-			"unpcklps",
-			"movaps",
-			"movups",
-			"movmskps",
-			"addpd",
-			"subpd",
-			"mulpd",
-			"divpd",
-			"sqrtpd",
-			"maxpd",
-			"minpd",
-			"andpd",
-			"andnpd",
-			"orpd",
-			"xorpd",
-			"blendpd",
-			"blendvpd",
-			"roundpd",
-			"shufpd",
-			"unpckhpd",
-			"unpcklpd",
-			"movapd",
-			"movupd",
-			"movmskpd",
-			"addss",
-			"subss",
-			"mulss",
-			"divss",
-			"sqrtss",
-			"maxss",
-			"minss",
-			"movss",
-			"addsd",
-			"subsd",
-			"mulsd",
-			"divsd",
-			"sqrtsd",
-			"maxsd",
-			"minsd",
-			"movsd",
-			"cmpps",
-			"cmppd",
-			"cmpsd",
-			"cmpss",
-			"cvtps2pd",
-			"cvtpd2ps",
-			"cvtss2sd",
-			"cvtsd2ss",
-			"cvtdq2ps",
-			"cvtps2dq",
-			"cvttpd2dq",
-			"cvttpd2udq",
-			"cvtpd2dq",
-			"cvtdq2pd",
-			"insertf128",
-			"extractf128",
-			"pinsrb",
-			"pinsrd",
-			"pinsrq",
-			"pextrb",
-			"pextrd",
-			"pextrq",
-			"extractps",
-			"paddq",
-			"paddw",
-			"paddd",
-			"paddb",
-			"paddusb",
-			"paddusw",
-			"paddsb",
-			"paddsw",
-			"psubq",
-			"psubw",
-			"psubd",
-			"psubb",
-			"psubusb",
-			"psubusw",
-			"psubsb",
-			"psubsw",
-			"pmullw",
-			"pmuludq",
-			"pmulhw",
-			"psllw",
-			"pslld",
-			"psllq",
-			"psrlw",
-			"psrld",
-			"psrlq",
-			"psraw",
-			"psrad",
-			"pand",
-			"pandn",
-			"por",
-			"pxor",
-			"pavgb",
-			"pavgw",
-			"pshufd",
-			"pshufhw",
-			"pshuflw",
-			"pslldq",
-			"psrldq",
-			"palignr",
-			"movdqa",
-			"movdqu",
-			"movntdq",
-			"movntdqa"
-		],
-		"symbol.F16C": [
-			//NOTE: v-prefix dropped.
-			"cvtph2ps",
-			"cvtps2ph"
-		],
-		"symbol.RDRAND": [
-			"rdrand"
-		],
-		"symbol.FSGSBASE": [
-			"rdfsbase",
-			"rdgsbase",
-			"wrfsbase",
-			"wrgsbase"
-		],
-		"symbol.BMI1": [
-			"andn",
-			"bextr",
-			"blsi",
-			"blsmsk",
-			"blsr",
-			"tzcnt"
-		],
-		"symbol.HLE": [
-			"xacquire",
-			"xrelease"
-		],
-		"symbol.AVX2": [
-			//NOTE: v-prefix dropped.
-			"broadcastss",
-			"broadcastsd",
-			"broadcastf128",
-			"broadcasti128",
-			"pblendd",
-			"permps",
-			"permd",
-			"permq",
-			"perm2i128",
-			"psllvd",
-			"psllvq",
-			"psrlvd",
-			"psrlvq",
-			"psravd",
-			"pmaskmovd",
-			"pmaskmovq",
-			"pgatherdd",
-			"pgatherdq",
-			"pgatherqd",
-			"pgatherqq",
-			"gatherdpd",
-			"gatherqpd",
-			"gatherdps",
-			"gatherqps",
-			"pbroadcastb",
-			"pbroadcastw",
-			"pbroadcastd",
-			"pbroadcastq",
-			"pmulhuw",
-			"pmulld",
-			"pminuw",
-			"pminud",
-			"pminuq",
-			"pminsb",
-			"pminsd",
-			"pminsq",
-			"pmaxuw",
-			"pmaxud",
-			"pmaxuq",
-			"pmaxsb",
-			"pmaxsd",
-			"pmaxsq",
-			"pshufb",
-			"psignb",
-			"psignw",
-			"psignd",
-			"pmaddubsw",
-			"pmulhrsw"
-		],
-		"symbol.BMI2": [
-			"bzhi",
-			"mulx",
-			"pdep",
-			"pext",
-			"rorx",
-			"sarx",
-			"shlx",
-			"shrx"
-		],
-		"symbol.INVPCID": [
-			"invpcid"
-		],
-		"symbol.RTM": [
-			"xbegin",
-			"xend",
-			"xabort",
-			"xtest"
-		],
-		"symbol.RDSEED": [
-			"rdseed"
-		],
-		"symbol.ADX": [
-			"adcx",
-			"adox"
-		],
-		"symbol.CLFLUSHOPT": [
-			"clflushopt"
-		],
-		"symbol.CLWB": [
-			"clwb"
-		],
-		"symbol.INTEL_PT": [
-			"ptwrite"
-		],
-		"symbol.MPX": [
-			"bndmk",
-			"bndcl",
-			"bndcu",
-			"bndcn",
-			"bndmov",
-			"bndldx",
-			"bndstx"
-		],
-		"symbol.SHA": [
-			"sha1rnds4",
-			"sha1nexte",
-			"sha1msg1",
-			"sha1msg2",
-			"sha256rnds2",
-			"sha256msg1",
-			"sha256msg2"
-		],
-		"symbol.AVX512F": [
-			//NOTE: v-prefix dropped.
-			"broadcastf32x2",
-			"broadcastf32x4",
-			"broadcastf64x2",
-			"broadcasti32x2",
-			"broadcasti32x4",
-			"broadcasti64x2",
-			"broadcastf32x8",
-			"broadcastf64x4",
-			"broadcasti32x8",
-			"broadcasti64x4",
-			"insertf32x4",
-			"insertf64x2",
-			"inserti32x4",
-			"inserti64x2",
-			"insertf32x8",
-			"insertf64x4",
-			"inserti32x8",
-			"inserti64x4",
-			"extractf32x4",
-			"extractf64x2",
-			"extracti32x4",
-			"extracti64x2",
-			"extractf32x8",
-			"extractf64x4",
-			"extracti32x8",
-			"extracti64x4",
-			"movdqa32",
-			"movdqa64",
-			"movdqu32",
-			"movdqu64",
-			"movntps",
-			"movntpd",
-			"pmovsxbw",
-			"pmovzxbw",
-			"pmovsxbd",
-			"pmovzxbd",
-			"pmovsxbq",
-			"pmovzxbq",
-			"pmovsxwd",
-			"pmovzxwd",
-			"pmovsxwq",
-			"pmovzxwq",
-			"pmovsxdq",
-			"pmovzxdq",
-			"pmovdb",
-			"pmovsdb",
-			"pmovusdb",
-			"pmovdw",
-			"pmovsdw",
-			"pmovusdw",
-			"pmovqb",
-			"pmovsqb",
-			"pmovusqb",
-			"pmovqw",
-			"pmovsqw",
-			"pmovusqw",
-			"pmovqd",
-			"pmovsqd",
-			"pmovusqd",
-			"pmovm2b",
-			"pmovm2w",
-			"pmovm2d",
-			"pmovm2q",
-			"pmovb2m",
-			"pmovw2m",
-			"pmovd2m",
-			"pmovq2m",
-			"permpd",
-			"permi2ps",
-			"permi2pd",
-			"permi2d",
-			"permi2q",
-			"permt2ps",
-			"permt2pd",
-			"permt2d",
-			"permt2q",
-			"perm2f128",
-			"permvarps",
-			"permvarpd",
-			"scatterdps",
-			"scatterqps",
-			"scatterdpd",
-			"scatterqpd",
-			"pscatterdd",
-			"pscatterdq",
-			"pscatterqd",
-			"pscatterqq",
-			"kaddw",
-			"kaddb",
-			"kaddd",
-			"kaddq",
-			"kandw",
-			"kandb",
-			"kandd",
-			"kandq",
-			"kandnw",
-			"kandnb",
-			"kandnd",
-			"kandnq",
-			"kmovw",
-			"kmovb",
-			"kmovd",
-			"kmovq",
-			"knotw",
-			"knotb",
-			"knotd",
-			"knotq",
-			"korw",
-			"korb",
-			"kord",
-			"korq",
-			"kortestw",
-			"kortestb",
-			"kortestd",
-			"kortestq",
-			"kxnorw",
-			"kxnorb",
-			"kxnord",
-			"kxnorq",
-			"kxorw",
-			"kxorb",
-			"kxord",
-			"kxorq",
-			"kshiftlw",
-			"kshiftlb",
-			"kshiftld",
-			"kshiftlq",
-			"kshiftrw",
-			"kshiftrb",
-			"kshiftrd",
-			"kshiftrq",
-			"ktestw",
-			"ktestb",
-			"ktestd",
-			"ktestq",
-			"kunpckbw",
-			"kunpckwd",
-			"kunpckdq"
-		],
-		"symbol.AVX512DQ": [
-			//NOTE: v-prefix dropped.
-			"pmullq",
-			"pmadd52huq",
-			"pmadd52luq",
-			"pmadd52huuq",
-			"pmadd52luuq",
-			"pmaxsw",
-			"pminsw",
-			"pmaxub",
-			"pminub"
-		],
-		"symbol.AVX512BW": [
-			//NOTE: v-prefix dropped.
-			"pabsb",
-			"pabsw",
-			"pabsd",
-			"pabsq",
-			"pcmpb",
-			"pcmpub",
-			"pcmpw",
-			"pcmpuw",
-			"pmovwb",
-			"pmovswb",
-			"pmovuswb",
-			"pmovzxwb",
-			"pmovsxwb",
-			"psllvw",
-			"psrlvw",
-			"psravw",
-			"psllb",
-			"psrlb",
-			"psrab",
-			"psllvb",
-			"psrlvb",
-			"psravb",
-			"pshufbitqmb",
-			"pmaddwd",
-			"permb",
-			"permw",
-			"permi2b",
-			"permi2w",
-			"permt2b",
-			"permt2w",
-			"pmultishiftqb"
-		],
-		"symbol.AVX512CD": [
-			//NOTE: v-prefix dropped.
-			"pconflictd",
-			"pconflictq",
-			"plzcntd",
-			"plzcntq"
-		],
-		/*"symbol.AVX512IFMA": [],*/
-		/*"symbol.AVX512VBMI": [],*/
-		"symbol.AVX512VBMI2": [
-			//NOTE: v-prefix dropped.
-			"pshrdvw",
-			"pshrdvb",
-			"pshrdvd",
-			"pshrdvq",
-			"pshldvw",
-			"pshldb",
-			"pshldd",
-			"pshldq"
-		],
-		"symbol.AVX512VNNI": [
-			//NOTE: v-prefix dropped.
-			"pdpbusd",
-			"pdpbusds",
-			"pdpwssd",
-			"pdpwssds"
-		],
-		"symbol.AVX512BITALG": [
-			//NOTE: v-prefix dropped.
-			"popcntb",
-			"popcntw",
-			"popcntd",
-			"popcntq"
-		],
-		/*"symbol.AVX512VPOPCNTDQ": [],*/
-		"symbol.AVX512_4VNNIW": [
-			//NOTE: v-prefix dropped.
-			"p4dpbssd",
-			"p4dpbssds"
-		],
-		"symbol.AVX512_4FMAPS": [
-			//NOTE: v-prefix dropped.
-			"p4fmaddps",
-			"p4fnmaddps"
-		],
-		"symbol.AVX512VP2INTERSECT": [
-			//NOTE: v-prefix dropped.
-			"p2intersectd",
-			"p2intersectq"
-		],
-		"symbol.AVX512FP16": [
-			//NOTE: v-prefix dropped.
-			"cvtne2ps2bf16",
-			"cvtneps2bf16",
-			"fpclassph",
-			"rndscaleph",
-			"reduceph",
-			"exp2ph",
-			"rcpph",
-			"rsqrtph",
-			"sqrtph",
-			"addhpd",
-			"subhpd",
-			"mulhpd",
-			"divhpd",
-			"maxph",
-			"minph",
-			"fma*ph",
-			"fms*ph",
-			"fnma*ph",
-			"fnms*ph"
-		],
-		"symbol.AVX512BF16": [
-			//NOTE: v-prefix dropped.
-			"dpbf16ps"
-		],
-		"symbol.PREFETCHWT1": [
-			"prefetchwt1"
-		],
-		"symbol.PKU": [
-			"rdpkru",
-			"wrpkru"
-		],
-		"symbol.WAITPKG": [
-			"umonitor",
-			"umwait",
-			"tpause"
-		],
-		"symbol.GFNI": [
-			"vgf2p8mulb",
-			"vgf2p8affineqb",
-			"vgf2p8affineinvqb"
-		],
-		"symbol.VAES": [
-			"vaesenc",
-			"vaesenclast",
-			"vaesdec",
-			"vaesdeclast"
-		],
-		"symbol.VPCLMULQDQ": [
-			"vpclmulqdq"
-		],
-		"symbol.RDPID": [
-			"rdpid"
-		],
-		"symbol.CLDEMOTE": [
-			"cldemote"
-		],
-		"symbol.MOVDIRI": [
-			"movdiri"
-		],
-		"symbol.MOVDIR64B": [
-			"movdir64b"
-		],
-		"symbol.ENQCMD": [
-			"enqcmd",
-			"enqcmds"
-		],
-		"symbol.CET_SS": [
-			"wrss",
-			"wruss",
-			"rstorssp",
-			"saveprevssp",
-			"setssbsy",
-			"clrssbsy"
-		],
-		"symbol.PKS": [
-			"wrpkrs",
-			"rdpkrs"
-		],
-		"symbol.SERIALIZE": [
-			"serialize"
-		],
-		"symbol.TSXLDTRK": [
-			"xsusldtrk",
-			"xresldtrk"
-		],
-		"symbol.PCONFIG": [
-			"pconfig"
-		],
-		"symbol.CET_IBT": [
-			"endbr32",
-			"endbr64"
-		],
-		"symbol.AMX_BF16": [
-			"tdpbf16ps"
-		],
-		"symbol.AMX_TILE": [
-			"tileloadd",
-			"tileloaddt1",
-			"tilestored",
-			"tilezero",
-			"tilerelease"
-		],
-		"symbol.AMX_INT8": [
-			"tiledpbssd",
-			"tiledpbssds"
-		],
-		/*"symbol.AVX_VNNI": [],*/
-		"symbol.HRESET": [
-			"hreset"
-		],
-		"symbol.XSAVEOPT": [
-			"xsaveopt"
-		],
-		"symbol.XSAVEC": [
-			"xsavec"
-		],
-		"symbol.XSAVES_XRSTORS": [
-			"xsaves",
-			"xrstors"
-		],
-		"symbol.AESKLE": [
-			"aesenc128kl",
-			"aesdec128kl",
-			"aesenclast128kl",
-			"aesdeclast128kl",
-			"loadiwkey"
-		],
-		"symbol.AESKLE_WIDE": [
-			"aesencwide128kl",
-			"aesdecwide128kl",
-			"aesenclastwide128kl",
-			"aesdeclastwide128kl"
-		],
-		/*"symbol.SYSCALL_SYSRET": [],*/
-		/*"symbol.RDTSCP": [],*/
-		"symbol._3DNOW": [
-			"pavgusb",
-			"pf2id",
-			"pfacc",
-			"pfadd",
-			"pfcmpeq",
-			"pfcmpge",
-			"pfcmpgt",
-			"pfmax",
-			"pfmin",
-			"pfmul",
-			"pfrcp",
-			"pfrcpit1",
-			"pfrcpit2",
-			"pfrsqit1",
-			"pfrsqrt",
-			"pfsub",
-			"pfsubr",
-			"pi2fd",
-			"pmulhrw",
-			"pfnacc",
-			"pfpnacc",
-			"pswapd"
-		],
-		/*"symbol.LAHF_SAHF": [],*/
-		"symbol.CLZERO": [
-			"clzero"
-		],
-		"symbol.INVLPGB": [
-			"invlpgb"
-		],
-		"symbol.RDPRU": [
-			"rdpru"
-		],
-		"symbol.MCOMMIT": [
-			"mcommit"
-		],
-		"symbol.WBNOINVD": [
-			"wbnoinvd"
 		]
 	};
 
@@ -28171,6 +26975,12 @@ function jai(hljs) {
 			1: 'operator.hash.directive',
 			2: 'meta.directive.asm'
 		},
+		// Without an explicit end, highlight.js gives the mode a default end of `/\B|\b/` which matches at every position
+		//  - so as soon as the flags sub-mode finishes (zero-width at `(?=\s*\{)`) the default end fires and ASM closes before the block sub-mode can even open.
+		// We give ASM an end that doesn't match between the flags and the block;
+		//  the block sub-mode then consumes `}`itself and closes ASM via `endsParent: true`.
+		// The end here is only reached in malformed input where there's no `{ ... }` block at all.
+		end: /\}/,
 		contains: [
 			...COMMENTS,
 			{	// feature flag guards
@@ -28391,111 +27201,133 @@ function jai(hljs) {
 				scope: 'meta.directive.asm.block',
 				begin: /\{/,
 				returnBegin: true,
+				endsParent: true,	// also closes the parent ASM mode - see comment on ASM.
 				keywords: asmKeywords,
 				contains: [
 					...COMMENTS,
-					{	// .32 etc
+					VAR_DECLARATION,	// e.g. `banana: gpr;` standalone declarations.
+					{	// One asm statement: a mnemonic followed by zero or more operands.
+						// We don't enumerate mnemonics; the first identifier of a statement IS the mnemonic.
+						// Statement boundaries are `{` (block open) and `;`, detected via lookbehind so an optional run of whitespace/comments can appear between the boundary and the mnemonic.
+						scope: 'meta.asm.statement',
+						relevance: 0,
 						begin: [
-							/\./,
+							/(?<=[{;])/,
 							skipWSAndCommentsREFn(),
-							/8|16|32|64|128|256|512/,
-							/\b/
+							/[a-z][_a-z\d]*\b(?!\s*:)/	// not a `name:` declaration
 						],
 						beginScope: {
-							1: 'operator.asm.size.dot',
 							2: 'comment',
-							3: 'symbol.size.numeric'
+							3: 'symbol.asm.mnemonic'
 						},
-						contains: [...COMMENTS]
-					},
-					{	// ?CONST
-						begin: [
-							/\?/,
-							skipWSAndCommentsREFn(),
-							constIdentifierREFn(),
-						],
-						beginScope: {
-							1: 'operator.asm.size.clue',
-							2: 'comment',
-							3: 'symbol.size.const'
-						},
-						contains: [...COMMENTS]
-					},
-					{	// ?T
-						begin: [
-							/\?/,
-							skipWSAndCommentsREFn(),
-							typeIdentifierREFn(),//FIXME: polymorph; starts trick...
-						],
-						beginScope: {
-							1: 'operator.asm.size.clue',
-							2: 'comment',
-							3: 'symbol.size.type'
-						},
-						contains: [...COMMENTS]
-					},
-					{
-						scope: 'operator.asm.roundingControl',
-						begin: /![nduz]/,
-					},
-					{
-						scope: 'operator.asm.broadcastValueOrSuppressFloatExceptions',
-						begin: /!/,
-					},
-					{
-						scope: 'operator.asm.maskControl',
-						begin: /\&\*?/,
-					},
-					VAR_DECLARATION,
-					{	// ===
-						scope: 'operator.pinRegister',
-						begin: /===/,
+						keywords: asmKeywords,
 						contains: [
 							...COMMENTS,
+							VAR_DECLARATION,	// inferred decls used as operands, e.g. `mov apple:, 10`.
+							{	// .32 etc
+								begin: [
+									/\./,
+									skipWSAndCommentsREFn(),
+									/8|16|32|64|128|256|512/,
+									/\b/
+								],
+								beginScope: {
+									1: 'operator.asm.size.dot',
+									2: 'comment',
+									3: 'symbol.size.numeric'
+								},
+								contains: [...COMMENTS]
+							},
+							{	// ?CONST
+								begin: [
+									/\?/,
+									skipWSAndCommentsREFn(),
+									constIdentifierREFn(),
+								],
+								beginScope: {
+									1: 'operator.asm.size.clue',
+									2: 'comment',
+									3: 'symbol.size.const'
+								},
+								contains: [...COMMENTS]
+							},
+							{	// ?T
+								begin: [
+									/\?/,
+									skipWSAndCommentsREFn(),
+									typeIdentifierREFn(),//FIXME: polymorph; starts trick...
+								],
+								beginScope: {
+									1: 'operator.asm.size.clue',
+									2: 'comment',
+									3: 'symbol.size.type'
+								},
+								contains: [...COMMENTS]
+							},
 							{
-								scope: 'meta.asm.keyword.register',
-								begin: /\b(?:(?:[er]?(?:[abcd]x?|[sd]i|[sb]p|r8[0-9]|r9[0-9]|r1[0-5]|r[0-9]{1,2}|[er]?ip|[er]?flags|e?sp))|3[0-2]|[12]\d|\d)\b/,
+								scope: 'operator.asm.roundingControl',
+								begin: /![nduz]/,
+							},
+							{
+								scope: 'operator.asm.broadcastValueOrSuppressFloatExceptions',
+								begin: /!/,
+							},
+							{
+								scope: 'operator.asm.maskControl',
+								begin: /\&\*?/,
+							},
+							{	// ===
+								scope: 'operator.pinRegister',
+								begin: /===/,
+								contains: [
+									...COMMENTS,
+									{
+										scope: 'meta.asm.keyword.register',
+										begin: /\b(?:(?:[er]?(?:[abcd]x?|[sd]i|[sb]p|r8[0-9]|r9[0-9]|r1[0-5]|r[0-9]{1,2}|[er]?ip|[er]?flags|e?sp))|3[0-2]|[12]\d|\d)\b/,
+									}
+								],
+								end: /[,;]/,
+								returnEnd: true
+							},
+							{	// var (operand identifiers; `gpr`/`vec` get coloured via asmKeywords)
+								...VAR,
+								keywords: asmKeywords
+							},
+							COMMA,
+							NUMBER,
+							DEFINE,
+							{	// [ base + index * scale + offset ]
+								begin: /\[/,
+								returnBegin: true,
+								keywords: {
+									'keyword.if': [
+										'then|5',
+										'else',
+									],
+									'keyword.meta': [
+										'size_of|10',
+									],
+								},
+								contains: [
+									{
+										...OPERATOR,
+										variants: OPERATOR.variants.filter(
+											v => [
+												'operator.math',
+												'operator.bitwise',
+												'operator.shift'
+											].includes(v.scope)
+										)
+									},
+									...CASTS
+								],
+								end: /\]/,
+								returnEnd: true
 							}
 						],
-						end: /[,;]/,
-						returnEnd: true
+						end: /(?=[;}])/	// leave the `;` for the parent block's SEMICOLON, and `}` for the block end.
 					},
-					{	// var
-						...VAR,
-						keywords: asmKeywords
-					},
-					COMMA,
-					NUMBER,
-					DEFINE,
 					SEMICOLON,
-					{	// [ base + index * scale + offset ]
-						begin: /\[/,
-						returnBegin: true,
-						keywords: {
-							'keyword.if': [
-								'then|5',
-								'else',
-							],
-							'keyword.meta': [
-								'size_of|10',
-							],
-						},
-						contains: [
-							{
-								...OPERATOR,
-								variants: OPERATOR.variants.filter(
-									v => [
-										'operator.math',
-										'operator.bitwise',
-										'operator.shift'
-									].includes(v.scope)
-								)
-							},
-							...CASTS
-						],
-						end: /\]/,
-						returnEnd: true
-					}
 				],
 				end: /\}/
 			}
@@ -28530,7 +27362,7 @@ function jai(hljs) {
 		],
 		end: /;/,
 		returnEnd: true
-	}
+	};
 
 	const _COMMON_EXCEPT_DIRECTIVES_AND_CAST = [
 		ASM,

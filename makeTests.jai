@@ -52,7 +52,11 @@ main :: () {
 			"../../src/languages/jai.js"
 		);
 		parts[2] = replace(
-			parts[2],
+			replace(
+				parts[2],
+				"dist/styles/",
+				"src/styles/"
+			),
 			"hljs.highlightAll();",
 			"hljs.registerLanguage('jai', jai);\n\t\tdebugInit();"
 		);

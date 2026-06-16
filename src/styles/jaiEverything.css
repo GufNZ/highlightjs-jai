@@ -135,6 +135,8 @@
 	--asm-directive-flags-comma-fg: #FFF;
 	--asm-directive-flag-fg: #6C6;
 
+	--asm-bg: #222;
+	--asm-comma-bg: #222;
 	--asm-directive-block-bg: #222;
 
 	--asm-mnemonic-fg: #FDA;
@@ -514,7 +516,7 @@
 	font-weight: var(--meta-weight, --default-weight);
 	text-decoration: var(--meta-decoration, --default-decoration);
 
-	& > .hljs-punctuation.comma_ {
+	& .hljs-punctuation.comma_ {
 		color: var(--meta-comma-fg, var(--punctuation-fg, --default-fg));
 		background-color: var(--meta-comma-bg, var(--punctuation-bg, --default-bg));
 		font-style: var(--meta-comma-style, var(--punctuation-style, --default-style));
@@ -535,6 +537,22 @@
 			font-style: var(--asm-register-style, var(--keyword-style, --default-style));
 			font-weight: var(--asm-register-weight, var(--keyword-weight, --default-weight));
 			text-decoration: var(--asm-register-decoration, var(--keyword-decoration, --default-decoration));
+		}
+
+		& .hljs-punctuation.comma_ {
+			color: var(--asm-comma-fg, var(--meta-comma-fg, var(--punctuation-fg, --default-fg)));
+			background-color: var(--asm-comma-bg, var(--meta-comma-bg, var(--punctuation-bg, --default-bg)));
+			font-style: var(--asm-comma-style, var(--meta-comma-style, var(--punctuation-style, --default-style)));
+			font-weight: var(--asm-comma-weight, var(--meta-comma-weight, var(--punctuation-weight, --default-weight)));
+			text-decoration: var(--asm-comma-decoration, var(--meta-comma-decoration, var(--punctuation-decoration, --default-decoration)));
+		}
+
+		&.statement__ {
+			color: var(--asm-statement-fg, var(--asm-fg, var(--meta-fg, --default-fg)));
+			background-color: var(--asm-statement-bg, var(--asm-bg, var(--meta-bg, --default-bg)));
+			font-style: var(--asm-statement-style, var(--asm-style, var(--meta-style, --default-style)));
+			font-weight: var(--asm-statement-weight, var(--asm-weight, var(--meta-weight, --default-weight)));
+			text-decoration: var(--asm-statement-decoration, var(--asm-decoration, var(--meta-decoration, --default-decoration)));
 		}
 	}
 
@@ -1355,41 +1373,57 @@
 }
 
 .hljs-symbol {
-	color: var(--asm-mnemonic-fg, --default-fg);
-	background-color: var(--asm-mnemonic-bg, --default-bg);
-	font-style: var(--asm-mnemonic-style, --default-style);
-	font-weight: var(--asm-mnemonic-weight, --default-weight);
-	text-decoration: var(--asm-mnemonic-decoration, --default-decoration);
+	color: var(--symbol-fg, --default-fg);
+	background-color: var(--symbol-bg, --default-bg);
+	font-style: var(--symbol-style, --default-style);
+	font-weight: var(--symbol-weight, --default-weight);
+	text-decoration: var(--symbol-decoration, --default-decoration);
+
+	&.asm_ {
+		color: var(--asm-symbol-fg, var(--symbol-fg, --default-fg));
+		background-color: var(--asm-symbol-bg, var(--symbol-bg, --default-bg));
+		font-style: var(--asm-symbol-style, var(--symbol-style, --default-style));
+		font-weight: var(--asm-symbol-weight, var(--symbol-weight, --default-weight));
+		text-decoration: var(--asm-symbol-decoration, var(--symbol-decoration, --default-decoration));
+
+		&.mnemonic__ {
+			color: var(--asm-mnemonic-fg, var(--asm-symbol-fg, var(--symbol-fg, --default-fg)));
+			background-color: var(--asm-mnemonic-bg, var(--asm-symbol-bg, var(--symbol-bg, --default-bg)));
+			font-style: var(--asm-mnemonic-style, var(--asm-symbol-style, var(--symbol-style, --default-style)));
+			font-weight: var(--asm-mnemonic-weight, var(--asm-symbol-weight, var(--symbol-weight, --default-weight)));
+			text-decoration: var(--asm-mnemonic-decoration, var(--asm-symbol-decoration, var(--symbol-decoration, --default-decoration)));
+		}
+	}
 
 	&.size_ {
-		color: var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg));
-		background-color: var(--asm-size-bg, var(--asm-mnemonic-bg, --default-bg));
-		font-style: var(--asm-size-style, var(--asm-mnemonic-style, --default-style));
-		font-weight: var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight));
-		text-decoration: var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration));
+		color: var(--asm-size-fg, var(--asm-mnemonic-fg, var(--asm-symbol-fg, var(--symbol-fg, --default-fg))));
+		background-color: var(--asm-size-bg, var(--asm-mnemonic-bg, var(--asm-symbol-bg, var(--symbol-bg, --default-bg))));
+		font-style: var(--asm-size-style, var(--asm-mnemonic-style, var(--asm-symbol-style, var(--symbol-style, --default-style))));
+		font-weight: var(--asm-size-weight, var(--asm-mnemonic-weight, var(--asm-symbol-weight, var(--symbol-weight, --default-weight))));
+		text-decoration: var(--asm-size-decoration, var(--asm-mnemonic-decoration, var(--asm-symbol-decoration, var(--symbol-decoration, --default-decoration))));
 
 		&.numeric__ {
-			color: var(--asm-size-numeric-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg)));
-			background-color: var(--asm-size-numeric-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, --default-bg)));
-			font-style: var(--asm-size-numeric-style, var(--asm-size-style, var(--asm-mnemonic-style, --default-style)));
-			font-weight: var(--asm-size-numeric-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight)));
-			text-decoration: var(--asm-size-numeric-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration)));
+			color: var(--asm-size-numeric-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, var(--asm-symbol-fg, var(--symbol-fg, --default-fg)))));
+			background-color: var(--asm-size-numeric-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, var(--asm-symbol-bg, var(--symbol-bg, --default-bg)))));
+			font-style: var(--asm-size-numeric-style, var(--asm-size-style, var(--asm-mnemonic-style, var(--asm-symbol-style, var(--symbol-style, --default-style)))));
+			font-weight: var(--asm-size-numeric-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, var(--asm-symbol-weight, var(--symbol-weight, --default-weight)))));
+			text-decoration: var(--asm-size-numeric-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, var(--asm-symbol-decoration, var(--symbol-decoration, --default-decoration)))));
 		}
 
 		&.const__ {
-			color: var(--asm-size-const-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg)));
-			background-color: var(--asm-size-const-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, --default-bg)));
-			font-style: var(--asm-size-const-style, var(--asm-size-style, var(--asm-mnemonic-style, --default-style)));
-			font-weight: var(--asm-size-const-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight)));
-			text-decoration: var(--asm-size-const-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration)));
+			color: var(--asm-size-const-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, var(--asm-symbol-fg, var(--symbol-fg, --default-fg)))));
+			background-color: var(--asm-size-const-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, var(--asm-symbol-bg, var(--symbol-bg, --default-bg)))));
+			font-style: var(--asm-size-const-style, var(--asm-size-style, var(--asm-mnemonic-style, var(--asm-symbol-style, var(--symbol-style, --default-style)))));
+			font-weight: var(--asm-size-const-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, var(--asm-symbol-weight, var(--symbol-weight, --default-weight)))));
+			text-decoration: var(--asm-size-const-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, var(--asm-symbol-decoration, var(--symbol-decoration, --default-decoration)))));
 		}
 
 		&.type__ {
-			color: var(--asm-size-type-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, --default-fg)));
-			background-color: var(--asm-size-type-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, --default-bg)));
-			font-style: var(--asm-size-type-style, var(--asm-size-style, var(--asm-mnemonic-style, --default-style)));
-			font-weight: var(--asm-size-type-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, --default-weight)));
-			text-decoration: var(--asm-size-type-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, --default-decoration)));
+			color: var(--asm-size-type-fg, var(--asm-size-fg, var(--asm-mnemonic-fg, var(--asm-symbol-fg, var(--symbol-fg, --default-fg)))));
+			background-color: var(--asm-size-type-bg, var(--asm-size-bg, var(--asm-mnemonic-bg, var(--asm-symbol-bg, var(--symbol-bg, --default-bg)))));
+			font-style: var(--asm-size-type-style, var(--asm-size-style, var(--asm-mnemonic-style, var(--asm-symbol-style, var(--symbol-style, --default-style)))));
+			font-weight: var(--asm-size-type-weight, var(--asm-size-weight, var(--asm-mnemonic-weight, var(--asm-symbol-weight, var(--symbol-weight, --default-weight)))));
+			text-decoration: var(--asm-size-type-decoration, var(--asm-size-decoration, var(--asm-mnemonic-decoration, var(--asm-symbol-decoration, var(--symbol-decoration, --default-decoration)))));
 		}
 	}
 }

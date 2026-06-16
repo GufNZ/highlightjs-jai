@@ -42,6 +42,7 @@ literal.bool_.true__
 meta
 meta.asm_
 meta.asm_.keyword__.register___
+meta.asm_.statement__
 meta.directive_
 meta.directive_.asm__
 meta.directive_.asm__.block___
@@ -137,6 +138,8 @@ string.path_.import__
 string.path_.load__
 subst
 symbol
+symbol.asm_
+symbol.asm_.mnemonic__
 symbol.size_
 symbol.size_.const__
 symbol.size_.numeric__

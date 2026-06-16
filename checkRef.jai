@@ -464,6 +464,7 @@ main :: () {
 		"params",
 		"string.path_",
 		"symbol",
+		"symbol.asm_",
 		"symbol.size_",
 		"title",
 		"title.class_",
