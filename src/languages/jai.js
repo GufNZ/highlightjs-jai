@@ -27526,7 +27526,7 @@ function jai(hljs) {
 		// ...other decls go here.
 	];
 
-	const PARAM = (kind, includeConsts, includeProcType = false) => {
+	const PARAM = (kind, includeConsts, includeProcType = true) => {
 		const result = {
 			scope: kind,
 			begin: identifierREFn(),
