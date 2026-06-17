@@ -27664,7 +27664,18 @@ function jai(hljs) {
 			DIRECTIVE,
 			balancedParen(
 				[
-					PARAM('params', false, false),	// 3rd arg: don't recurse into another proc-type-as-type
+					// 3rd arg: don't recurse into another proc-type-as-type.
+					// Also disable endsParent on this inner PARAM: otherwise
+					// when it ends at the inner `)`, the endsParent cascade
+					// walks up through the inner balancedParen and pops it
+					// WITHOUT giving its own /\)/ end a chance to consume
+					// `)`. The cursor would then sit on the inner `)` and
+					// every ancestor mode (`params.type.function`, `:`
+					// submode, outer `params`, …) would in turn fire its own
+					// `/(?=[,;#\)\{])/`-style end and cascade out — making
+					// the outer `params` (for `mod`) wrongly close at the
+					// inner `)` instead of the outer one.
+					Object.assign(PARAM('params', false, false), { endsParent: false }),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
