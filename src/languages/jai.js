@@ -27858,7 +27858,7 @@ function jai(hljs) {
 			},
 			balancedParen(
 				[
-					PARAM('params'),
+					Object.assign(PARAM('params'), { endsParent: false }),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -27875,6 +27875,39 @@ function jai(hljs) {
 
 	paramDefaultDecls.push(PROC_DECLARATION);
 	paramDefaultDecls.push(STRUCT_DECLARATION);
+
+	// Prepend three guards to paramDefaultDecls so that `params.default`
+	// and `params.constant.value` modes don't accidentally swallow stray
+	// `,` `)` `}` produced by their PUNCTUATION child. hl.js compiles a
+	// mode's child begins BEFORE its end regex in the combined matcher,
+	// so when PUNCTUATION's `punctuation.comma` (begin `/,/`) matches at
+	// the same index as the parent's `end: /(?=[,;#\)\{])/`, the child
+	// wins and the parent never ends.
+	//
+	// 1. `balancedParen` absorbs legitimate `(...)` (function calls,
+	//    type expressions) so their internal commas don't reach the
+	//    terminator guard below.
+	// 2. `balancedBrace` absorbs `{...}` (struct literals like `.{}`
+	//    or `.{ x = 1, y = 2 }`) for the same reason.
+	// 3. The terminator guard then claims top-level `,` `)` `}` (the
+	//    legitimate end-of-default terminators) and immediately
+	//    endsParent. Both begin and end consume one char (with
+	//    returnBegin/returnEnd so the cursor stays put) to side-step
+	//    hl.js' 0-width-match crash, which fires only when an end
+	//    lexeme is `""` at the same index as a previous begin.
+	// NOTE: Save slice *before* unshift to avoid circular references.
+	const paramDefaultDeclsContent = paramDefaultDecls.slice();
+	paramDefaultDecls.unshift(
+		balancedParen(paramDefaultDeclsContent, { keywords }),
+		balancedBrace(paramDefaultDeclsContent, { keywords }),
+		{
+			begin: /[,\)\}]/,
+			returnBegin: true,
+			end: /[,\)\}]/,
+			returnEnd: true,
+			endsParent: true
+		}
+	);
 
 	const MODULE_PARAMETERS_DIRECTIVE = {
 		scope: 'meta.directive',

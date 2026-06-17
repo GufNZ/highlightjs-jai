@@ -1,0 +1,7 @@
+{
+  "timeout": 10000,
+  "reporter": "spec",
+  "reporter-options": {
+    "maxDiffSize": 1000000
+  }
+}
