@@ -118,9 +118,9 @@ function jai(hljs) {
 	};
 
 	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
-	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:\\\\\\s*|[_A-Z\\d])*\\b', offset);
-	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:\\\\\\s*|[_A-Za-z\\d])*\\b', offset);
-	const typeIdentifierREFn	= (offset) => atomic(`\\b(?:${primativesRE}|[_A-Z](?:\\\\\\s*|[_A-Za-z\\d])*)\\b`, offset);	//NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
+	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:[_A-Z\\d]|\\\\\\s*)*\\b', offset);
+	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:[_A-Za-z\\d]|\\\\\\s*)*\\b', offset);
+	const typeIdentifierREFn	= (offset) => atomic(`\\b(?:${primativesRE}|[_A-Z](?:[_A-Za-z\\d]|\\\\\\s*)*)\\b`, offset);	//NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
 
 	const WHITESPACE = {
 		begin: /\s+/,
@@ -26844,7 +26844,7 @@ function jai(hljs) {
 	const PROC_DECLARATION = {
 		scope: 'title.function.declaration',
 		relevance: 5,
-		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::(?:${skipWSAndCommentsREFn(0)}(?:#no_a[bo]c|(?:no_)?inline))*${skipWSAndCommentsREFn(0)}\\()`,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::(?:${skipWSAndCommentsREFn(0)}(?:#?:no_a[bo]c|(?:no_)?inline))*(?:${skipWSAndCommentsREFn(0)}#bake_arguments${skipWSAndCommentsREFn(0)}${identifierREFn(0)})?${skipWSAndCommentsREFn(0)}\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -26874,7 +26874,7 @@ function jai(hljs) {
 	const EXTERNAL_DECLARATION = {
 		scope: 'title.external.declaration',
 		relevance: 5,
-		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#(?:foreign|(?:system_)?library)|elsewhere)`,	//LATER: drop deprecated `#system_library` variant when it gets removed.
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#(?:foreign|(?:system_)?library|elsewhere))`,	//LATER: drop deprecated `#system_library` variant when it gets removed.
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -27840,7 +27840,7 @@ function jai(hljs) {
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\(.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:foreign|modify|dump|c_call)\\b|(?=\\{)))`,
+		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\(.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:c_call|dump|foreign|modify)\\b|(?=\\{)))`,
 		//'on:begin': (match, resp) => {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;

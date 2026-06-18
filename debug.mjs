@@ -277,15 +277,25 @@ function debugInit(langName = 'jai', lang) {
 	applyDebugInfo();
 }
 
-//Breakpoints: processLexeme(bef; [const match = this.matcherRe.exec(s);]+1.
+//Breakpoints:
+// localHilightDebug.js:238		[cond]		result._id==breakAtNodeId
+// localHilightDebug.js:1244 	(disabled)		collect this.matcherRE.source ~= /!\\n/!\n/g;
+// localHilightDebug.js:1813	[cond]		!skip
+// localHilightDebug.js:2183	[log]		`step ${step}`
+// localHilightDebug.js:2184	[cond]		!(skip&&--skip)
+//
 //Live expressions:
-//emitterStack()
+// emitterStack()
 //
-//matchMode(typeof match !== 'undefined'?match:result)
+// matchMode(typeof match !== 'undefined'?match:result)
 //
-//textLeft(typeof index==='number'?index:this.lastIndex, typeof codeToHighlight!='undefined'?codeToHighlight:s)
+// textLeft(typeof index==='number'?index:this.lastIndex, typeof codeToHighlight!='undefined'?codeToHighlight:s)
 //
-//matchNext(top !== window.top && typeof top.matcher !== undefined ? top.matcher : this)
+// matchNext(top !== window.top && typeof top.matcher !== undefined ? top.matcher : this)
+
+window.step = 0;
+window.skip = 0;
+window.breakAtNodeId = 0;
 
 window.jaiDebug = {
     emitterStack,

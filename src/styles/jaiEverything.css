@@ -87,7 +87,7 @@
 	--forExpansion-fg: #F40;
 
 	--params-fg: #CC0;
-	--params-bg: #400;
+	--paramsList-bg: #400;
 	--module-params-bg: #033;
 	--program-params-bg: #006;
 
@@ -1656,6 +1656,14 @@
 			font-style: var(--type-function-declaration-style, var(--type-declaration-style, var(--declaration-style, (--type-function-style, var(--type-style, --default-style)))));
 			font-weight: var(--type-function-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, (--type-function-weight, var(--type-weight, --default-weight)))));
 			text-decoration: var(--type-function-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, (--type-function-decoration, var(--type-decoration, --default-decoration)))));
+
+			& > .hljs-_BalancedParens {
+				color: var(--paramsList-fg, var(--type-function-declaration-fg, var(--type-function-fg, var(--type-fg, --default-fg))));
+				background-color: var(--paramsList-bg, var(--type-function-declaration-bg, var(--type-function-bg, var(--type-bg, --default-bg))));
+				font-style: var(--paramsList-style, var(--type-function-declaration-style, var(--type-function-style, var(--type-style, --default-style))));
+				font-weight: var(--paramsList-weight, var(--type-function-declaration-weight, var(--type-function-weight, var(--type-weight, --default-weight))));
+				text-decoration: var(--paramsList-decoration, var(--type-function-declaration-decoration, var(--type-function-decoration, var(--type-decoration, --default-decoration))));
+			}
 		}
 	}
 

@@ -10,7 +10,7 @@
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && checkRef >check",
 		"checks": "npm run dumpLangScopes && npm run checkCssReference",
-		"build": "cd ../highlight.js && npm run build-cdn",
+		"build": "cp src/styles/jaiEverything.css dist/styles/ && cd ../highlight.js && npm run build-cdn",
 		"browserTest": "node browserTest.mjs",
 		"browserTestAll": "jai makeTests.jai && makeTests && npm run browserTest",
 		"browserTestAllDebug": "jai makeTests.jai && makeTests -debug && npm run browserTest -- --debug",
