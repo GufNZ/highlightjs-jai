@@ -27602,7 +27602,7 @@ function jai(hljs) {
 				}
 			],
 			end: /(?=[,;#\)\{])/,
-			endsParent: true
+			//endsParent: true
 		};
 
 		if (includeConsts) {
@@ -27837,6 +27837,8 @@ function jai(hljs) {
 		endsParent: true
 	};
 
+	const lookbehindCheckRE = new RegExp(`[${':=(,'}]${skipWSAndCommentsREFn()}$`);
+
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
@@ -27845,6 +27847,27 @@ function jai(hljs) {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;
 		//},
+		'on:begin': (match, resp) => {
+			// Reject match if it's not actually a proc type declaration (i.e. not preceded by #type, ::, :=, or inside a call).
+
+			const fullText = match.input;
+			const index = match.index;
+			const matched = match[0];
+
+			// If the match starts with #type, it's valid:
+			if (matched.startsWith('#type')) {
+				return;
+			}
+
+			// Otherwise, check what precedes the match (allowing whitespace/comments in between):
+			const beforeMatch = fullText.slice(Math.max(0, index - 50), index);
+			// Valid if preceded by `:` (declaration), `=` (assignment), `(` or `,` (function argument):
+			if (lookbehindCheckRE.test(beforeMatch)) {
+				return;
+			}
+
+			resp.isMatchIgnored = true;
+		},
 		keywords,
 		contains: [
 			...COMMENTS,
