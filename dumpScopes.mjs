@@ -1,4 +1,5 @@
 /// node dumpScopes.mjs >langScopes
+// @ts-check
 
 import jai from './src/languages/jai.js';
 /*
@@ -6,9 +7,17 @@ import hljs from 'highlight.js';
 /*/
 import hljs from './localHilightDebug.js';
 /**/
-hljs.registerLanguage('jai', jai);
+hljs.registerLanguage('jai', /** @type {import('highlight.js').Language} */ jai);
 
+/** @type {Set<unknown>} */
 const seen = new Set();
+/**
+ * Deep-equality check that ignores `_inheritID` fields and avoids cycles via the shared `seen` set.
+ * @param {any} a
+ * @param {any} b
+ * @param {string} [path]
+ * @returns {boolean}
+ */
 function eq(a, b, path = '$') {
 	if (path === '$') seen.clear();
 	if (seen.has(a)) {
@@ -50,26 +59,45 @@ function eq(a, b, path = '$') {
 	}
 }
 
+/**
+ * A `RegExp` augmented with a `matchValue` flag used by `walk` to decide whether to record the matched path-string or the matched object itself.
+ * @typedef {RegExp & { matchValue: boolean }} MatchRegExp
+ */
+
+/**
+ * Recursively walk `obj`, recording either matched paths or the values found at those paths.
+ * On the top-level call (`path === '$'`), `matches` is mutated in place from a `string[]` of glob-ish patterns to a `MatchRegExp[]`.
+ * @param {unknown} obj
+ * @param {(string | MatchRegExp)[]} matches
+ * @param {string} [path]
+ * @returns {unknown[]}
+ */
 function walk(obj, matches, path = '$') {
+	/** @type {unknown[]} */
 	const result = [];
 	if (path === '$') {
 		seen.clear();
-		matches = matches.map(m => {
-			const r = new RegExp(
-				m.replace(/\[/g, '\\[')
+		const compiled = /** @type {MatchRegExp[]} */ (matches.map(m => {
+			const r = /** @type {MatchRegExp} */ (new RegExp(
+				/** @type {string} */ (m)
+					.replace(/\[/g, '\\[')
 					.replace(/\]/g, '\\]')
 					.replace(/\./g, '\\.')
 					.replace(/:/g, '')
 					.replace(/(.+)\?/g, '(?<=$1)[^\\[$]+')
 					.replace(/\*/g, '[^.$]+')
 					+ '$'
-			);
-			r.matchValue = m.endsWith(':');
+			));
+			r.matchValue = /** @type {string} */ (m).endsWith(':');
 			return r;
-		});
+		}));
+
+		// Replace caller's array contents in place so subsequent recursive calls use the compiled form.
+		matches.length = 0;
+		matches.push(...compiled);
 	}
 
-	matches.forEach(m => {
+	/** @type {MatchRegExp[]} */(matches).forEach(m => {
 		const match = m.exec(path);
 		if (match) {
 			result.push(m.matchValue ? obj : match[0]);
@@ -95,7 +123,7 @@ function walk(obj, matches, path = '$') {
 		seen.add(obj);
 		const keys = Object.keys(obj);
 		for (let key of keys) {
-			const sub = walk(obj[key], matches, `${path}.${key}`);
+			const sub = walk(/** @type {Record<string, unknown>} */ (obj)[key], matches, `${path}.${key}`);
 			result.push(...sub);
 		}
 	}
@@ -109,10 +137,11 @@ let prev = "";
 langScopes
 	.sort()
 	.forEach(
+		/** @param {unknown} s */
 		s => {
 			if (s !== prev) {
 				console.log(s);
-				prev = s;
+				prev = /** @type {string} */ (s);
 			}
 		}
 	);

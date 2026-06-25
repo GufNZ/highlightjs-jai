@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "es2022",
+		"module": "node16",
+		"moduleResolution": "node16",
+		"allowJs": true,
+		"checkJs": true,
+		"noEmit": true,
+		"resolveJsonModule": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"noImplicitThis": true,
+		"alwaysStrict": true,
+		"skipLibCheck": true,
+		"types": ["node"],
+		"lib": ["es2022", "dom"],
+		"esModuleInterop": true
+	},
+	"include": [
+		"browserTest.mjs",
+		"debug.mjs",
+		"dumpScopes.mjs",
+		"runtest.cjs",
+		"src/languages/jai.js"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"test/visualTests"
+	]
+}

@@ -15,6 +15,7 @@
 		"browserTestAll": "jai makeTests.jai && makeTests && npm run browserTest",
 		"browserTestAllDebug": "jai makeTests.jai && makeTests -debug && npm run browserTest -- --debug",
 		"test": "mocha --reporter spec --reporter-options maxDiffSize=1000000",
+		"typecheck": "tsc -p tsconfig.json",
 		"end2end": "npm run generateStdLib && npm run patchStdLib -- -y && npm run checks",
 		"end2endTest": "npm run end2end && npm test"
 	},
@@ -35,9 +36,11 @@
 	},
 	"homepage": "https://github.com/highlightjs-jai",
 	"devDependencies": {
+		"@types/node": "^26.0.1",
 		"highlight.js": "^11.11.1",
 		"mocha": "^11.7.4",
-		"should": "^13.2.3"
+		"should": "^13.2.3",
+		"typescript": "^6.0.3"
 	},
 	"dependencies": {
 		"minimist": ">=1.2.8",

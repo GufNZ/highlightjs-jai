@@ -1,3 +1,4 @@
+// @ts-nocheck
 console.warn("DEBUG HLJS");
 
 function _sel(start,len) {

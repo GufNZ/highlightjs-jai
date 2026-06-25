@@ -13,6 +13,7 @@
 //   npm run browserTest                # warns if Chrome is already running
 //   npm run browserTest -- --kill      # kills running Chrome first, then launches
 
+// @ts-check
 import { spawn, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -104,6 +105,11 @@ function existingChromeHasFlag() {
 	return cmdlines.some(cl => cl.includes(REQUIRED_FLAG));
 }
 
+/**
+ * Block the current thread for approximately `ms` milliseconds.
+ * @param {number} ms
+ * @returns {void}
+ */
 function sleepMs(ms) {
 	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
@@ -114,6 +120,7 @@ function killChrome() {
 	} else {
 		spawnSync('pkill', ['-i', 'chrome'], { stdio: 'ignore' });
 	}
+
 	// Give the OS a moment to release Chrome's singleton lock:
 	const until = Date.now() + 3000;
 	while (Date.now() < until && chromeIsRunning()) {
@@ -147,6 +154,7 @@ const target = resolve('test/visualTests/index.html');
 // Build the file:// URL Chrome will see.
 // On WSL we must translate to a Windows path so Windows Chrome (which is what's actually being launched) can resolve it.
 // wslpath handles both /mnt/<drive>/... and \\wsl$\... cases.
+/** @type {string} */
 let url;
 if (isWsl) {
 	const r = spawnSync('wslpath', ['-w', target], { encoding: 'utf8' });
@@ -165,11 +173,14 @@ if (isWsl) {
 	url = pathToFileURL(target).href;
 }
 
-let cmd, args;
+/** @type {string} */
+let cmd;
+/** @type {string[]} */
+let args;
 if (useWinTools) {
-	// `start` is a cmd.exe builtin, so we must invoke it via cmd. The empty
-	// quoted "" is the window title (start treats the first quoted arg that
-	// way). Backgrounded by start itself.
+	// `start` is a cmd.exe builtin, so we must invoke it via cmd.
+	// The empty quoted "" is the window title (start treats the first quoted arg that way).
+	// Backgrounded by start itself.
 	cmd = WIN_CMD;
 	args = ['/c', 'start', '', 'chrome', url, REQUIRED_FLAG];
 } else {
