@@ -4,6 +4,7 @@ Author: J.Chris Findlay <j.chris.findlay@gmail.com>
 Description: highlightjs language definition for jai files
 Category: config
 */
+// @ts-check
 
 /*
 Precedence table, high to low::
@@ -22,16 +23,26 @@ Precedence table, high to low::
 	suffix cast
 */
 
+/**
+ * Highlight.js language definition factory for Jai.
+ * @type {import('highlight.js').LanguageFn}
+ */
 function jai(hljs) {
 	const primativesRE = 'u8|u16|u32|u64|s8|s16|s32|s64|float|float64|bool|string';
 
+	/**
+	 * Rewrite a comment mode (the one returned by `hljs.COMMENT`) so its scope is `comment` (optionally with a `.<scope>` suffix) and its built-in `doctag` sub-rule is replaced with our extended Jai-specific doctag set.
+	 * @param {import('highlight.js').Mode} mode
+	 * @param {string} [scope]
+	 * @returns {import('highlight.js').Mode}
+	 */
 	function fixDocTags(mode, scope) {
 		const doctags = [/TODO/, /NOTE/, /FIXME/, /BUG/, /HACK/, /MAYBE/, /LATER/, /QUESTION/, /TEST/, /NO_?CHECKIN/i, /OPTIMISE/, /OPTIMIZE/, /XXX/];
 
 		mode.scope = 'comment' + (scope ? `.${scope}` : '');
 
-		mode.contains.forEach(cont => {
-			if (cont.scope != 'doctag') {
+		mode.contains?.forEach(/** @param {any} cont */ cont => {
+			if (typeof cont === 'string' || cont.scope != 'doctag') {
 				return;
 			}
 
@@ -67,9 +78,9 @@ function jai(hljs) {
 	}
 
 	/**
-	 * Allows recursive regex expressions to a given depth
+	 * Allows recursive regex expressions to a given depth.
 	 *
-	 * ie: recurRegex("(abc~~~)", /~~~/g, 2) becomes:
+	 * I.e.: recurRegex("(abc~~~)", /~~~/g, 2) becomes:
 	 * (abc(abc(abc)))
 	 *
 	 * @param {string} re
@@ -83,7 +94,7 @@ function jai(hljs) {
 			: re.replace(substitution, _ => recurRegex(re, substitution, depth - 1));
 	}
 
-	const nestedBlockCommentREFn = (depth) => recurRegex(
+	const nestedBlockCommentREFn = /** @param {number} depth */ (depth) => recurRegex(
 		'/\\*(?:[^*/]+|\\*(?!/)|/(?!\\*)|~~~)*\\*/',
 		/~~~/g,
 		depth
@@ -94,8 +105,8 @@ function jai(hljs) {
 	/**
 	 * Make `re` atomic.
 	 * @param {string} re The string of the regex to be made atomic.
-	 * @param {number | undefined} offset The integer to offset the `backRefCount` by, or `undefined` to reset it.
-	 * @returns The atomic version of `re`.
+	 * @param {number} [offset] The integer to offset the `backRefCount` by, or `undefined` to reset it.
+	 * @returns {string} The atomic version of `re`.
 	 */
 	const atomic = (re, offset) => {
 		if (offset === undefined) {
@@ -109,17 +120,21 @@ function jai(hljs) {
 
 	/**
 	 * Regex matching WS and comments.
-	 * @param {number | undefined} offset The backRefCount offset to apply - see `atomic`.
-	 * @param {boolean} excludeNewline @default false; If true, match only space & tab rather than any whitespace.
-	 * @returns The requested regex.
+	 * @param {number} [offset] The backRefCount offset to apply - see `atomic`.
+	 * @param {boolean} [excludeNewline] @default false; If true, match only space & tab rather than any whitespace.
+	 * @returns {string} The requested regex.
 	 */
 	const skipWSAndCommentsREFn = (offset, excludeNewline = false) => {
 		return `(?:${atomic('//[^\\n]*(?=\\n)', offset)}|${atomic(nestedBlockCommentREFn(4), 0)}|${atomic(excludeNewline ? '[ \\t]+' : '\\s+', 0)})*`;
 	};
 
+	/** @param {number} [offset] @returns {string} */
 	const noteREFn				= (offset) => atomic('@(?:"[^"]+"|\\S+)', offset);
+	/** @param {number} [offset] @returns {string} */
 	const constIdentifierREFn	= (offset) => atomic('\\b[_A-Z](?:[_A-Z\\d]|\\\\\\s*)*\\b', offset);
+	/** @param {number} [offset] @returns {string} */
 	const identifierREFn		= (offset) => atomic('\\b[_A-Za-z](?:[_A-Za-z\\d]|\\\\\\s*)*\\b', offset);
+	/** @param {number} [offset] @returns {string} */
 	const typeIdentifierREFn	= (offset) => atomic(`\\b(?:${primativesRE}|[_A-Z](?:[_A-Za-z\\d]|\\\\\\s*)*)\\b`, offset);	//NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
 
 	const WHITESPACE = {
@@ -127,6 +142,7 @@ function jai(hljs) {
 		relevance: 0
 	};
 
+	/** @type {Record<string, string[]>} */
 	/* Begin generated content [Version: beta 0.2.029, built on 25 April 2026]: */
 	const STDLIB = {
 		'built_in.stdLib.Adpcm': [
@@ -26104,6 +26120,8 @@ function jai(hljs) {
 	};
 	/* :End generated content. */
 
+	/** @type {Exclude<NonNullable<import('highlight.js').Mode['keywords']>, string | string[]> & { $pattern?: RegExp }} */
+	// @ts-expect-error upstream Mode['keywords'] Record branch types values as string|string[]; runtime allows $pattern: RegExp (see compileMode in localHilightDebug.js).
 	const keywordsExceptStdLib = {
 		// noStdLib: $pattern: /\b(?:#Context|[Aa-filnNpr-tTu-x][_1-468ac-ik-pr-z]+)\b/,
 		$pattern: /\b(?:#Context|[_A-Za-z][_\dA-Za-z]+)\b/,
@@ -26216,6 +26234,7 @@ function jai(hljs) {
 		'literal.bool.false': 'false',
 		literal: 'null'
 	};
+	/** @type {Exclude<NonNullable<import('highlight.js').Mode['keywords']>, string | string[]> & { $pattern?: RegExp }} */
 	const keywords = {
 		...keywordsExceptStdLib,
 		...STDLIB
@@ -26268,7 +26287,24 @@ function jai(hljs) {
 		}
 	};
 
-	function balancedPair(contents, options, pairName, pairChars) {
+	/** @typedef {Omit<Partial<import('highlight.js').Mode>, 'keywords'> & {
+	 *   keywords?: Exclude<NonNullable<import('highlight.js').Mode['keywords']>, string | string[]> & { $pattern?: RegExp };
+	 *   startInside?: boolean;
+	 *   endInside?: boolean;
+	 * }} BalancedOpts */
+	/**
+	 * Make a `_Balanced<Pair>s` mode that wraps a pair of delimiters (`()`/`{}`/`[]`) around `contents`.
+	 * Recursive: the mode nests inside itself (via `'self'`) by default, but if `options.endsParent` is set we build a non-`endsParent` clone inline so the outer mode finally closes at the matching `)`/`}`/`]`.
+	 *
+	 * `options.keywords`/`options.startInside`/`options.endInside` are consumed (and `delete`d) before the remaining options are merged into the result.
+	 *
+	 * @param {import('highlight.js').Mode[]} contents
+	 * @param {string} pairName
+	 * @param {string} pairChars
+	 * @param {BalancedOpts} [options]
+	 * @returns {import('highlight.js').Mode}
+	 */
+	function balancedPair(contents, pairName, pairChars, options) {
 		const keywordsToUse = options?.keywords ?? keywords;
 		const startInside = options?.startInside ?? false;
 		const endInside = options?.endInside ?? false;
@@ -26288,20 +26324,21 @@ function jai(hljs) {
 			contains: [
 				...contents
 					.map(
+						/** @param {import('highlight.js').Mode} r */
 						r => r.scope === 'punctuation'
-							? PUNCTUATION_EXCEPT_BALANCED_PAIR[pairChars]
+							? PUNCTUATION_EXCEPT_BALANCED_PAIR[/** @type {keyof typeof PUNCTUATION_EXCEPT_BALANCED_PAIR} */ (pairChars)]
 							: r
 					),
 				options?.endsParent
 					? balancedPair(
 						contents,
+						pairName,
+						pairChars,
 						{
 							...options,
 							keywords: keywordsToUse,
 							endsParent: false
-						},
-						pairName,
-						pairChars
+						}
 					)
 					: 'self'
 			],
@@ -26309,26 +26346,39 @@ function jai(hljs) {
 			...options
 		};
 	}
+	/**
+	 * @param {import('highlight.js').Mode[]} contents
+	 * @param {BalancedOpts} [options]
+	 * @returns {import('highlight.js').Mode}
+	 */
 	function balancedParen(contents, options) {
-		return balancedPair(contents, options, 'paren', '()');
+		return balancedPair(contents, 'paren', '()', options);
 	}
+	/**
+	 * @param {import('highlight.js').Mode[]} contents
+	 * @param {BalancedOpts} [options]
+	 * @returns {import('highlight.js').Mode}
+	 */
 	function balancedBrace(contents, options) {
-		return balancedPair(contents, options, 'brace', '{}');
+		return balancedPair(contents, 'brace', '{}', options);
 	}
 
-	const COMMA = PUNCTUATION.variants.find(v => v.scope === 'punctuation.comma');
+	const COMMA = /** @type {import('highlight.js').Mode} */(PUNCTUATION.variants.find(v => v.scope === 'punctuation.comma'));
 
+	/** @type {import('highlight.js').Mode} */
 	const SEMICOLON = {
 		scope: 'punctuation.semicolon',
 		begin: /;/,
 		relevance: 0
 	};
 
+	/** @type {import('highlight.js').Mode[]} */
 	const COMMENTS = [
 		fixDocTags(hljs.COMMENT('//', /$/), 'line'),
 		fixDocTags(hljs.COMMENT(/\/\*/, /\*\//, { contains: ['self'] }), 'block')
 	];
 
+	/** @type {import('highlight.js').Mode} */
 	const NUMBER = {
 		scope: 'number',
 		relevance: 0,
@@ -26483,11 +26533,12 @@ function jai(hljs) {
 		]
 	};
 
-	const DEFINE = OPERATOR.variants.find(v => v.scope === 'operator.define');
-	const ASSIGN = OPERATOR.variants.find(v => v.scope === 'operator.assign');
-	const DEFINE_ASSIGN = OPERATOR.variants.find(v => v.scope === 'operator.define.assign');
-	const DEFINE_CONSTANT = OPERATOR.variants.find(v => v.scope === 'operator.define.constant');
+	const DEFINE = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.define'));
+	const ASSIGN = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.assign'));
+	const DEFINE_ASSIGN = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.define.assign'));
+	const DEFINE_CONSTANT = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.define.constant'));
 
+	/** @type {import('highlight.js').Mode[]} */
 	const SHIFTS = [
 		{
 			scope: 'operator.shift',
@@ -26576,14 +26627,14 @@ function jai(hljs) {
 					beginScope: {
 						1: 'meta.stringTerminator'
 					},
-					'on:begin': (m, resp) => resp.data.end = m[1],
+					'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((m, resp) => { resp.data.end = m[1]; }),
 					end: /^\s*(\w+)\b/,
 					endScope: 'meta.stringTerminator',
-					'on:end': (m, resp) => {
+					'on:end': /** @type {import('highlight.js').ModeCallback} */ ((m, resp) => {
 						if (m[1] !== resp.data.end) {
 							resp.ignoreMatch();
 						}
-					}
+					})
 				}
 			]
 		}
@@ -26775,6 +26826,7 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	/** @type {import('highlight.js').Mode[]} */
 	const _ATOMIC = [
 		NOTE,
 		...COMMENTS,
@@ -26881,6 +26933,7 @@ function jai(hljs) {
 		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
 
+	/** @type {import('highlight.js').Mode[]} */
 	const _COMMON_EXCEPT_STRING = [
 		FUNCTION_CALL,
 		EXTERNAL_DECLARATION,
@@ -27364,6 +27417,7 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	/** @type {import('highlight.js').Mode[]} */
 	const _COMMON_EXCEPT_DIRECTIVES_AND_CAST = [
 		ASM,
 		PRINTLIKE,
@@ -27372,6 +27426,7 @@ function jai(hljs) {
 		HERESTRING
 	];
 
+	/** @type {import('highlight.js').Mode[]} */
 	const _COMMON_EXCEPT_DIRECTIVES = [
 		...CASTS,
 		..._COMMON_EXCEPT_DIRECTIVES_AND_CAST
@@ -27450,6 +27505,7 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	/** @type {import('highlight.js').Mode[]} */
 	const _NEARLY_ALL = [
 		..._COMMON_EXCEPT_DIRECTIVES,
 		IMPORT_DIRECTIVE,
@@ -27480,7 +27536,7 @@ function jai(hljs) {
 					2: 'title.function.forExpansion'
 				}
 			},
-			_NEARLY_ALL
+			..._NEARLY_ALL
 				.filter(r => r !== SEMICOLON)
 				.map(r =>
 					r.scope === 'punctuation'
@@ -27504,7 +27560,7 @@ function jai(hljs) {
 			DIRECTIVE,
 			balancedBrace(
 				_COMMON_EXCEPT_DIRECTIVES.map(
-					r => r.scope?.startsWith('variable') || r.scope === 'type.declaration'
+					r => (typeof r.scope === 'string' && r.scope.startsWith('variable')) || r.scope === 'type.declaration'
 						? {
 							...r,
 							scope: 'type.enum.value.declaration',
@@ -27526,7 +27582,20 @@ function jai(hljs) {
 		// ...other decls go here.
 	];
 
+	/**
+	 * Build a `params`-style mode for a single parameter slot. `kind` is the scope
+	 * prefix (e.g. `'params'`, `'property'`). With `includeConsts === true` the
+	 * result also recognises top-level `::` constant declarations. With
+	 * `includeProcType === true` (the default) a nested `makeProcTypeAsType` is
+	 * embedded so things like `mod: (q: T) -> T` parse without lexer desync.
+	 *
+	 * @param {string} kind
+	 * @param {boolean} [includeConsts]
+	 * @param {boolean} [includeProcType]
+	 * @returns {import('highlight.js').Mode}
+	 */
 	const PARAM = (kind, includeConsts, includeProcType = true) => {
+		/** @type {import('highlight.js').Mode} */
 		const result = {
 			scope: kind,
 			begin: identifierREFn(),
@@ -27606,13 +27675,13 @@ function jai(hljs) {
 		};
 
 		if (includeConsts) {
-			result.contains.unshift({
+			/** @type {import('highlight.js').Mode[]} */ (result.contains).unshift({
 				scope: `${kind}.constant.declaration`,
 				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}(?:${typeIdentifierREFn(0)}${skipWSAndCommentsREFn(0)})?:${skipWSAndCommentsREFn(0)}:)`,//FIXME: polymorph
 				keywords: keywordsExceptStdLib,
 			});
-			result.contains.splice(
-				result.contains.length - 2,
+			/** @type {import('highlight.js').Mode[]} */ (result.contains).splice(
+				/** @type {import('highlight.js').Mode[]} */ (result.contains).length - 2,
 				0,
 				{
 					begin: `:${skipWSAndCommentsREFn()}:`,
@@ -27634,8 +27703,9 @@ function jai(hljs) {
 					endsParent: true
 				}
 			);
-			const c = result.contains[result.contains.length - 1].contains;
-			const d = c[c.length - 1].contains[2];
+			const contains = /** @type {import('highlight.js').Mode[]} */ (result.contains);
+			const c = /** @type {import('highlight.js').Mode[]} */ (/** @type {any} */ (contains[contains.length - 1]).contains);
+			const d = /** @type {any} */ (c[c.length - 1]).contains[2];
 			d.begin = /:/;
 			d.contains[0] = DEFINE_CONSTANT;
 		}
@@ -27651,6 +27721,10 @@ function jai(hljs) {
 	// Recursion (proc-type-as-type containing a PARAM containing another
 	// proc-type-as-type) is broken by passing includeProcType=false to the
 	// inner PARAM call below.
+	/**
+	 * @param {string} kind
+	 * @returns {import('highlight.js').Mode}
+	 */
 	const makeProcTypeAsType = (kind) => ({
 		scope: `${kind}.type.function`,
 		// Optional `#type` prefix, then the start of `(`. The `(` itself is
@@ -27847,11 +27921,11 @@ function jai(hljs) {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;
 		//},
-		'on:begin': (match, resp) => {
+		'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
 			// Reject match if it's not actually a proc type declaration (i.e. not preceded by #type, ::, :=, or inside a call).
 
-			const fullText = match.input;
-			const index = match.index;
+			const fullText = match.input ?? '';
+			const index = match.index ?? 0;
 			const matched = match[0];
 
 			// If the match starts with #type, it's valid:
@@ -27867,7 +27941,7 @@ function jai(hljs) {
 			}
 
 			resp.isMatchIgnored = true;
-		},
+		}),
 		keywords,
 		contains: [
 			...COMMENTS,
@@ -27969,6 +28043,7 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	/** @type {import('highlight.js').Mode[]} */
 	const _ALL = [
 		FOR,
 		PRINTLIKE,
@@ -27982,7 +28057,7 @@ function jai(hljs) {
 
 	return {
 		name: 'jai',
-		case_sensitive: true,
+		case_insensitive: false,
 		aliases: ['theLanguage', 'the_language'],
 		keywords,
 		contains: _ALL
@@ -27992,5 +28067,5 @@ function jai(hljs) {
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = jai;
 } else {
-	window.jai = jai;
+	/** @type {any} */ (window).jai = jai;
 }
