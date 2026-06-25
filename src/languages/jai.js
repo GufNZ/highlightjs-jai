@@ -27400,7 +27400,7 @@ function jai(hljs) {
 				returnBegin: true,
 				keywords,
 				contains: [
-					balancedParen([_COMMON_EXCEPT_DIRECTIVES_AND_CAST]),
+					balancedParen(_COMMON_EXCEPT_DIRECTIVES_AND_CAST),
 				],
 				end: /;/,
 				returnEnd: true

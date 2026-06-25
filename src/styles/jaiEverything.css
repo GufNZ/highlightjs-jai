@@ -59,6 +59,9 @@
 	--punctuation-quote-fg: #C6C;
 	--punctuation-directive-fg: #FFF;
 
+	--punctuation-commaComma-fg: #F66;
+	--punctuation-commaComma-bg: #400;
+
 	--char-fg: #F8F;
 	--char-bg: #008;
 	--char-hash-fg: #F8F;
