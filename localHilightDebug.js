@@ -1,18 +1,71 @@
 // @ts-nocheck
+
 console.warn("DEBUG HLJS");
 
-function _sel(start,len) {
-	const range = document.createRange();
-	range.setStart($node.firstChild, start);
-	range.setEnd($node.firstChild, start+len);
+function _sel(start, len) {
+	if (!$node || !$node.firstChild) {
+		return;
+	}
+
 	const sel = window.getSelection();
+
+	// Total text length across all descendants - used to clamp the requested range.
+	// The parser sometimes asks for a zero-width selection at exactly the end of input (start === total);
+	//  in that case we fall back to selecting the final character so something is still visually anchored.
+	const total = $node.textContent.length;
+	if (total === 0) {
+		return;
+	}
+
+	if (start >= total) {
+		start = total - 1;
+		len = 1;
+	}
+	if (start + len > total) {
+		len = total - start;
+	}
+	if (len < 1) {
+		len = 1;
+	}
+
+	// Resolve a flat code-unit offset into (textNode, offsetWithinTextNode) by walking all descendant text nodes.
+	// Before highlighting the subtree is one Text node and the walker returns it immediately;
+	//  after highlighting it descends through the emitted <span>s.
+	function resolve(targetOffset) {
+		const walker = document.createTreeWalker($node, NodeFilter.SHOW_TEXT, null);
+		let consumed = 0;
+		let last = null;
+		let n;
+		while ((n = walker.nextNode())) {
+			last = n;
+			const next = consumed + n.nodeValue.length;
+			if (targetOffset <= next) {
+				return { node: n, offset: targetOffset - consumed };
+			}
+
+			consumed = next;
+		}
+
+		return last
+			? { node: last, offset: last.nodeValue.length }
+			: null;
+	}
+
+	const a = resolve(start);
+	const b = resolve(start + len);
+	if (!a || !b) {
+		return;
+	}
+
+	const range = document.createRange();
+	range.setStart(a.node, a.offset);
+	range.setEnd(b.node, b.offset);
 	sel.removeAllRanges();
 	sel.addRange(range);
-	//range.startContainer.parentElement.scrollIntoView();
-	const rect = range.getBoundingClientRect();
-	window.scrollBy({
-		top: rect.top - window.innerHeight / 2,
-		left: rect.left - window.innerWidth / 2,
+
+	range.startContainer.parentElement?.scrollIntoView({
+		block: "center",
+		inline: "center",
 		behavior: "smooth"
 	});
 }

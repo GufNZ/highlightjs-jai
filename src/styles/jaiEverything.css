@@ -138,6 +138,11 @@
 	--asm-directive-flags-comma-fg: #FFF;
 	--asm-directive-flag-fg: #6C6;
 
+	--libraryReference-fg: #8C0;
+	--libraryReference-decoration: dashed underline #8C0;
+	--external-declaration-fg: #8C0;
+	--external-declaration-decoration: dashed underline #8C0;
+
 	--asm-bg: #222;
 	--asm-comma-bg: #222;
 	--asm-directive-block-bg: #222;

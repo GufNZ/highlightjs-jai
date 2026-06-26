@@ -26378,6 +26378,9 @@ function jai(hljs) {
 		fixDocTags(hljs.COMMENT(/\/\*/, /\*\//, { contains: ['self'] }), 'block')
 	];
 
+	// `#!/usr/bin/env jai` shebang at file start. hljs.SHEBANG's `on:begin` ignores any match where `m.index !== 0`, so this is only ever applied to the first line of the file.
+	const SHEBANG = hljs.SHEBANG({ scope: 'comment.line.shebang' });
+
 	/** @type {import('highlight.js').Mode} */
 	const NUMBER = {
 		scope: 'number',
@@ -26767,7 +26770,7 @@ function jai(hljs) {
 		relevance: 7,
 		begin: [
 			/#/,
-			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|f(?:ile(?:path|)|)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|overlay|p(?:laceholder|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?|))/,
+			/(?:a(?:dd_context|lign|s(?:sert|))|b(?:ake_(?:arguments|constants)|ytes)|c(?:_call|aller_(?:code|location)|o(?:de|mp(?:ile(?:_time|r)|lete))|pp_(?:method|return_type_is_non_pod))|d(?:e(?:fine|precated)|iscard|ump|ynamic_specialize)|e(?:lse(?:where)?|n(?:dif|try_point)|x(?:ists|pand))|f(?:ile(?:path|)|oreign)|i(?:f(?:n?def|x|)|(?:n(?:sert|trinsic)))|l(?:i(?:brary|ne)|ocation)|no_(?:a(?:[bo]c|lias)|context|debug|padding|reset)|overlay|p(?:laceholder|oke_name|ro(?:cedure_(?:of_call|name)|gram_export))|run(?:time_support|)|s(?:cope_(?:export|file|module)|pecified|y(?:mmetric|stem_library))|t(?:h(?:is|rough)|ype(?:_info_(?:procedures_are_void_pointers|no(?:ne|_size_complaint)|))?))/,
 			/\b/
 		],
 		beginScope: {
@@ -26893,10 +26896,20 @@ function jai(hljs) {
 		end: /(?=\W)/
 	};
 
+	const PROC_TYPE_VAR_DECLARATION = {
+		scope: 'title.function.declaration',
+		relevance: 5,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}:${skipWSAndCommentsREFn(0)}#type${skipWSAndCommentsREFn(0)}\\()`,
+		returnBegin: true,
+		keywords,
+		contains: [ALIGNMENT_WS],
+		end: /(?=\W)/
+	};
+
 	const PROC_DECLARATION = {
 		scope: 'title.function.declaration',
 		relevance: 5,
-		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::(?:${skipWSAndCommentsREFn(0)}(?:#?:no_a[bo]c|(?:no_)?inline))*(?:${skipWSAndCommentsREFn(0)}#bake_arguments${skipWSAndCommentsREFn(0)}${identifierREFn(0)})?${skipWSAndCommentsREFn(0)}\\()`,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::(?:${skipWSAndCommentsREFn(0)}(?:#?:no_a[bo]c|(?:no_)?inline))*(?:${skipWSAndCommentsREFn(0)}#bake_arguments${skipWSAndCommentsREFn(0)}${identifierREFn(0)})?(?:${skipWSAndCommentsREFn(0)}#type)?${skipWSAndCommentsREFn(0)}\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -26926,11 +26939,24 @@ function jai(hljs) {
 	const EXTERNAL_DECLARATION = {
 		scope: 'title.external.declaration',
 		relevance: 5,
-		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#(?:foreign|(?:system_)?library|elsewhere))`,	//LATER: drop deprecated `#system_library` variant when it gets removed.
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
-		end: `(?=${skipWSAndCommentsREFn()}::)`
+		end: `(?=${skipWSAndCommentsREFn()}::)`,
+		variants: [
+			{
+				scope: 'title.external.declaration.foreign',
+				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#foreign\\b)`
+			},
+			{
+				scope: 'title.external.declaration.library',
+				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#(?:system_)?library\\b)`
+			},
+			{
+				scope: 'title.external.declaration.elsewhere',
+				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}#elsewhere\\b)`
+			}
+		]
 	};
 
 	/** @type {import('highlight.js').Mode[]} */
@@ -26943,6 +26969,7 @@ function jai(hljs) {
 		CONST_DECLARATION,
 		TYPE_DECLARATION,
 		VAR_TYPE,
+		PROC_TYPE_VAR_DECLARATION,
 		VAR_DECLARATION,
 		..._ATOMIC
 	];
@@ -27832,23 +27859,28 @@ function jai(hljs) {
 		begin: [
 			/#/,
 			/foreign|(?:system_)?library/,	//LATER: drop deprecated `#system_library` variant when it gets removed.
-			skipWSAndCommentsREFn(),
-			`(?:"${identifierREFn()}")?`,
-			`(?:${identifierREFn()})?`,
-			skipWSAndCommentsREFn(),
-			/;/
 		],
 		beginScope: {
 			1: 'operator.hash.directive',
-			2: 'meta.directive.foreignOrLibrary',
-			3: 'comment',
-			4: 'title.libraryProcName',
-			5: 'title.libraryReference',
-			6: 'comment',
-			7: 'punctuation.semicolon'
+			2: 'meta.directive.foreignOrLibrary'
 		},
+		end: /(?=;)/,
 		contains: [
 			...COMMENTS,
+			{
+				// Override proc-name string: `"..."` (contents may be any non-quote, non-newline chars - e.g. `?baker_init@Thekla@@YAXP6AXPEBD@Z@Z`).
+				begin: [/"/, /[^"\n]*/, /"/],
+				beginScope: {
+					1: 'punctuation.quote',
+					2: 'title.libraryProcName',
+					3: 'punctuation.quote'
+				}
+			},
+			{
+				// Library identifier (the symbol resolved as the library/module to link against).
+				scope: 'title.libraryReference',
+				begin: identifierREFn()
+			},
 			{
 				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn(0)}:)`,	// Try not to match , in an args list.
 				returnBegin: true,
@@ -27917,6 +27949,7 @@ function jai(hljs) {
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
 		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\(.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:c_call|dump|foreign|modify)\\b|(?=\\{)))`,
+		returnBegin: true,
 		//'on:begin': (match, resp) => {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
 		//	lastMatchedProcTypeAt = match.index;
@@ -27967,7 +28000,7 @@ function jai(hljs) {
 				}
 			)
 		],
-		end: /(?=[#{;])|(?<=\))(?!\s*->)|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+		end: /(?=#(?!type\b)|[{;])|(?<=\))(?!\s*->)|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
 
 	paramDefaultDecls.push(PROC_DECLARATION);
@@ -28045,6 +28078,7 @@ function jai(hljs) {
 
 	/** @type {import('highlight.js').Mode[]} */
 	const _ALL = [
+		SHEBANG,
 		FOR,
 		PRINTLIKE,
 		STRUCT_TYPE_DECLARATION,

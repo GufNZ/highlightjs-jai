@@ -58,7 +58,7 @@ main :: () {
 				"src/styles/"
 			),
 			"hljs.highlightAll();",
-			"hljs.registerLanguage('jai', jai);\n\t\tdebugInit();"
+			"hljs.registerLanguage('jai', jai);\n\t\tjaiDebug.debugInit();"
 		);
 	}
 	append(*builder, parts[0]);
@@ -122,6 +122,12 @@ main :: () {
 
 		code, ok := read_entire_file(it);
 		assert(ok);
+		end := "";
+		if code.count && code[code.count-1] != #char "\n" {
+			end = ifx contains(code, #char "\r") "\r\n" else "\n";
+		}
+		reset_temporary_storage();
+
 		title := advance(it, basePath.count);
 		print("%\n", title);
 		path_overwrite_separators(title, "/");
@@ -143,7 +149,7 @@ main :: () {
 					replace(
 						replace(
 							replace(
-								code,
+								join(code, end),
 								"&",
 								"&amp;"
 							),

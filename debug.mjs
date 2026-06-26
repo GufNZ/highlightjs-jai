@@ -4,9 +4,10 @@
 // classic script.
 // Top-level `var` declarations therefore become globals on `window`, which is what the DevTools "Live Expressions" at the bottom of this file depend on.
 
-// `hljs` is provided by `localHilightDebug.js` (or by a real `highlight.js` build) on the global scope; we narrow its type for editor support.
+// `hljs` is provided by `localHilightDebug.js` (or by a real `highlight.js` build) on the global scope as `var hljs = ...`.
 /** @type {import('highlight.js').HLJSApi} */
-const hljs = /** @type {any} */ (/** @type {any} */ (globalThis).hljs);
+// eslint-disable-next-line no-var
+var hljs;
 
 /** @typedef {{ _id: number, scope?: string, language?: string, children: Node[], $name?: string } } DataNode */
 // Inspection globals: these are intentionally mutated as a side-effect of larger expressions so DevTools can watch their values.
@@ -32,6 +33,22 @@ function emitterStack() {
 				//+ `{${s.children.map((c, j) => typeof (c) === 'string' ? `${j}"${c}"` : `${j}/${c._id}:${c.scope ?? c.$name ?? '??'}[${c.children?.length ?? '-'}]`)}}`
 	).toReversed();
 }
+
+/**
+ * Make a thing you can click in the console log to select the matching text.
+ * @param {any} $m
+ * @returns {unknown}
+ */
+function clicker($m) {
+	return {
+		get "\u2693"() {
+			// @ts-ignore - supplied by localHilightDebug.js
+			_sel($m.index, $m[0].length);
+			return clicker($m);
+		}
+	}
+}
+
 /**
  * Summarise an hljs match-record (`$m`) into a printable array, alongside the rule that
  * fired it (extracted from `matcher.rules[$m.position]`).
@@ -61,7 +78,8 @@ function matchMode($m, matcher) {
 						extractName(matcher?.rules?.[$m.position][0])
 							?? `${$s._id}<${$s.scope}>`
 					}`//+ `${$s._id}<${$s.scope}>`
-				)
+				),
+				clicker($m)
 			]
 		);
 }
@@ -413,23 +431,56 @@ function debugInit(langName = 'jai', lang) {
 		throw new Error(`Language ${langName} not found; cannot debugInit!`);
 	}
 
+	console.time('setup');
 	hljs.debugMode();
 	hljs.unregisterLanguage(langName);
 	hljs.registerLanguage(langName, regexDebugPre(lang));
-	console.log('starting...');
-	console.time('hilight');
-	hljs.highlightAll();//Element(document.getElementById('it').firstChild);
-	console.timeEnd('hilight');
-	applyDebugInfo();
+	console.timeEnd('setup');
+
+	// `hljs.highlightAll()` defers to DOMContentLoaded when document.readyState === 'loading',
+	//  in which case timing it here would only measure the listener registration.
+	// Wait for the DOM ourselves so we can time the actual matching work:
+	const run = () => {
+		console.time('hilight');
+		hljs.highlightAll();//Element(document.getElementById('it').firstChild);
+		console.timeEnd('hilight');
+
+		console.time('applyDebugInfo');
+		applyDebugInfo();
+		console.timeEnd('applyDebugInfo');
+	};
+
+	if (document.readyState === 'loading') {
+		window.addEventListener('DOMContentLoaded', run, { once: true });
+	} else {
+		run();
+	}
 }
 
 //Breakpoints:
-// localHilightDebug.js:239		[cond]		result._id==breakAtNodeId
-// localHilightDebug.js:1245 	(disabled)		collect this.matcherRE.source ~= /!\\n/!\n/g;
-// localHilightDebug.js:1814	[cond]		!(skip-1)
-// localHilightDebug.js:2184	[log]		`step ${step++}`
-// localHilightDebug.js:2185	[cond]		skip&&!--skip
-//
+/* localHilightDebug.js:291		[cond]		result._id==breakAtNodeId
+		const result = { _id: _nodeID++, children: [] };
+?>		Object.assign(result, opts);
+		return result;
+*/
+/* localHilightDebug.js:1298 	(disabled)		collect this.matcherRE.source ~= /!\\n/!\n/g;
+				this.matcherRe.lastIndex = this.lastIndex;
+[>]				const match = this.matcherRe.exec(s);
+				if (!match) { return null; }
+*/
+/* localHilightDebug.js:1867	[cond]		console.log({keyword:match[0], cssClass}), !(skip-1)
+							const cssClass = language.classNameAliases[kind] || kind;
+?>							emitKeyword(match[0], cssClass);
+						}
+*/
+// localHilightDebug.js:2237	[log]		`step ${step++}`
+/* localHilightDebug.js:2238	[cond]		skip&&!--skip
+						if (!match) break;
+->_sel(match.index, Math.max(1, match[0].length));console.log(matchMode(match, top.matcher));
+?>						const beforeMatch = codeToHighlight.substring(index, match.index);
+						const processedCount = processLexeme(beforeMatch, match);
+*/
+
 //Live expressions:
 // emitterStack()
 //
