@@ -1,5 +1,5 @@
-#!/usr/bin/env jai
-main :: () {
-    print("hi");
-    // not a shebang: #!/bin/sh
-}
+foo :: () #foreign mylib;
+bar :: () #foreign mylib "bar_override";
+baz :: () #library "x";
+qux :: () #system_library "y";
+zap :: () #elsewhere "z";

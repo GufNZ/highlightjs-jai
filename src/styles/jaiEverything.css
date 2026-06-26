@@ -138,6 +138,7 @@
 	--asm-directive-flags-comma-fg: #FFF;
 	--asm-directive-flag-fg: #6C6;
 
+	/*//FIXME: now these can be more specific, style them independently...*/
 	--libraryReference-fg: #8C0;
 	--libraryReference-decoration: dashed underline #8C0;
 	--external-declaration-fg: #8C0;
@@ -233,6 +234,14 @@
 		font-style: var(--comment-line-style, var(--comment-style, --default-style));
 		font-weight: var(--comment-line-weight, var(--comment-weight, --default-weight));
 		text-decoration: var(--comment-line-decoration, var(--comment-decoration, --default-decoration));
+
+		&.shebang__ {
+			color: var(--comment-shebang-fg, var(--comment-line-fg, var(--comment-fg, --default-fg)));
+			background-color: var(--comment-shebang-bg, var(--comment-line-bg, var(--comment-bg, --default-bg)));
+			font-style: var(--comment-shebang-style, var(--comment-line-style, var(--comment-style, --default-style)));
+			font-weight: var(--comment-shebang-weight, var(--comment-line-weight, var(--comment-weight, --default-weight)));
+			text-decoration: var(--comment-shebang-decoration, var(--comment-line-decoration, var(--comment-decoration, --default-decoration)));
+		}
 	}
 }
 
@@ -1092,6 +1101,14 @@
 			font-style: var(--params-returnType-style, var(--params-return-style, var(--params-type-style, var(--type-style, var(--params-style, --default-style)))));
 			font-weight: var(--params-returnType-weight, var(--params-return-weight, var(--params-type-weight, var(--type-weight, var(--params-weight, --default-weight)))));
 			text-decoration: var(--params-returnType-decoration, var(--params-return-decoration, var(--params-type-decoration, var(--type-decoration, var(--params-decoration, --default-decoration)))));
+
+			&.function___ {
+				color: var(--params-returnType-function-fg, var(--params-returnType-fg, var(--params-type-function-fg, var(--params-type-fg, var(--type-function-fg, var(--type-fg, var(--params-fg, --default-fg)))))));
+				background-color: var(--params-returnType-function-bg, var(--params-returnType-bg, var(--params-type-function-bg, var(--params-type-bg, var(--type-function-bg, var(--type-bg, var(--params-bg, --default-bg)))))));
+				font-style: var(--params-returnType-function-style, var(--params-returnType-style, var(--params-type-function-style, var(--params-type-style, var(--type-function-style, var(--type-style, var(--params-style, --default-style)))))));
+				font-weight: var(--params-returnType-function-weight, var(--params-returnType-weight, var(--params-type-function-weight, var(--params-type-weight, var(--type-function-weight, var(--type-weight, var(--params-weight, --default-weight)))))));
+				text-decoration: var(--params-returnType-function-decoration, var(--params-returnType-decoration, var(--params-type-function-decoration, var(--params-type-decoration, var(--type-function-decoration, var(--type-decoration, var(--params-decoration, --default-decoration)))))));
+			}
 		}
 	}
 
@@ -1109,6 +1126,14 @@
 		font-style: var(--params-type-style, var(--type-style, var(--params-style, --default-style)));
 		font-weight: var(--params-type-weight, var(--type-weight, var(--params-weight, --default-weight)));
 		text-decoration: var(--params-type-decoration, var(--type-decoration, var(--params-decoration, --default-decoration)));
+
+		&.function__ {
+			color: var(--params-type-function-fg, var(--params-type-fg, var(--type-function-fg, var(--type-fg, var(--params-fg, --default-fg)))));
+			background-color: var(--params-type-function-bg, var(--params-type-bg, var(--type-function-bg, var(--type-bg, var(--params-bg, --default-bg)))));
+			font-style: var(--params-type-function-style, var(--params-type-style, var(--type-function-style, var(--type-style, var(--params-style, --default-style)))));
+			font-weight: var(--params-type-function-weight, var(--params-type-weight, var(--type-function-weight, var(--type-weight, var(--params-weight, --default-weight)))));
+			text-decoration: var(--params-type-function-decoration, var(--params-type-decoration, var(--type-function-decoration, var(--type-decoration, var(--params-decoration, --default-decoration)))));
+		}
 	}
 
 	/* Module Parameters: */
@@ -1209,6 +1234,14 @@
 		font-style: var(--field-type-style, var(--declaration-style, var(--field-style, --default-style)));
 		font-weight: var(--field-type-weight, var(--declaration-weight, var(--field-weight, --default-weight)));
 		text-decoration: var(--field-type-decoration, var(--declaration-decoration, var(--field-decoration, --default-decoration)));
+
+		&.function__ {
+			color: var(--field-type-function-fg, var(--field-type-fg, var(--type-function-fg, var(--type-fg, var(--declaration-fg, var(--field-fg, --default-fg))))));
+			background-color: var(--field-type-function-bg, var(--field-type-bg, var(--type-function-bg, var(--type-bg, var(--declaration-bg, var(--field-bg, --default-bg))))));
+			font-style: var(--field-type-function-style, var(--field-type-style, var(--type-function-style, var(--type-style, var(--declaration-style, var(--field-style, --default-style))))));
+			font-weight: var(--field-type-function-weight, var(--field-type-weight, var(--type-function-weight, var(--type-weight, var(--declaration-weight, var(--field-weight, --default-weight))))));
+			text-decoration: var(--field-type-function-decoration, var(--field-type-decoration, var(--type-function-decoration, var(--type-decoration, var(--declaration-decoration, var(--field-decoration, --default-decoration))))));
+		}
 	}
 }
 
@@ -1496,6 +1529,30 @@
 			font-style: var(--external-declaration-style, var(--declaration-style, var(--external-style, var(--title-style, --default-style))));
 			font-weight: var(--external-declaration-weight, var(--declaration-weight, var(--external-weight, var(--title-weight, --default-weight))));
 			text-decoration: var(--external-declaration-decoration, var(--declaration-decoration, var(--external-decoration, var(--title-decoration, --default-decoration))));
+
+			&.elsewhere___ {
+				color: var(--external-declaration-elsewhere-fg, var(--external-declaration-fg, var(--declaration-fg, var(--external-fg, var(--title-fg, --default-fg)))));
+				background-color: var(--external-declaration-elsewhere-bg, var(--external-declaration-bg, var(--declaration-bg, var(--external-bg, var(--title-bg, --default-bg)))));
+				font-style: var(--external-declaration-elsewhere-style, var(--external-declaration-style, var(--declaration-style, var(--external-style, var(--title-style, --default-style)))));
+				font-weight: var(--external-declaration-elsewhere-weight, var(--external-declaration-weight, var(--declaration-weight, var(--external-weight, var(--title-weight, --default-weight)))));
+				text-decoration: var(--external-declaration-elsewhere-decoration, var(--external-declaration-decoration, var(--declaration-decoration, var(--external-decoration, var(--title-decoration, --default-decoration)))));
+			}
+
+			&.foreign___ {
+				color: var(--external-declaration-foreign-fg, var(--external-declaration-fg, var(--declaration-fg, var(--external-fg, var(--title-fg, --default-fg)))));
+				background-color: var(--external-declaration-foreign-bg, var(--external-declaration-bg, var(--declaration-bg, var(--external-bg, var(--title-bg, --default-bg)))));
+				font-style: var(--external-declaration-foreign-style, var(--external-declaration-style, var(--declaration-style, var(--external-style, var(--title-style, --default-style)))));
+				font-weight: var(--external-declaration-foreign-weight, var(--external-declaration-weight, var(--declaration-weight, var(--external-weight, var(--title-weight, --default-weight)))));
+				text-decoration: var(--external-declaration-foreign-decoration, var(--external-declaration-decoration, var(--declaration-decoration, var(--external-decoration, var(--title-decoration, --default-decoration)))));
+			}
+
+			&.library___ {
+				color: var(--external-declaration-library-fg, var(--external-declaration-fg, var(--declaration-fg, var(--external-fg, var(--title-fg, --default-fg)))));
+				background-color: var(--external-declaration-library-bg, var(--external-declaration-bg, var(--declaration-bg, var(--external-bg, var(--title-bg, --default-bg)))));
+				font-style: var(--external-declaration-library-style, var(--external-declaration-style, var(--declaration-style, var(--external-style, var(--title-style, --default-style)))));
+				font-weight: var(--external-declaration-library-weight, var(--external-declaration-weight, var(--declaration-weight, var(--external-weight, var(--title-weight, --default-weight)))));
+				text-decoration: var(--external-declaration-library-decoration, var(--external-declaration-decoration, var(--declaration-decoration, var(--external-decoration, var(--title-decoration, --default-decoration)))));
+			}
 		}
 	}
 

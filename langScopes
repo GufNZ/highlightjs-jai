@@ -125,6 +125,7 @@ char.escape
 comment
 comment.block
 comment.line
+comment.line.shebang
 doctag
 doctag.bug
 doctag.fixme
@@ -223,8 +224,10 @@ params.return
 params.return.declaration
 params.return.default
 params.return.type
+params.return.type.function
 params.returns
 params.type
+params.type.function
 property
 property.constant
 property.constant.declaration
@@ -233,6 +236,7 @@ property.constant.value
 property.declaration
 property.default
 property.type
+property.type.function
 punctuation
 punctuation.alignmentWS
 punctuation.backslash
@@ -258,6 +262,9 @@ title.class.declaration
 title.class.inherited
 title.enum.declaration
 title.external.declaration
+title.external.declaration.elsewhere
+title.external.declaration.foreign
+title.external.declaration.library
 title.function
 title.function.declaration
 title.function.forExpansion

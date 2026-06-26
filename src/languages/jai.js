@@ -27791,7 +27791,7 @@ function jai(hljs) {
 					...COMMENTS,
 					NOTE,
 					{
-						scope: `${kind}.return.type`,
+						scope: `${kind}.type`,
 						begin: typeIdentifierREFn(),
 						keywords
 					}
@@ -27858,7 +27858,7 @@ function jai(hljs) {
 		scope: 'meta.directive.foreignOrLibrary',
 		begin: [
 			/#/,
-			/foreign|(?:system_)?library/,	//LATER: drop deprecated `#system_library` variant when it gets removed.
+			/(?:elsewhere|foreign|(?:system_)?library)\b/,	//LATER: drop deprecated `#system_library` variant when it gets removed.
 		],
 		beginScope: {
 			1: 'operator.hash.directive',

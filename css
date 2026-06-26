@@ -6,6 +6,7 @@ char.escape_
 comment
 comment.block_
 comment.line_
+comment.line_.shebang__
 doctag
 doctag.bug_
 doctag.fixme_
@@ -109,8 +110,10 @@ params.return_
 params.return_.declaration__
 params.return_.default__
 params.return_.type__
+params.return_.type__.function___
 params.returns_
 params.type_
+params.type_.function__
 property
 property.constant_
 property.constant_.declaration__
@@ -119,6 +122,7 @@ property.constant_.value__
 property.declaration_
 property.default_
 property.type_
+property.type_.function__
 punctuation
 punctuation.alignmentWS_
 punctuation.backslash_
@@ -152,6 +156,9 @@ title.enum_
 title.enum_.declaration__
 title.external_
 title.external_.declaration__
+title.external_.declaration__.elsewhere___
+title.external_.declaration__.foreign___
+title.external_.declaration__.library___
 title.function_
 title.function_.declaration__
 title.function_.forExpansion__

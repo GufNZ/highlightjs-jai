@@ -27,6 +27,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |**Comments**|
 |`--comment`|All comments.|`--default`|
 |`--comment-line`|All line comments.|`--comment`=>`--default`|
+|`--comment-shebang`|The (optional) `#!` comment on the first line line of the file.|`--comment-line`=>`--comment`=>`--default`|
 |`--comment-block`|All block comments.|`--comment`=>`--default`|
 |**DocTags**|
 |`--doctag`|All doctags within comments.|`--comment`=>`--default`|
@@ -148,12 +149,16 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--struct-declaration`|Struct variable declarations.|`--declaration`=>`--struct`=>`--title`=>`--default`|
 |`--field-declaration`|Struct field declarations.|`--declaration`=>`--field`=>`--default`|
 |`--field-type`|The type of a field.|`--declaration`=>`--field`=>`--default`|
+|`--field-type-function`|The type of a field when it's a proc/function.|`--field-type`=>`--type-function`=>`--type`=>`--declaration`=>`--field`=>`--default`|
 |`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
 |`--field-value`|The value of a constant field.|`--field-constant`=>`--field`=>`--default`|
 |`--external`|External things (`#foreign`, `#library`, ~~`#system_library`~~ and `#elsewhere`).|`--title`=>`--default`|
 |`--libraryProcName`|The external proc name if specified.|`--proc`=>`--title`=>`--default`|
 |`--libraryReference`|The external library reference.|`--proc`=>`--title`=>`--default`|
 |`--external-declaration`|A declaration marked with `#foreign`, `#library`, ~~`#system_library`~~ or `#elsewhere`.|`--declaration`=>`--external`=>`--title`=>`--default`|
+|`--external-declaration-elsewhere`|A declaration marked with `#elsewhere`.|`--external-declaration`=>`--declaration`=>`--external`=>`--title`=>`--default`|
+|`--external-declaration-foreign`|A declaration marked with `#foreign`.|`--external-declaration`=>`--declaration`=>`--external`=>`--title`=>`--default`|
+|`--external-declaration-library`|A declaration marked with `#library` or ~~`#system_library`~~.|`--external-declaration`=>`--declaration`=>`--external`=>`--title`=>`--default`|
 |`--proc-declaration`|Proc/functions declarations.|`--declaration`=>`--proc`=>`--title`=>`--default`|
 |`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
 |`--type-declaration`|Type declarations.|`--declaration`=>`--type`=>`--default`|
@@ -230,14 +235,17 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--proc`|Procedures & functions.|`--title`=>`--default`|
 |`--proc-printLike`|Known stdLib procs marked with `@PrintLike`, enabling substitution marker highlighting.|`--proc`=>`--title`=>`--default`|
 |`--proc-declaration`|A proc/function being declared.|`--declaration`=>`--proc`=>`--title`=>`--default`|
+|`--paramsList`|The list of proc parameters.|`--type-function-declaration`=>`--type-function`=>`--type`=>`--default`|
 |`--params-declaration`|All proc parameter declarations in the proc signature.|`--declaration`=>`--params`=>`--default`|
 |`--params-type`|The type of a proc parameter.|`--type`=>`--params`=>`--default`|
+|`--params-type-function`|The type of a proc parameter when it's a proc/function.|`--params-type`=>`--type-function`=>`--type`=>`--params`=>`--default`|
 |`--params-default`|The default value for a parameter in the proc signature.|`--params`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
 |`--params-returns`|The list of returns in a proc signature.|`--params`=>`--default`|
 |`--params-return`|A return entry.|`--params`=>`--default`|
 |`--params-returnDeclaration`|The name of a return entry.|`--declaration`=>`--params-return`=>`--params`=>`--default`|
 |`--params-returnType`|The type of a return entry.|`--params-return`=>`--params-type`=>`--type`=>`--params`=>`--default`|
+|`--params-returnType-function`|The type of a return entry when it's a proc/function.|`--params-returnType`=>`--params-type-function`=>`--params-type`=>`--type-function`=>`--type`=>`--params`=>`--default`|
 |`--params-returnDefault`|The default value of a return entry.|`--params-return`=>`--params`=>`--default`|
 |**Specials**|
 |`--forExpansion`|Procs named `for_expansion`.|`--proc`=>`--title`=>`--default`|
@@ -306,6 +314,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-comment`|All comments.|
 |`.hljs-comment.block_`|All block-comments.|
 |`.hljs-comment.line_`|All line-comments.|
+|`.hljs-comment.line_.shebang__`|The (optional) `#!` comment on the first line of the file.|
 |`.hljs-doctag`|All doctags found in comments.|
 
 #### Doctags
@@ -453,6 +462,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-property`|A field reference (`something.camelCase`)|
 |`.hljs-property.declaration_`|A field declaration (`camelCase: type` inside a struct definition)|
 |`.hljs-property.type_`|A field declaration's type.|
+|`.hljs-property.type_.function__`|A field declaration's type when it's a proc/function.|
 |`.hljs-property.default_`|A field declaration's default value.|
 |`.hljs-property.constant_.declaration__`|A constant field declaration in a struct definition.|
 |`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
@@ -504,11 +514,13 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-params`|All proc parameter declarations in the proc signature.|
 |`.hljs-params.declaration_`|A proc parameter declaration.|
 |`.hljs-params.type_`|A proc parameter's type.|
+|`.hljs-params.type_.function__`|A proc parameter's type when it's a proc/function.|
 |`.hljs-params.default_`|A proc parameter's default value.|
 |`.hljs-params.returns_`|A proc's returns list.|
 |`.hljs-params.return_`|A proc's return entry.|
 |`.hljs-params.return_.declaration__`|A return entry's name.|
 |`.hljs-params.return_.type__`|A return entry's type.|
+|`.hljs-params.return_.type__.function___`|A return entry's type when it's a proc/function.|
 |`.hljs-params.return_.default__`|A return entry's default value.|
 
 #### Specials
@@ -556,6 +568,9 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |||
 |`.hljs-meta.directive_.foreignOrLibrary__`|The `#foreign`, `#library`, ~~`#system_library`~~ and `#elsewhere` directives.|
 |`.hljs-title.external_.declaration__`|The declaration using one of the above.|
+|`.hljs-title.external_.declaration__.elsewhere___`|The declaration using `#elsewhere`.|
+|`.hljs-title.external_.declaration__.foreign___`|The declaration using `#foreign`.|
+|`.hljs-title.external_.declaration__.library___`|The declaration using `#library` or ~~`#system_library`~~.|
 |`.hljs-title.libraryProcName_`|The external proc name, if present.|
 |`.hljs-title.libraryReference_`|The library reference.|
 
