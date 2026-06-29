@@ -17,89 +17,47 @@ proc call is not preceeded by :, #bake_arguments, #dynamic_specialize - those ar
 //FIXME: #place gone, #overlay exists.
 
 
-#39	file:///d%3A/highlightjs-jai/src/languages/jai.js#92
-	NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
+#51	file:///d%3A/highlightjs-jai/src/styles/jaiEverything.css#141
+	FIXME: now these can be more specific, style them independently...*/
 
-#40	file:///d%3A/highlightjs-jai/src/languages/jai.js#123
-	NOTE: ideally this would also match polymorphic parameters as part of the type, but JS lacks recursive/balancing RegExps so I can't, so we need to do that where this is used.
-
-#41	file:///d%3A/highlightjs-jai/src/languages/jai.js#26212
+#54	file:///d%3A/highlightjs-jai/src/languages/jai.js#26230
 	LATER: Deprecated, will go away sometime in favour of:
 
-#42	file:///d%3A/highlightjs-jai/src/languages/jai.js#26620
+#55	file:///d%3A/highlightjs-jai/src/languages/jai.js#26674
 	FIXME: polymorph
 
-#43	file:///d%3A/highlightjs-jai/src/languages/jai.js#26626
+#56	file:///d%3A/highlightjs-jai/src/languages/jai.js#26680
 	FIXME: polymorph tail...
 
-#44	file:///d%3A/highlightjs-jai/src/languages/jai.js#26637
+#57	file:///d%3A/highlightjs-jai/src/languages/jai.js#26691
 	FIXME: polymorph
 
-#45	file:///d%3A/highlightjs-jai/src/languages/jai.js#26643
+#58	file:///d%3A/highlightjs-jai/src/languages/jai.js#26697
 	FIXME: polymorph tail...
 
-#46	file:///d%3A/highlightjs-jai/src/languages/jai.js#26675
+#59	file:///d%3A/highlightjs-jai/src/languages/jai.js#26729
 	NOTE: can't be a polymorph, but //FIXME: that a type can contain a baked polymorphic param...
 
-#47	file:///d%3A/highlightjs-jai/src/languages/jai.js#26808
+#60	file:///d%3A/highlightjs-jai/src/languages/jai.js#26863
 	FIXME: polymorph
 
-#48	file:///d%3A/highlightjs-jai/src/languages/jai.js#26811
+#61	file:///d%3A/highlightjs-jai/src/languages/jai.js#26866
 	NOTE: can't be a polymorph on that side of the =.
 
-#49	file:///d%3A/highlightjs-jai/src/languages/jai.js#26814
+#62	file:///d%3A/highlightjs-jai/src/languages/jai.js#26869
 	FIXME: polymorph tail...
 
-#50	file:///d%3A/highlightjs-jai/src/languages/jai.js#26877
-	LATER: drop deprecated `#system_library` variant when it gets removed.
-
-#51	file:///d%3A/highlightjs-jai/src/languages/jai.js#26921
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#52	file:///d%3A/highlightjs-jai/src/languages/jai.js#26935
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#53	file:///d%3A/highlightjs-jai/src/languages/jai.js#26948
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#54	file:///d%3A/highlightjs-jai/src/languages/jai.js#27258
+#66	file:///d%3A/highlightjs-jai/src/languages/jai.js#27338
 	FIXME: polymorph; starts trick...
 
-#55	file:///d%3A/highlightjs-jai/src/languages/jai.js#27520
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#56	file:///d%3A/highlightjs-jai/src/languages/jai.js#27576
+#68	file:///d%3A/highlightjs-jai/src/languages/jai.js#27672
 	FIXME: polymorph
 
-#57	file:///d%3A/highlightjs-jai/src/languages/jai.js#27611
+#69	file:///d%3A/highlightjs-jai/src/languages/jai.js#27707
 	FIXME: polymorph
 
-#58	file:///d%3A/highlightjs-jai/src/languages/jai.js#27747
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#59	file:///d%3A/highlightjs-jai/src/languages/jai.js#27753
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#60	file:///d%3A/highlightjs-jai/src/languages/jai.js#27760
+#72	file:///d%3A/highlightjs-jai/src/languages/jai.js#27861
 	LATER: drop deprecated `#system_library` variant when it gets removed.
 
-#61	file:///d%3A/highlightjs-jai/src/languages/jai.js#27842
-	HACK: but turns out I didn't need it.
-
-#62	file:///d%3A/highlightjs-jai/src/languages/jai.js#27896
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#63	file:///d%3A/highlightjs-jai/src/languages/jai.js#27921
+#75	file:///d%3A/highlightjs-jai/src/languages/jai.js#28028
 	NOTE: Save slice *before* unshift to avoid circular references.
-
-#64	file:///d%3A/highlightjs-jai/src/languages/jai.js#27968
-	HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-
-#75	file:///d%3A/highlightjs-jai/generateStdLib.jai#50
-	NOTE: this will exclude things where the #import has a subpath, like Android/GLES, on purpose, to cut down on noise.
-
-#76	file:///d%3A/highlightjs-jai/generateStdLib.jai#51
-	TEST: make sure things like Basic/whatever still get included!
-
-#77	file:///d%3A/highlightjs-jai/generateStdLib.jai#386
-	QUESTION: is it safe toignore other preprocessor directives?
