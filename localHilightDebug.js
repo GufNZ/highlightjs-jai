@@ -63,11 +63,43 @@ function _sel(start, len) {
 	sel.removeAllRanges();
 	sel.addRange(range);
 
-	range.startContainer.parentElement?.scrollIntoView({
-		block: "center",
-		inline: "center",
-		behavior: "smooth"
-	});
+	_scrollRangeIntoView(range);
+}
+
+// Centre `range` in every scrollable ancestor (including the window).
+// Walks inside-out; predicts each scroll's effect on the rect so outer containers see the post-scroll position.
+// Needed because on these debug pages the scrollbar is often on an inner element (e.g. <code>) rather than the document root, so plain `window.scrollTo` does nothing.
+function _scrollRangeIntoView(range) {
+	let rect = range.getBoundingClientRect();
+	let el = range.startContainer.nodeType === Node.ELEMENT_NODE
+		? range.startContainer
+		: range.startContainer.parentElement;
+	while (el) {
+		const isRoot = el === document.documentElement;
+		const style = getComputedStyle(el);
+		// documentElement scrolls the window regardless of computed overflow.
+		const overflowOK = isRoot || /(auto|scroll|overlay)/.test(style.overflowX + style.overflowY);
+		if (overflowOK) {
+			const cw = isRoot ? window.innerWidth  : el.clientWidth;
+			const ch = isRoot ? window.innerHeight : el.clientHeight;
+			const canX = el.scrollWidth  > cw;
+			const canY = el.scrollHeight > ch;
+			if (canX || canY) {
+				const cRect = isRoot ? { left: 0, top: 0 } : el.getBoundingClientRect();
+				const wantDx = canX ? (rect.left + rect.width  / 2) - (cRect.left + cw / 2) : 0;
+				const wantDy = canY ? (rect.top  + rect.height / 2) - (cRect.top  + ch / 2) : 0;
+				// Clamp to what the container can actually scroll, so the rect prediction below matches reality.
+				const sx = isRoot ? window.scrollX : el.scrollLeft;
+				const sy = isRoot ? window.scrollY : el.scrollTop;
+				const dx = Math.max(-sx, Math.min(el.scrollWidth  - cw - sx, wantDx));
+				const dy = Math.max(-sy, Math.min(el.scrollHeight - ch - sy, wantDy));
+				(isRoot ? window : el).scrollBy({ left: dx, top: dy, behavior: "smooth" });
+				// Predict the post-scroll rect for the next outer container.
+				rect = new DOMRect(rect.left - dx, rect.top - dy, rect.width, rect.height);
+			}
+		}
+		el = el.parentElement;
+	}
 }
 /*!
 	Highlight.js v11.11.1 (git: 08cb242e7d)

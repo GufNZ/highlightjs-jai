@@ -884,6 +884,12 @@
 		'built_in.stdLib.Check': [
 			'do_error_checking',
 			'finish_error_checking',
+			'check_print_calls',
+			'is_printlike_or_scanlike',
+			'is_printlike',
+			'validate_printlike',
+			'get_argument_indices_of_format_string_and_varargs',
+			'count_percents',
 		],
 		'variable.stdLib.Check.moduleParam': [
 			'CHECK_BINDINGS',
@@ -1827,7 +1833,6 @@
 			'GLX_EXT_swap_control_tear',
 		],
 		'variable.stdLib.GL.constant': [
-			'gl_lib',
 			'GLfloat',
 			'GLclampf',
 			'GLDEBUGPROCKHR',
@@ -5289,7 +5294,6 @@
 			'MOJOSHADER_glProgram',
 		],
 		'variable.stdLib.MojoShader.constant': [
-			'libmojoshader',
 			'MOJOSHADER_TYPE_UNKNOWN',
 			'MOJOSHADER_TYPE_PIXEL',
 			'MOJOSHADER_TYPE_VERTEX',
@@ -10071,9 +10075,6 @@
 			'CurrentProcess',
 		],
 		'variable.stdLib.Runtime_Support_Crash_Handler.constant': [
-			'DbgHelp',
-			'kernel32',
-			'libc',
 			'SA_RESTART_ONSTACK_SIGINFO',
 			'SIGBUS',
 			'x64_exception_state64_t_STUB',
@@ -11215,7 +11216,6 @@
 			'SDL_CONTROLLER_BUTTON_DPAD_LEFT',
 			'SDL_CONTROLLER_BUTTON_DPAD_RIGHT',
 			'SDL_CONTROLLER_BUTTON_MAX',
-			'SDL2',
 		],
 		'built_in.stdLib.SIMD': [
 			'set',
@@ -25972,5 +25972,5 @@
 			'XXH_VERSION_MINOR',
 			'XXH_VERSION_RELEASE',
 		],
-	}
+	};
 	/* :End generated content. */

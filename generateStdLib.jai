@@ -9,6 +9,12 @@ Mod :: struct {
 
 JAI_VERSION :: #run compiler_get_version_info(null);
 
+MODULES_TO_EXCLUDE :: string.[
+	"Bucket_Allocator",
+	"AST_Utils",
+	"Units"
+];
+
 main :: () {
 	result, raw_path, err := run_command("where.exe", "jai.exe", capture_and_return_output=true);
 	path_overwrite_separators(raw_path, #char "/");
@@ -200,9 +206,11 @@ ModuleParams :: enum {
 };
 
 parseModule :: (path: string, name: string, mod: *Mod) -> bool {
-	if ends_with(path, "Bucket_Allocator/module.jai") || ends_with(path, "AST_Utils.jai") {
-		print(" ! Skipping non-stdLib module %.\n", path, to_standard_error=true);
-		return false;
+	for MODULES_TO_EXCLUDE {
+		if name == it {
+			print(" ! Skipping excluded module %.\n", name, to_standard_error=true);
+			return false;
+		}
 	}
 
 
@@ -490,6 +498,22 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								namespace.count = find_index_from_left(namespace, #char ".");
 								if array_find(mod.namespaces, namespace) {
 									print("    #Skipping assign from namespaced import % :: %\n", proc, line, to_standard_error=true);
+									break;
+								}
+
+
+								// Skip #foreign / #library declarations (optionally preceded by a "..." string literal).
+								rest := line;
+								if rest.count && rest[0] == #char "\"" {
+									advance(*rest);
+									endQuote := find_index_from_left(rest, #char "\"");	// Assumes name mangling will never include a '"'.
+									if endQuote > -1 {
+										advance(*rest, endQuote + 1);
+										rest = eat_spaces(rest);
+									}
+								}
+								if starts_with(rest, "#foreign") || starts_with(rest, "#library") {
+									print("    -Skipping foreign/library % :: %\n", proc, line, to_standard_error=true);
 									break;
 								}
 

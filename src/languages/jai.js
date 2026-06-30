@@ -1029,6 +1029,12 @@ function jai(hljs) {
 		'built_in.stdLib.Check': [
 			'do_error_checking',
 			'finish_error_checking',
+			'check_print_calls',
+			'is_printlike_or_scanlike',
+			'is_printlike',
+			'validate_printlike',
+			'get_argument_indices_of_format_string_and_varargs',
+			'count_percents',
 		],
 		'variable.stdLib.Check.moduleParam': [
 			'CHECK_BINDINGS',
@@ -1972,7 +1978,6 @@ function jai(hljs) {
 			'GLX_EXT_swap_control_tear',
 		],
 		'variable.stdLib.GL.constant': [
-			'gl_lib',
 			'GLfloat',
 			'GLclampf',
 			'GLDEBUGPROCKHR',
@@ -5434,7 +5439,6 @@ function jai(hljs) {
 			'MOJOSHADER_glProgram',
 		],
 		'variable.stdLib.MojoShader.constant': [
-			'libmojoshader',
 			'MOJOSHADER_TYPE_UNKNOWN',
 			'MOJOSHADER_TYPE_PIXEL',
 			'MOJOSHADER_TYPE_VERTEX',
@@ -10216,9 +10220,6 @@ function jai(hljs) {
 			'CurrentProcess',
 		],
 		'variable.stdLib.Runtime_Support_Crash_Handler.constant': [
-			'DbgHelp',
-			'kernel32',
-			'libc',
 			'SA_RESTART_ONSTACK_SIGINFO',
 			'SIGBUS',
 			'x64_exception_state64_t_STUB',
@@ -11360,7 +11361,6 @@ function jai(hljs) {
 			'SDL_CONTROLLER_BUTTON_DPAD_LEFT',
 			'SDL_CONTROLLER_BUTTON_DPAD_RIGHT',
 			'SDL_CONTROLLER_BUTTON_MAX',
-			'SDL2',
 		],
 		'built_in.stdLib.SIMD': [
 			'set',
@@ -27419,29 +27419,33 @@ function jai(hljs) {
 		begin: /(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)(?=\()/,
 		keywords: keywordsExceptStdLib,
 		contains: [
-			..._COMMON_EXCEPT_STRING,
-			{
-				...STRING,
-				contains: [
-					...STRING.contains,
+			// Whole argument list: balanced `(...)`. When the matching outer `)` is consumed, `endsParent` closes PRINTLIKE so the scope only covers the one call - not everything through the next `;` (which would swallow sibling calls in e.g. `string.[tprint(...), tprint(...)]`).
+			balancedParen(
+				[
 					{
-						scope: 'subst',
-						begin: /%\d*/
-					}
-				]
-			},
-			{
-				...HERESTRING,
-				contains: [
+						...STRING,
+						contains: [
+							...STRING.contains,
+							{
+								scope: 'subst',
+								begin: /%\d*/
+							}
+						]
+					},
 					{
-						scope: 'subst',
-						begin: /%\d*/
-					}
-				]
-			}
-		],
-		end: /;/,
-		returnEnd: true
+						...HERESTRING,
+						contains: [
+							{
+								scope: 'subst',
+								begin: /%\d*/
+							}
+						]
+					},
+					..._COMMON_EXCEPT_STRING,
+				],
+				{ keywords: keywordsExceptStdLib, endsParent: true }
+			)
+		]
 	};
 
 	/** @type {import('highlight.js').Mode[]} */

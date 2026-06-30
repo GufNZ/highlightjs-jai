@@ -441,13 +441,17 @@ function debugInit(langName = 'jai', lang) {
 	//  in which case timing it here would only measure the listener registration.
 	// Wait for the DOM ourselves so we can time the actual matching work:
 	const run = () => {
-		console.time('hilight');
-		hljs.highlightAll();//Element(document.getElementById('it').firstChild);
-		console.timeEnd('hilight');
+		try {
+			console.time('hilight');
+			hljs.highlightAll();//Element(document.getElementById('it').firstChild);
+			console.timeEnd('hilight');
 
-		console.time('applyDebugInfo');
-		applyDebugInfo();
-		console.timeEnd('applyDebugInfo');
+			console.time('applyDebugInfo');
+			applyDebugInfo();
+			console.timeEnd('applyDebugInfo');
+		} catch (e) {
+			alert(/** @type {Error} */(e).message);
+		}
 	};
 
 	if (document.readyState === 'loading') {
@@ -458,23 +462,23 @@ function debugInit(langName = 'jai', lang) {
 }
 
 //Breakpoints:
-/* localHilightDebug.js:291		[cond]		result._id==breakAtNodeId
+/* localHilightDebug.js:324		[cond]		result._id==breakAtNodeId
 		const result = { _id: _nodeID++, children: [] };
 ?>		Object.assign(result, opts);
 		return result;
 */
-/* localHilightDebug.js:1298 	(disabled)		collect this.matcherRE.source ~= /!\\n/!\n/g;
+/* localHilightDebug.js:1330 	(disabled)		collect this.matcherRE.source ~= /!\\n/!\n/g;
 				this.matcherRe.lastIndex = this.lastIndex;
 [>]				const match = this.matcherRe.exec(s);
 				if (!match) { return null; }
 */
-/* localHilightDebug.js:1867	[cond]		console.log({keyword:match[0], cssClass}), !(skip-1)
+/* localHilightDebug.js:1899	[cond]		console.log({keyword:match[0], cssClass}), !(skip-1)
 							const cssClass = language.classNameAliases[kind] || kind;
 ?>							emitKeyword(match[0], cssClass);
 						}
 */
-// localHilightDebug.js:2237	[log]		`step ${step++}`
-/* localHilightDebug.js:2238	[cond]		skip&&!--skip
+// localHilightDebug.js:2269	[log]		`step ${step++}`
+/* localHilightDebug.js:2270	[cond]		skip&&!--skip
 						if (!match) break;
 ->_sel(match.index, Math.max(1, match[0].length));console.log(matchMode(match, top.matcher));
 ?>						const beforeMatch = codeToHighlight.substring(index, match.index);
