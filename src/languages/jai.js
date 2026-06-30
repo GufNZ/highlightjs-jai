@@ -26677,7 +26677,10 @@ function jai(hljs) {
 		begin: [
 			/(?<=:)/,
 			skipWSAndCommentsREFn(),
-			identifierREFn()//FIXME: polymorph tail...
+			// Exclude the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression
+			//  (their begins are anchored on `\bstruct\b`/`\benum\b`; without this exclusion VAR_TYPE consumes them first because it starts matching at the position just-after-`:`,
+			//  which is earlier than the keyword position itself - hl.js' leftmost-match-wins rule then locks out the declaration modes regardless of contains ordering).
+			`(?!(?:struct|union|enum(?:_flags)?)\\b)${identifierREFn()}`//FIXME: polymorph tail...
 		],
 		beginScope: {
 			2: 'comment',
@@ -27833,27 +27836,40 @@ function jai(hljs) {
 	const STRUCT_TYPE_DECLARATION = {
 		scope: 'type.struct.declaration',
 		begin: /\bstruct\b/,
+		returnBegin: true,
 		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
 			DIRECTIVE,
-			{
-				begin: /\(/,
-				returnBegin: true,
-				starts: balancedParen(
-					[
-						PARAM('property', true),
-						SEMICOLON,
-						...COMMENTS
-					],
-					{
-						keywords,
-						end: /(?<=})|(?<!\n)^/,		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
-						endsParent: true
-					}
-				)
-			},
+			// Optional polymorphic-parameter list, e.g. `struct (T: Type, N: s64 = 3)`.
+			// Lives BEFORE the body brace; once the body sub-mode (below) opens, this
+			// rule is out of scope, so any `(` inside field types/defaults can't be
+			// mistaken for another poly-arg list.
+			balancedParen(
+				[
+					PARAM('params', false),
+					COMMA,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS,
+				],
+				{ keywords }
+			),
+			// Struct body - `{ field: type; field := default; CONST :: value; ... }`.
+			// PARAM('property', true) handles each field/const declaration; the
+			// balancedBrace nests properly for any inner braced expressions in
+			// default values.
+			balancedBrace(
+				[
+					PARAM('property', true),
+					SEMICOLON,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS,
+				],
+				{ keywords, endsParent: true }
+			),
 		],
 		end: /(?<=})|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
 	};
