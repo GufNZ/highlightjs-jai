@@ -138,11 +138,14 @@
 	--asm-directive-flags-comma-fg: #FFF;
 	--asm-directive-flag-fg: #6C6;
 
-	/*//FIXME: now these can be more specific, style them independently...*/
 	--libraryReference-fg: #8C0;
 	--libraryReference-decoration: dashed underline #8C0;
-	--external-declaration-fg: #0C8;
-	--external-declaration-decoration: dashed underline #0C8;
+	--external-declaration-library-fg: #8C0;
+	--external-declaration-library-decoration: dashed underline #8C0;
+	--external-declaration-elsewhere-fg: #88C;
+	--external-declaration-elsewhere-decoration: dashed underline #88C;
+	--external-declaration-foreign-fg: #0C8;
+	--external-declaration-foreign-decoration: dashed underline #0C8;
 
 	--asm-bg: #222;
 	--asm-comma-bg: #222;
@@ -982,6 +985,14 @@
 			font-weight: var(--operator-math-unaryNegate-weight, var(--operator-math-weight, var(--operator-weight, --default-weight)));
 			text-decoration: var(--operator-math-unaryNegate-decoration, var(--operator-math-decoration, var(--operator-decoration, --default-decoration)));
 		}
+	}
+
+	&.pointerTo_ {
+		color: var(--operator-pointerTo-fg, var(--operator-fg, --default-fg));
+		background-color: var(--operator-pointerTo-bg, var(--operator-bg, --default-bg));
+		font-style: var(--operator-pointerTo-style, var(--operator-style, --default-style));
+		font-weight: var(--operator-pointerTo-weight, var(--operator-weight, --default-weight));
+		text-decoration: var(--operator-pointerTo-decoration, var(--operator-decoration, --default-decoration));
 	}
 
 	&.pinRegister_ {

@@ -987,6 +987,14 @@
 		}
 	}
 
+	&.pointerTo_ {
+		color: var(--operator-pointerTo-fg, var(--operator-fg, --default-fg));
+		background-color: var(--operator-pointerTo-bg, var(--operator-bg, --default-bg));
+		font-style: var(--operator-pointerTo-style, var(--operator-style, --default-style));
+		font-weight: var(--operator-pointerTo-weight, var(--operator-weight, --default-weight));
+		text-decoration: var(--operator-pointerTo-decoration, var(--operator-decoration, --default-decoration));
+	}
+
 	&.pinRegister_ {
 		color: var(--operator-pinRegister-fg, var(--operator-fg, --default-fg));
 		background-color: var(--operator-pinRegister-bg, var(--operator-bg, --default-bg));

@@ -208,6 +208,7 @@ operator.logical
 operator.math
 operator.math.unaryNegate
 operator.pinRegister
+operator.pointerTo
 operator.quickLambda
 operator.range
 operator.returns
@@ -432,11 +433,9 @@ variable.stdLib.Default_Metaprogram
 variable.stdLib.Default_Metaprogram.constant
 variable.stdLib.File
 variable.stdLib.File.constant
-variable.stdLib.File_Utilities.constant
 variable.stdLib.File_Watcher.constant
 variable.stdLib.Flat_Pool.constant
 variable.stdLib.Flat_Pool.moduleParam
-variable.stdLib.Float16.constant
 variable.stdLib.GL
 variable.stdLib.GL.constant
 variable.stdLib.GL.moduleParam
@@ -526,13 +525,11 @@ variable.stdLib.Windows_Registry.constant
 variable.stdLib.Windows_Resources
 variable.stdLib.X11
 variable.stdLib.X11.constant
-variable.stdLib.Xar.constant
 variable.stdLib.d3d11.constant
 variable.stdLib.d3d11.programParam
 variable.stdLib.d3d12.constant
 variable.stdLib.d3d12.programParam
 variable.stdLib.d3d_compiler.constant
-variable.stdLib.debug_info.constant
 variable.stdLib.dxc_compiler
 variable.stdLib.dxc_compiler.constant
 variable.stdLib.dxc_compiler.programParam

@@ -117,6 +117,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--operator-logical`|All logical operators (`!`, `&&`, `||`).|`--operator`=>`--default`|
 |`--operator-math`|All math binary operators (`+`, `-`, `*`, `/`, `%`).|`--operator`=>`--default`|
 |`--operator-math-unaryNegate`|The unary `-` in front of a numeric literal.|`--operator-math`=>`--operator`=>`--default`|
+|`--operator-pointerTo`|`*` when used at the start of a type name.|`--operator`=>`--default`|
 |`--operator-quickLambda`|The `=>` operator.|`--operator`=>`--default`|
 |`--operator-range`|The `..` operator.|`--operator`=>`--default`|
 |`--operator-returns`|The `->` operator.|`--operator`=>`--default`|
@@ -402,29 +403,30 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-operator`|All operators.|
 |`.hljs-operator.assign_`|Assignment operators.|
-|`.hljs-operator.bake_`|`$`.|
 |`.hljs-operator.autobake_`|`$$`.|
-|`.hljs-operator.backtick_`|Parent-scope indicator in macros.|
-|`.hljs-operator.comparison_`|Comparison operators.|
-|`.hljs-operator.logical_`|Logical operators.|
-|`.hljs-operator.math_`|Math operators.|
-|`.hljs-operator.math_.unaryNegate__`|The unary `-`.|
 |`.hljs-operator.bitwise_`|Bitwise operators.|
-|`.hljs-operator.shift_`|Bit-shift operators.|
-|`.hljs-operator.shift_.modifier__`|Shift operator modifiers, e.g. `,small`.|
-|`.hljs-operator.rotate_`|Bit-rotate operators.|
+|`.hljs-operator.bake_`|`$`.|
+|`.hljs-operator.backtick_`|Parent-scope indicator in macros.|
+|`.hljs-operator.cast_.v3__`|`.(`...`)`.|
+|`.hljs-operator.comparison_`|Comparison operators.|
 |`.hljs-operator.define_`|`:`.|
 |`.hljs-operator.define_.assign__`|`:=`.|
 |`.hljs-operator.define_.constant__`|`::`.|
-|`.hljs-operator.uninitialised_`|`---`.|
-|`.hljs-operator.dot_`|`.`.|
 |`.hljs-operator.dereference_`|`.*`.|
-|`.hljs-operator.cast_.v3__`|`.(`...`)`.|
-|`.hljs-operator.pinRegister_`|`===` in `#asm` code.|
-|`.hljs-operator.quickLambda_`|`=>`|
-|`.hljs-operator.returns_`|`->`|
-|`.hljs-operator.range_`|`..` - Range or spread.|
+|`.hljs-operator.dot_`|`.`.|
 |`.hljs-operator.hash_.directive__`|`#` - The start of a directive.|
+|`.hljs-operator.logical_`|Logical operators.|
+|`.hljs-operator.math_`|Math operators.|
+|`.hljs-operator.math_.unaryNegate__`|The unary `-`.|
+|`.hljs-operator.pinRegister_`|`===` in `#asm` code.|
+|`.hljs-operator.pointerTo_`|`*` when preceeding a type name.|
+|`.hljs-operator.quickLambda_`|`=>`|
+|`.hljs-operator.range_`|`..` - Range or spread.|
+|`.hljs-operator.returns_`|`->`|
+|`.hljs-operator.rotate_`|Bit-rotate operators.|
+|`.hljs-operator.shift_`|Bit-shift operators.|
+|`.hljs-operator.shift_.modifier__`|Shift operator modifiers, e.g. `,small`.|
+|`.hljs-operator.uninitialised_`|`---`.|
 
 ### Punctuation
 | CSS class | Definition |

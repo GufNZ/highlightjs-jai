@@ -2,9 +2,20 @@ Mod :: struct {
 	vars: [..]string;
 	types: [..]string;
 	procs: [..]string;
-	const: [..]string;
+	const: [..]ConstDecl;
 	special: [..]string;
 	namespaces: [..]string;
+	privateProcs: [..]string;	// Procs declared in #scope_module / #scope_file. Not emitted, only used by the constants post-pass to resolve aliases like `visit_files :: posix_visit_files;`.
+}
+
+ConstDecl :: struct {
+	name:  string;
+	value: string;	// First identifier of the RHS.  Used by the post-pass to reclassify aliases as procs.
+}
+
+addConst :: (mod: *Mod, name: string, value: string) {
+	for mod.const  if it.name == name  return;
+	array_add(*mod.const, .{name = name, value = value});
 }
 
 JAI_VERSION :: #run compiler_get_version_info(null);
@@ -79,10 +90,13 @@ main :: () {
 				array_add_if_unique(*mod.vars, it);
 			}
 			for subMod.const {
-				array_add_if_unique(*mod.const, it);
+				addConst(mod, it.name, it.value);
 			}
 			for subMod.special {
 				mergeSpecials(mod, it);
+			}
+			for subMod.privateProcs {
+				array_add_if_unique(*mod.privateProcs, it);
 			}
 		} else {
 			print("  !Skipping file '%'\n", path, to_standard_error=true);
@@ -94,6 +108,43 @@ main :: () {
 		array_add(*keys, it_index);
 	}
 	quick_sort(keys, compare_strings);
+
+	// Post-pass: reclassify constants whose value refers to a known proc.
+	// This fixes aliases like `visit_files :: posix_visit_files;` where the RHS is a private
+	//  (or otherwise deferred) proc that we didn't recognize at parse time.
+	for * mod: table {
+		i := 0;
+		while i < mod.const.count {
+			c := mod.const[i];
+			if !c.value {
+				i += 1;
+				continue;
+			}
+
+
+			isProc := false;
+			for mod.procs {
+				if it == c.value {
+					isProc = true;
+					break;
+				}
+			}
+
+			if !isProc  for mod.privateProcs {
+				if it == c.value {
+					isProc = true;
+					break;
+				}
+			}
+
+			if isProc {
+				array_add_if_unique(*mod.procs, c.name);
+				array_unordered_remove_by_index(*mod.const, i);
+			} else {
+				i += 1;
+			}
+		}
+	}
 
 	for keys {
 		name := it;
@@ -122,7 +173,7 @@ main :: () {
 		if mod.const.count {
 			print("\t\t'variable.stdLib.%.constant': [\n", name);
 			for mod.const {
-				print("\t\t\t'%',\n", it);
+				print("\t\t\t'%',\n", it.name);
 			}
 			print("\t\t],\n");
 		}
@@ -369,10 +420,13 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								array_add_if_unique(*mod.vars, it);
 							}
 							for subMod.const {
-								array_add_if_unique(*mod.const, it);
+								addConst(mod, it.name, it.value);
 							}
 							for subMod.special {
 								mergeSpecials(mod, it);
+							}
+							for subMod.privateProcs {
+								array_add_if_unique(*mod.privateProcs, it);
 							}
 						} else {
 							print("  !Skipping file '%'\n", file, to_standard_error=true);
@@ -442,8 +496,8 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 
 			if line[index] == ":" {
-				if commentDepth || !public {
-					// inside a block comment or non-public scope, ignore.
+				if commentDepth {
+					// inside a block comment, ignore.
 					advance(*line, index + 1);
 					continue;
 				}
@@ -476,14 +530,22 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 							line = eat_spaces(line);
 							isProc := line[0] == #char "(" || starts_with(line, "inline") || starts_with(line, "no_inline");
 							if isProc {
-								if proc == "get_plugin" && name != "Program_Print" {
+								if public && proc == "get_plugin" && name != "Program_Print" {
 									print("    <Skipping plugin %\n", name, to_standard_error=true);
 									return false;
 								}
 
 								if !(proc == "main" || proc == "for_expansion") {
-									array_add_if_unique(*mod.procs, proc);
+									if public {
+										array_add_if_unique(*mod.procs, proc);
+									} else {
+										// Track private procs so the const post-pass can resolve aliases like `visit_files :: posix_visit_files;`.
+										array_add_if_unique(*mod.privateProcs, proc);
+									}
 								}
+							} else if !public {
+								// For non-proc private decls we still want to bail out; we only track private procs for alias resolution.
+								break;
 							} else if starts_with(line, "struct") || starts_with(line, "enum") || isPrimative(line) || starts_with(line, "#type") {
 								array_add_if_unique(*mod.types, proc);
 
@@ -525,7 +587,9 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 								if array_find(mod.procs, alias) {
 									array_add_if_unique(*mod.procs, proc);
 								} else {
-									array_add_if_unique(*mod.const, proc);
+									// Store both the constant's name and the first identifier of its value so the
+									// post-pass in main() can reclassify it as a proc if the value later resolves.
+									addConst(mod, proc, alias);
 								}
 
 								i := find_index_from_left(line, "#string");
@@ -543,6 +607,9 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 							break;
 						}
 					} else if find_index_from_left(line, #char "=") > -1 {
+						if !public  break;
+
+
 						found, var := split_from_left_by_any(line, " \t:");
 						if found && var {
 							array_add_if_unique(*mod.vars, var);
@@ -551,6 +618,9 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 							advance(*line, index + 2);
 						}
 					} else if find_index_from_left(line, #char ":") > -1 {
+						if !public  break;
+
+
 						found, var := split_from_left_by_any(line, " \t:");
 						if found && var {
 							array_add_if_unique(*mod.vars, var);

@@ -94,6 +94,7 @@ operator.logical_
 operator.math_
 operator.math_.unaryNegate__
 operator.pinRegister_
+operator.pointerTo_
 operator.quickLambda_
 operator.range_
 operator.returns_
