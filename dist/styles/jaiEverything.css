@@ -639,6 +639,14 @@
 			text-decoration: var(--directive-import-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
 		}
 
+		&.insert__ {
+			color: var(--directive-insert-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
+			background-color: var(--directive-insert-bg, var(--directive-bg, var(--meta-bg, --default-bg)));
+			font-style: var(--directive-insert-style, var(--directive-style, var(--meta-style, --default-style)));
+			font-weight: var(--directive-insert-weight, var(--directive-weight, var(--meta-weight, --default-weight)));
+			text-decoration: var(--directive-insert-decoration, var(--directive-decoration, var(--meta-decoration, --default-decoration)));
+		}
+
 		&.load__ {
 			color: var(--directive-load-fg, var(--directive-fg, var(--meta-fg, --default-fg)));
 			background-color: var(--directive-load-bg, var(--directive-bg, var(--meta-bg, --default-bg)));

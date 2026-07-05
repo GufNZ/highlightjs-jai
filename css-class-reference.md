@@ -267,6 +267,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--directive-import`|The `#import` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-load`|The `#load` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
+|`--directive-insert`|The `#insert` directive.|`--directive`=>`--meta`=>`--default`|
 |`--directive-module_parameters`|The `#module_parameters` directive.|`--directive`=>`--meta`=>`--default`|
 |`--module-params-declaration`|Module parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--module-params`=>`--params`=>`--default`|
 |`--program-params-declaration`|Program parameter declarations in the `#module_parameters` directive.|`--declaration`=>`--program-params`=>`--params`=>`--default`|
@@ -560,6 +561,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-string.path_.load__`|The file-path in the load directive.|
 |||
 |`.hljs-meta.directive_.import__`|Import directives.|
+|`.hljs-meta.directive_.insert__`|Insert directives.|
 |`.hljs-string.path_.import__`|The module name or path in import directives.|
 |`.hljd-params`|All `#import` or `#module_parameters` parameters.|
 |`.hljs-params.moduleOrProgram_`|The module or program parameters in either an import directive or the `#module_parameters` directive.|

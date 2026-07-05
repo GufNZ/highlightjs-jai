@@ -168,6 +168,7 @@ meta.directive.asm.flag
 meta.directive.asm.flags
 meta.directive.foreignOrLibrary
 meta.directive.import
+meta.directive.insert
 meta.directive.load
 meta.directive.modifier
 meta.directive.modify
@@ -436,6 +437,7 @@ variable.stdLib.File.constant
 variable.stdLib.File_Watcher.constant
 variable.stdLib.Flat_Pool.constant
 variable.stdLib.Flat_Pool.moduleParam
+variable.stdLib.Float16.moduleParam
 variable.stdLib.GL
 variable.stdLib.GL.constant
 variable.stdLib.GL.moduleParam
@@ -486,7 +488,6 @@ variable.stdLib.Project_Generator
 variable.stdLib.Protocol_For_Memory_Visualization.constant
 variable.stdLib.Random.context
 variable.stdLib.Remap_Context.moduleParam
-variable.stdLib.Rewrite
 variable.stdLib.Runtime_Support
 variable.stdLib.Runtime_Support.constant
 variable.stdLib.Runtime_Support.moduleParam
@@ -506,6 +507,7 @@ variable.stdLib.Sound_Player
 variable.stdLib.Sound_Player.constant
 variable.stdLib.Sound_Player.moduleParam
 variable.stdLib.String.constant
+variable.stdLib.Subtitles
 variable.stdLib.Subtitles.constant
 variable.stdLib.System.constant
 variable.stdLib.Thread.moduleParam

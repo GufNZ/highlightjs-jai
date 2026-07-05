@@ -109,9 +109,18 @@ main :: () {
 	}
 	quick_sort(keys, compare_strings);
 
-	// Post-pass: reclassify constants whose value refers to a known proc.
-	// This fixes aliases like `visit_files :: posix_visit_files;` where the RHS is a private
-	//  (or otherwise deferred) proc that we didn't recognize at parse time.
+	// Final post-pass (runs after every module has been parsed and merged): reclassify constants whose value refers to a known proc.
+	// For each module, we consider that module's own private procs (from #scope_module/#scope_file)
+	//  plus all public procs from every module, since aliases like Atomics'
+	//  `atomic_swap :: atomic_exchange;` reference procs from other modules (Preload, in that case).
+	// Private procs from OTHER modules are intentionally excluded: they're not visible across module boundaries, so an alias can't be resolving to one of them.
+	allPublicProcs: Table(string, bool);
+	for mod: table {
+		for mod.procs {
+			table_set(*allPublicProcs, it, true);
+		}
+	}
+
 	for * mod: table {
 		i := 0;
 		while i < mod.const.count {
@@ -122,18 +131,13 @@ main :: () {
 			}
 
 
-			isProc := false;
-			for mod.procs {
-				if it == c.value {
-					isProc = true;
-					break;
-				}
-			}
-
-			if !isProc  for mod.privateProcs {
-				if it == c.value {
-					isProc = true;
-					break;
+			isProc := table_find(*allPublicProcs, c.value);
+			if !isProc {
+				for mod.privateProcs {
+					if it == c.value {
+						isProc = true;
+						break;
+					}
 				}
 			}
 
