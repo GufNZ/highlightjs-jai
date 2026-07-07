@@ -27,7 +27,7 @@
 	--variable-context-fg: #C43;
 	--variable-context-constant-fg: #CC0;
 
-	--field-fg: #C0C;
+	--field-fg: #C0A;
 	--field-enum-fg: #0AC;
 
 	--builtIn-fg: #80F;
@@ -91,6 +91,7 @@
 
 	--params-fg: #CC0;
 	--paramsList-bg: #400;
+	--returnsList-bg: #004;
 	--module-params-bg: #033;
 	--program-params-bg: #006;
 
@@ -963,6 +964,14 @@
 		text-decoration: var(--operator-dot-decoration, var(--operator-decoration, --default-decoration));
 	}
 
+	&.dynamicArray_ {
+		color: var(--operator-dynamicArray-fg, var(--operator-fg, --default-fg));
+		background-color: var(--operator-dynamicArray-bg, var(--operator-bg, --default-bg));
+		font-style: var(--operator-dynamicArray-style, var(--operator-style, --default-style));
+		font-weight: var(--operator-dynamicArray-weight, var(--operator-weight, --default-weight));
+		text-decoration: var(--operator-dynamicArray-decoration, var(--operator-decoration, --default-decoration));
+	}
+
 	&.hash_.directive__ {
 		color: var(--operator-hash-directive-fg, var(--operator-fg, --default-fg));
 		background-color: var(--operator-hash-directive-bg, var(--operator-bg, --default-bg));
@@ -1137,6 +1146,14 @@
 		font-style: var(--params-returns-style, var(--params-style, --default-style));
 		font-weight: var(--params-returns-weight, var(--params-weight, --default-weight));
 		text-decoration: var(--params-returns-decoration, var(--params-decoration, --default-decoration));
+
+		& > .hljs-_BalancedParens {
+			color: var(--returnsList-fg, var(--params-returns-fg, var(--params-fg, --default-fg)));
+			background-color: var(--returnsList-bg, var(--params-returns-bg, var(--params-bg, --default-bg)));
+			font-style: var(--returnsList-style, var(--params-returns-style, var(--params-style, --default-style)));
+			font-weight: var(--returnsList-weight, var(--params-returns-weight, var(--params-weight, --default-weight)));
+			text-decoration: var(--returnsList-decoration, var(--params-returns-decoration, var(--params-decoration, --default-decoration)));
+		}
 	}
 
 	&.type_ {
@@ -1645,6 +1662,14 @@
 		font-style: var(--type-any-style, var(--type-style, --default-style));
 		font-weight: var(--type-any-weight, var(--type-weight, --default-weight));
 		text-decoration: var(--type-any-decoration, var(--type-decoration, --default-decoration));
+	}
+
+	&.arrayOf_ {
+		color: var(--type-arrayOf-fg, var(--type-fg, --default-fg));
+		background-color: var(--type-arrayOf-bg, var(--type-bg, --default-bg));
+		font-style: var(--type-arrayOf-style, var(--type-style, --default-style));
+		font-weight: var(--type-arrayOf-weight, var(--type-weight, --default-weight));
+		text-decoration: var(--type-arrayOf-decoration, var(--type-decoration, --default-decoration));
 	}
 
 	&.asm_ {

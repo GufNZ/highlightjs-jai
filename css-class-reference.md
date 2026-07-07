@@ -113,6 +113,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--operator-define-constant`|The constant-defining operator `::`.|`--operator-define`=>`--operator`=>`--default`|
 |`--operator-dereference`|The `.*` operator|`--operator`=>`--default`|
 |`--operator-dot`|The `.` operator.|`--operator`=>`--default`|
+|`--operator-dynamicArray`|The `..` operator when used to indicate a dynamic array type.|`--operator`=>`--default`|
 |`--operator-hash-directive`|The `#` operator.|`--operator`=>`--default`|
 |`--operator-logical`|All logical operators (`!`, `&&`, `||`).|`--operator`=>`--default`|
 |`--operator-math`|All math binary operators (`+`, `-`, `*`, `/`, `%`).|`--operator`=>`--default`|
@@ -198,6 +199,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |**Types**|
 |`--type`|All types (PascalCase).|`--default`|
+|`--type-arrayOf`|The array specifier of a type.|`--type`=>`--default`|
 |`--type-declaration`|Type declarations.|`--declaration`=>`--type`=>`--default`|
 |`--type-enum`|All Enum types.|`--type`=>`--default`|
 |`--type-any`|The `Any` type.|`--type`=>`--default`|
@@ -243,6 +245,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--params-default`|The default value for a parameter in the proc signature.|`--params`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
 |`--params-returns`|The list of returns in a proc signature.|`--params`=>`--default`|
+|`--returnsList`|The list of proc returns when `()`s are used.|`--params-returns`=>`--params`=>`--default`|
 |`--params-return`|A return entry.|`--params`=>`--default`|
 |`--params-returnDeclaration`|The name of a return entry.|`--declaration`=>`--params-return`=>`--params`=>`--default`|
 |`--params-returnType`|The type of a return entry.|`--params-return`=>`--params-type`=>`--type`=>`--params`=>`--default`|
@@ -415,6 +418,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-operator.define_.constant__`|`::`.|
 |`.hljs-operator.dereference_`|`.*`.|
 |`.hljs-operator.dot_`|`.`.|
+|`.hljs-operator.dynamicArray_`|`..` when part of an array specifier on a type.|
 |`.hljs-operator.hash_.directive__`|`#` - The start of a directive.|
 |`.hljs-operator.logical_`|Logical operators.|
 |`.hljs-operator.math_`|Math operators.|
@@ -477,6 +481,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-type`|All types (`TitleCase`)|
 |`.hljs-type.declaration_`|A type being defined.|
+|`.hljs-type.arrayOf_`|The array specifier of a type.|
 |`.hljs-type.any_`|The `Any` type.|
 |`.hljs-type.type_`|The `Type` and `Type_Info` types.|
 |`.hljs-type.bool_`|The `bool` type.|

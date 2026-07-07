@@ -204,6 +204,7 @@ operator.define.assign
 operator.define.constant
 operator.dereference
 operator.dot
+operator.dynamicArray
 operator.hash.directive
 operator.logical
 operator.math
@@ -276,6 +277,7 @@ title.libraryProcName
 title.libraryReference
 type
 type.any
+type.arrayOf
 type.asm
 type.baked
 type.bool

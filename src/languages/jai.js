@@ -26363,6 +26363,7 @@ function jai(hljs) {
 	 *   startInside?: boolean;
 	 *   endInside?: boolean;
 	 * }} BalancedOpts */
+
 	/**
 	 * Make a `_Balanced<Pair>s` mode that wraps a pair of delimiters (`()`/`{}`/`[]`) around `contents`.
 	 * Recursive: the mode nests inside itself (via `'self'`) by default, but if `options.endsParent` is set we build a non-`endsParent` clone inline so the outer mode finally closes at the matching `)`/`}`/`]`.
@@ -26735,6 +26736,30 @@ function jai(hljs) {
 		}
 	};
 
+	// Array-type prefix: `[]T`, `[..]T`, `[N]T`, `[CONST]T`, `[SIZES.count]T`, etc.
+	// Only used inside type-position modes (VAR_TYPE, PARAM's `:` sub-mode) so top-level `arr[0]` indexing and `.[1,2,3]` array literals are unaffected.
+	// `contains` is populated in two passes: the atoms defined by this point (COMMENTS, NUMBER) are included inline; the rest (BAKES, CONST_REF, FIELD_REF, CONST, VAR, OPERATOR) are pushed on further down the file once those atoms exist.
+	const ARRAY_TYPE_PREFIX = {
+		scope: 'type.arrayOf',
+		begin: [/\[/],
+		beginScope: { 1: 'punctuation.bracket' },
+		end: [/\]/],
+		endScope: { 1: 'punctuation.bracket' },
+		relevance: 0,
+		keywords,
+		contains: [
+			// `[..]` dynamic/resizable-array marker - a dedicated scope so themes can distinguish it from a range operator.
+			{
+				scope: 'operator.dynamicArray',
+				begin: /\.\./,
+				relevance: 5
+			},
+			...COMMENTS,
+			NUMBER,
+			// Further atoms pushed below once they are defined.
+		]
+	};
+
 	const CONST = {
 		scope: 'variable.constant',
 		relevance: 0,
@@ -26750,45 +26775,66 @@ function jai(hljs) {
 		begin: [
 			/(?<=:)/,
 			skipWSAndCommentsREFn(),
+			// Peek: type expression must start with a pointer `*`, an array-prefix `[`, or a (non-declaration-keyword) identifier.
 			// Exclude the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression
 			//  (their begins are anchored on `\bstruct\b`/`\benum\b`; without this exclusion VAR_TYPE consumes them first because it starts matching at the position just-after-`:`,
 			//  which is earlier than the keyword position itself - hl.js' leftmost-match-wins rule then locks out the declaration modes regardless of contains ordering).
-			`(?!(?:struct|union|enum(?:_flags)?)\\b)${identifierREFn()}`//FIXME: polymorph tail...
+			`(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?)\\b)${identifierREFn(0)})`//FIXME: polymorph tail...
 		],
 		beginScope: {
-			2: 'comment',
-			3: 'type'
+			2: 'comment'
 		},
 		keywords,
-		contains: [ALIGNMENT_WS],
-		end: /(?=\W)/
+		contains: [
+			...COMMENTS,
+			{
+				scope: 'type',
+				// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or an identifier.
+				// Wrapping the whole prefix+identifier in `type` gives themes a single span covering `<arrayOf/pointer>*TypeName`.
+				begin: `(?=\\*|\\[|${identifierREFn(0)})`,
+				keywords,
+				contains: [
+					...COMMENTS,
+					ARRAY_TYPE_PREFIX,
+					{
+						scope: 'operator.pointerTo',
+						begin: /\*+/
+					},
+					{
+						begin: identifierREFn(),
+						returnBegin: true,
+						keywords,
+						contains: [ALIGNMENT_WS],
+						end: /(?=\W)/
+					}
+				],
+				// Close on anything that unambiguously terminates the type expression.
+				// Whitespace, `*`, `[` are kept OUT so the prefix-stack sub-modes can fire across gaps like `[4] *int`.
+				end: /(?=[^\s\w\*\[])/
+			}
+		],
+		// Close on anything that unambiguously terminates the type expression.
+		// Whitespace, `*`, `[` are kept OUT of this class so the prefix stack sub-modes can fire across gaps like `foo: [4] *int`.
+		end: /(?=[^\s\w\*\[])/
 	};
 
 	const TYPE = {//FIXME: polymorph
 		scope: 'type',
 		relevance: 0,
-		// Consume any pointer-prefix `*`s in `begin` so they get their own
-		// sub-scope; a lookahead keeps the identifier itself as mode content
-		// so hl.js' keyword engine can still sub-scope primitives (`int` ->
-		// `type.integer.signed`, etc.) via the shared `keywords` map.
-		// hl.js skips zero-length beginScope groups, so plain `Name` doesn't
-		// emit an empty `operator.pointerTo` span.
+		// Consume any pointer-prefix `*`s in `begin` so they get their own sub-scope;
+		//  a lookahead keeps the identifier itself as mode content so hl.js' keyword engine can still sub-scope primitives (`int` -> `type.integer.signed`, etc.) via the shared `keywords` map.
+		// hl.js skips zero-length beginScope groups, so plain `Name` doesn't emit an empty `operator.pointerTo` span.
 		begin: [
 			/\**/,
 			`(?=${typeIdentifierREFn()})`
 		],
 		beginScope: { 1: 'operator.pointerTo' },
 		keywords,
-		// Polymorph-arg support is added below (once `_COMMON_EXCEPT_STRING`
-		// exists) by pushing a `balancedParen` sub-mode onto `contains`.
-		// It's important that TYPE itself owns those parens so that things
-		// like `Array(int)` count as one TYPE unit - otherwise an enclosing
-		// `balancedParen` (e.g. proc-args, struct-poly-params) would see
-		// the inner `)` first and close prematurely.
+		// Polymorph-arg support is added below (once `_COMMON_EXCEPT_STRING` exists) by pushing a `balancedParen` sub-mode onto `contains`.
+		// It's important that TYPE itself owns those parens so that things like `Array(int)` count as one TYPE unit
+		//  - otherwise an enclosing `balancedParen` (e.g. proc-args, struct-poly-params) would see the inner `)` first and close prematurely.
 		contains: [ALIGNMENT_WS],
-		// `(` is excluded from the end class so the polymorph-arg sub-mode
-		// can fire before TYPE closes; that sub-mode has `endsParent:true`
-		// so TYPE closes with its own matching `)`.
+		// `(` is excluded from the end class so the polymorph-arg sub-mode can fire before TYPE closes; that sub-mode has `endsParent:true` so TYPE closes with its own matching `)`.
 		end: /(?=[^\w(])/
 	};
 
@@ -26850,7 +26896,7 @@ function jai(hljs) {
 	const ENUM_REF = {
 		scope: 'property.constant.enum',
 		relevance: 1,
-		begin: `(?<=^|\\W)\\.${typeIdentifierREFn()}`	//NOTE can't be a polymorph.
+		begin: `(?<=^|\\W)\\.${typeIdentifierREFn()}`	//NOTE: can't be a polymorph.
 	};
 
 	const FIELD_REF = {
@@ -26923,11 +26969,20 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
-	// Placeholder for the `-> ...` returns-list mode used inside _ATOMIC. Populated
-	// further below (after PARAM and PROC_TYPE_RETURNS_LIST exist). Kept as a
-	// shared object reference so late mutation propagates through every array
-	// that spreads _ATOMIC (`_COMMON_EXCEPT_STRING`, etc.), which happens
-	// *before* the object is populated.
+	// Complete ARRAY_TYPE_PREFIX.contains now that BAKES, CONST_REF, FIELD_REF, CONST, VAR, OPERATOR exist.
+	// These cover `[MY_CONST]`, `[SIZES.count]`, `[$T]` (baked poly-arg), `[N+1]`, `[n]` (poly-arg forwarded as size), etc.
+	/** @type {import('highlight.js').Mode[]} */ (ARRAY_TYPE_PREFIX.contains).push(
+		...BAKES,
+		CONST_REF,
+		FIELD_REF,
+		CONST,
+		VAR,
+		OPERATOR
+	);
+
+	// Placeholder for the `-> ...` returns-list mode used inside _ATOMIC.
+	// Populated further below (after PARAM and PROC_TYPE_RETURNS_LIST exist).
+	//  Kept as a shared object reference so late mutation propagates through every array that spreads _ATOMIC (`_COMMON_EXCEPT_STRING`, etc.), which happens *before* the object is populated.
 	/** @type {import('highlight.js').Mode} */
 	const PROC_RETURNS = {};
 
@@ -27077,20 +27132,16 @@ function jai(hljs) {
 		..._ATOMIC
 	];
 
-	// Same as `_COMMON_EXCEPT_STRING` but WITHOUT `FUNCTION_CALL` - used
-	// inside a type's polymorph-arg list, where `identifier(` can only be
-	// another type constructor (poly-args are compile-time, never a call),
-	// so we want TYPE to bind those identifiers, not `FUNCTION_CALL`.
+	// Same as `_COMMON_EXCEPT_STRING` but WITHOUT `FUNCTION_CALL` - used inside a type's polymorph-arg list,
+	//  where `identifier(` can only be another type constructor (poly-args are compile-time, never a call),
+	//  so we want TYPE to bind those identifiers, not `FUNCTION_CALL`.
 	/** @type {import('highlight.js').Mode[]} */
 	const _COMMON_EXCEPT_STRING_AND_FUNCTION_CALL = _COMMON_EXCEPT_STRING.filter(m => m !== FUNCTION_CALL);
 
-	// Extend TYPE (declared much earlier) with polymorph-arg support now
-	// that `_COMMON_EXCEPT_STRING` exists. Uses `balancedParen` so nested
-	// `(...)` groups are counted correctly, and `endsParent:true` closes
-	// the enclosing TYPE at the poly-arg list's own `)` so the whole
-	// `Foo(a, b)` is one TYPE unit. TYPE recurses because it lives in
-	// `_COMMON_EXCEPT_STRING` (via `_ATOMIC`), so `Array(Array(int))` etc.
-	// just work.
+	// Extend TYPE (declared much earlier) with polymorph-arg support now that `_COMMON_EXCEPT_STRING` exists.
+	// Uses `balancedParen` so nested `(...)` groups are counted correctly, and `endsParent:true` closes the enclosing TYPE at the poly-arg list's own `)`
+	//  so the whole `Foo(a, b)` is one TYPE unit.
+	// TYPE recurses because it lives in `_COMMON_EXCEPT_STRING` (via `_ATOMIC`), so `Array(Array(int))` etc. just work.
 	/** @type {import('highlight.js').Mode[]} */ (TYPE.contains).push(
 		balancedParen(_COMMON_EXCEPT_STRING_AND_FUNCTION_CALL, { keywords, endsParent: true })
 	);
@@ -27150,13 +27201,10 @@ function jai(hljs) {
 		}
 	];
 
-	// We don't try to enumerate every x86/AVX/etc. mnemonic; instead the ASM block
-	// recognises the first identifier of each statement as the mnemonic (see ASM_STATEMENT
-	// below).  Only the register-class type names need to be recognised as keywords here,
-	// since they appear in operand position (e.g. `banana: gpr;`).
+	// We don't try to enumerate every x86/AVX/etc. mnemonic; instead the ASM block recognises the first identifier of each statement as the mnemonic (see ASM_STATEMENT below).
+	// Only the register-class type names need to be recognised as keywords here, since they appear in operand position (e.g. `banana: gpr;`).
 	//
-	// The featureSet *flags* used to guard `#asm - FPU, AVX2 { ... }` are still enumerated
-	// in the `meta.directive.asm.flags` rule on the ASM mode itself.
+	// The featureSet *flags* used to guard `#asm - FPU, AVX2 { ... }` are still enumerated in the `meta.directive.asm.flags` rule on the ASM mode itself.
 	const asmKeywords = {
 		"type.asm": [
 			"gpr",
@@ -27658,12 +27706,9 @@ function jai(hljs) {
 	};
 
 	// `#insert` directive. Two common forms:
-	//   1. `#insert some_expression;`  (expression-form, ends at `;`)
-	//   2. `#insert -> ReturnType { lambda body }`  (compile-time lambda form,
-	//      may or may not be followed by `();` for immediate invocation)
-	// The lambda body is real Jai code (locals, control flow, print calls,
-	// strings, etc.), so its `{...}` needs statement-level content - NOT the
-	// struct-field content of an enclosing struct declaration.
+	//   1. `#insert some_expression;`  (expression-form, ends at `;`).
+	//   2. `#insert -> ReturnType { lambda body }` (compile-time lambda form, may or may not be followed by `();` for immediate invocation).
+	// The lambda body is real Jai code (locals, control flow, print calls, strings, etc.), so its `{...}` needs statement-level content - NOT the struct-field content of an enclosing struct declaration.
 	const INSERT_DIRECTIVE = {
 		scope: 'meta.directive.insert',
 		relevance: 7,
@@ -27690,10 +27735,8 @@ function jai(hljs) {
 				],
 				end: /(?=\{|;)/
 			},
-			// Lambda body - statement-level content. `endsParent: true` closes
-			// INSERT_DIRECTIVE as soon as the matching `}` is consumed, so any
-			// trailing `();` (for immediate invocation) is left to the outer
-			// context to parse as a normal function call.
+			// Lambda body - statement-level content. `endsParent: true` closes INSERT_DIRECTIVE as soon as the matching `}` is consumed, so any trailing `();`
+			//  (for immediate invocation) is left to the outer context to parse as a normal function call.
 			balancedBrace(
 				[..._COMMON_EXCEPT_DIRECTIVES, IMPORT_DIRECTIVE, LOAD_DIRECTIVE, MODIFY_DIRECTIVE, DIRECTIVE, SEMICOLON],
 				{ endsParent: true }
@@ -27785,11 +27828,9 @@ function jai(hljs) {
 	];
 
 	/**
-	 * Build a `params`-style mode for a single parameter slot. `kind` is the scope
-	 * prefix (e.g. `'params'`, `'property'`). With `includeConsts === true` the
-	 * result also recognises top-level `::` constant declarations. With
-	 * `includeProcType === true` (the default) a nested `makeProcTypeAsType` is
-	 * embedded so things like `mod: (q: T) -> T` parse without lexer desync.
+	 * Build a `params`-style mode for a single parameter slot. `kind` is the scope prefix (e.g. `'params'`, `'property'`).
+	 * With `includeConsts === true` the result also recognises top-level `::` constant declarations.
+	 * With `includeProcType === true` (the default) a nested `makeProcTypeAsType` is embedded so things like `mod: (q: T) -> T` parse without lexer desync.
 	 *
 	 * @param {string} kind
 	 * @param {boolean} [includeConsts]
@@ -27817,14 +27858,9 @@ function jai(hljs) {
 						DEFINE_ASSIGN,
 						{
 							scope: `${kind}.default`,
-							// Complementary to parent end class - guarantees this child
-							// can never match at the same index as the parent's end
-							// (which is what triggers hl.js' "0 width match" crash).
-							// We also need an explicit end matching the parent's end:
-							// without one hl.js generates a fallback end of /\B|\b/ that
-							// matches at every position, which combined with our
-							// zero-width begin would always fire begin+end at the same
-							// index.
+							// Complementary to parent end class - guarantees this child can never match at the same index as the parent's end (which is what triggers hl.js' "0 width match" crash).
+							// We also need an explicit end matching the parent's end: without one hl.js generates a fallback end of /\B|\b/ that matches at every position,
+							//  which combined with our zero-width begin would always fire begin+end at the same index.
 							begin: /(?=[^,;#\){])/,
 							end: /(?=[,;#\)\{])/,
 							keywords,
@@ -27842,21 +27878,16 @@ function jai(hljs) {
 						DEFINE,
 						WHITESPACE,
 						...(includeProcType ? [makeProcTypeAsType(kind)] : []),
-						// Eat any pointer-prefix `*`s in the type slot as their own
-						// scope. Without this the `*` was falling through as unmatched
-						// text and `:` submode's state got clobbered - so the next
-						// identifier fired outer PARAM's `${kind}.declaration` instead
-						// of the `${kind}.type` sub-mode below.
-						{
-							scope: 'operator.pointerTo',
-							begin: /\*+/
-						},
 						{
 							scope: `${kind}.type`,
-							begin: typeIdentifierREFn(),
+							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or a type-shaped ident.
+							// Sub-modes below consume each part; wrapping them all in `${kind}.type` gives themes a single span covering `<prefix>TypeName`.
+							begin: `(?=\\*|\\[|${typeIdentifierREFn(0)})`,
 							keywords,
 							contains: [
 								...COMMENTS,
+								// `=` default handler.
+								// NOTE: kept at index 2 (after the 2 spread COMMENTS) so the `includeConsts` mutation below (which pokes `contains[2]`) still targets it.
 								{
 									begin: /=/,
 									returnBegin: true,
@@ -27865,8 +27896,7 @@ function jai(hljs) {
 										ASSIGN,
 										{
 											scope: `${kind}.default`,
-											// See note above on complementary begin/end classes
-											// and the explicit end requirement.
+											// See note above on complementary begin/end classes and the explicit end requirement.
 											begin: /(?=[^,;#\){])/,
 											end: /(?=[,;#\)\{])/,
 											keywords,
@@ -27876,22 +27906,30 @@ function jai(hljs) {
 									end: /(?=[,;#\)\{])/,
 									endsParent: true
 								},
-								// Consume any polymorph-arg list (`Foo(int, string)`)
-								// as one balanced unit. Without this the inner `)` of
-								// e.g. `watcher: *File_Watcher(Data)` bubbles up: it
-								// matches PARAM's end class (`)` is in `[,;#\){]`),
-								// cascades close, and is then re-consumed by the
-								// *outer* proc-args balancedParen - collapsing the
-								// whole signature at the first inner `)`.
-								// NOTE: kept last so the `includeConsts` mutation
-								// below (which pokes `contains[2]`) still targets the
-								// `=` handler above.
-								// Uses the FUNCTION_CALL-free content list so nested
-								// type constructors like `Foo(Bar(int, string))` bind
-								// `Bar` as a TYPE rather than a function call
-								// (poly-args are compile-time, never a call).
-								balancedParen(_COMMON_EXCEPT_STRING_AND_FUNCTION_CALL, { keywords })
-							]
+								// Polymorph-arg list (`Foo(int, string)`) as one balanced unit.
+								// Without this the inner `)` of e.g. `watcher: *File_Watcher(Data)` bubbles up:
+								//  it matches PARAM's end class (`)` is in `[,;#\){]`), cascades close, and is then re-consumed by the *outer* proc-args balancedParen
+								//  - collapsing the whole signature at the first inner `)`.
+								// Uses the FUNCTION_CALL-free content list so nested type constructors like `Foo(Bar(int, string))` bind `Bar` as a TYPE rather than a function call (poly-args are compile-time, never a call).
+								balancedParen(_COMMON_EXCEPT_STRING_AND_FUNCTION_CALL, { keywords }),
+								// Array-type prefix (`[]`, `[..]`, `[N]`, `[CONST]`) - may stack with `*`s and further `[...]`s.
+								ARRAY_TYPE_PREFIX,
+								// Pointer-prefix `*`s.
+								{
+									scope: 'operator.pointerTo',
+									begin: /\*+/
+								},
+								// The type identifier itself.
+								{
+									begin: typeIdentifierREFn(),
+									returnBegin: true,
+									keywords,
+									contains: [ALIGNMENT_WS],
+									end: /(?=\W)/
+								}
+							],
+							// Close at param-terminator characters. `=` and `(` are handled by the sub-handlers above.
+							end: /(?=[,;#\){])/
 						}
 					]
 				}
@@ -27939,23 +27977,17 @@ function jai(hljs) {
 		return result;
 	};
 
-	// A proc type used in a *type* slot (parameter type, local variable type)
-	// rather than as a top-level procedure declaration. Lets things like
-	// `mod: (q: T) -> T = null` parse without the lexer desyncing on the inner
-	// `)` of the parameter list. `kind` mirrors PARAM's so resulting scopes
-	// nest under the parent param's scope (e.g. `params.type.function`).
-	// Recursion (proc-type-as-type containing a PARAM containing another
-	// proc-type-as-type) is broken by passing includeProcType=false to the
-	// inner PARAM call below.
+	// A proc type used in a *type* slot (parameter type, local variable type) rather than as a top-level procedure declaration.
+	// Lets things like `mod: (q: T) -> T = null` parse without the lexer desyncing on the inner `)` of the parameter list.
+	// `kind` mirrors PARAM's so resulting scopes nest under the parent param's scope (e.g. `params.type.function`).
+	// Recursion (proc-type-as-type containing a PARAM containing another proc-type-as-type) is broken by passing includeProcType=false to the inner PARAM call below.
 	/**
 	 * @param {string} kind
 	 * @returns {import('highlight.js').Mode}
 	 */
 	const makeProcTypeAsType = (kind) => ({
 		scope: `${kind}.type.function`,
-		// Optional `#type` prefix, then the start of `(`. The `(` itself is
-		// left unconsumed by the begin (it's a lookahead) so balancedParen
-		// below can take it.
+		// Optional `#type` prefix, then the start of `(`. The `(` itself is left unconsumed by the begin (it's a lookahead) so balancedParen below can take it.
 		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\()`,
 		keywords,
 		contains: [
@@ -27965,16 +27997,10 @@ function jai(hljs) {
 			balancedParen(
 				[
 					// 3rd arg: don't recurse into another proc-type-as-type.
-					// Also disable endsParent on this inner PARAM: otherwise
-					// when it ends at the inner `)`, the endsParent cascade
-					// walks up through the inner balancedParen and pops it
-					// WITHOUT giving its own /\)/ end a chance to consume
-					// `)`. The cursor would then sit on the inner `)` and
-					// every ancestor mode (`params.type.function`, `:`
-					// submode, outer `params`, …) would in turn fire its own
-					// `/(?=[,;#\)\{])/`-style end and cascade out - making
-					// the outer `params` (for `mod`) wrongly close at the
-					// inner `)` instead of the outer one.
+					// Also disable endsParent on this inner PARAM: otherwise when it ends at the inner `)`,
+					//  the endsParent cascade walks up through the inner balancedParen and pops it WITHOUT giving its own /\)/ end a chance to consume `)`.
+					// The cursor would then sit on the inner `)` and every ancestor mode (`params.type.function`, `:` submode, outer `params`, ...) would in turn fire its own `/(?=[,;#\)\{])/`-style end and cascade out
+					//  - making the outer `params` (for `mod`) wrongly close at the inner `)` instead of the outer one.
 					Object.assign(PARAM('params', false, false), { endsParent: false }),
 					COMMA,
 					NOTE,
@@ -28005,13 +28031,8 @@ function jai(hljs) {
 					ASSIGN,
 					{
 						scope: `${kind}.default`,
-						// Complementary to the outer end class - guarantees this
-						// child can never match at the same index as the outer
-						// end (which is what triggers hl.js' "0 width match"
-						// crash). Explicit end is required: without one hl.js
-						// generates a fallback end of /\B|\b/ that matches at
-						// every position, which would always fire begin+end at
-						// the same index given our zero-width begin.
+						// Complementary to the outer end class - guarantees this child can never match at the same index as the outer end (which is what triggers hl.js' "0 width match" crash).
+						// Explicit end is required: without one hl.js generates a fallback end of /\B|\b/ that matches at every position, which would always fire begin+end at the same index given our zero-width begin.
 						begin: /(?=[^,;#\){])/,
 						end: /(?=[,;#\)\{])/,
 						keywords,
@@ -28035,9 +28056,7 @@ function jai(hljs) {
 			NOTE,
 			DIRECTIVE,
 			// Optional polymorphic-parameter list, e.g. `struct (T: Type, N: s64 = 3)`.
-			// Lives BEFORE the body brace; once the body sub-mode (below) opens, this
-			// rule is out of scope, so any `(` inside field types/defaults can't be
-			// mistaken for another poly-arg list.
+			// Lives BEFORE the body brace; once the body sub-mode (below) opens, this rule is out of scope, so any `(` inside field types/defaults can't be mistaken for another poly-arg list.
 			balancedParen(
 				[
 					PARAM('params', false),
@@ -28049,9 +28068,7 @@ function jai(hljs) {
 				{ keywords }
 			),
 			// Struct body - `{ field: type; field := default; CONST :: value; ... }`.
-			// PARAM('property', true) handles each field/const declaration; the
-			// balancedBrace nests properly for any inner braced expressions in
-			// default values.
+			// PARAM('property', true) handles each field/const declaration; the balancedBrace nests properly for any inner braced expressions in default values.
 			balancedBrace(
 				[
 					INSERT_DIRECTIVE,
@@ -28156,16 +28173,12 @@ function jai(hljs) {
 		endsParent: true
 	};
 
-	// Populate the PROC_RETURNS placeholder declared before _ATOMIC. Handles the
-	// returns section of a *normal* proc declaration (not a proc-type slot -
-	// PROC_TYPE_DECLARATION/makeProcTypeAsType have their own inline handlers).
-	// Wraps `->` + return types in `params.returns` with each entry as
-	// `params.return`. `->` in Jai only ever introduces a returns list, so
-	// placing this in _ATOMIC (before plain OPERATOR) is safe.
+	// Populate the PROC_RETURNS placeholder declared before _ATOMIC.
+	// Handles the returns section of a *normal* proc declaration (not a proc-type slot - PROC_TYPE_DECLARATION/makeProcTypeAsType have their own inline handlers).
+	// Wraps `->` + return types in `params.returns` with each entry as `params.return`. `->` in Jai only ever introduces a returns list, so placing this in _ATOMIC (before plain OPERATOR) is safe.
 	Object.assign(PROC_RETURNS, /** @type {import('highlight.js').Mode} */ ({
 		scope: 'params.returns',
-		// Zero-width begin so the operator.returns sub-mode can own the actual `->`
-		// and appear as a child span inside `params.returns`.
+		// Zero-width begin so the operator.returns sub-mode can own the actual `->` and appear as a child span inside `params.returns`.
 		begin: /(?=->)/,
 		// End at anything that unambiguously terminates the returns list:
 		//   `{` - proc body starts
@@ -28191,8 +28204,8 @@ function jai(hljs) {
 				],
 				{ keywords }
 			),
-			// Bare returns: `-> int, string, bool`. Each entry is a PARAM
-			// which handles its own `identifier: type` or bare `type` form.
+			// Bare returns: `-> int, string, bool`.
+			// Each entry is a PARAM which handles its own `identifier: type` or bare `type` form.
 			PARAM('params.return'),
 			COMMA,
 		],
@@ -28261,25 +28274,14 @@ function jai(hljs) {
 	paramDefaultDecls.push(PROC_DECLARATION);
 	paramDefaultDecls.push(STRUCT_DECLARATION);
 
-	// Prepend three guards to paramDefaultDecls so that `params.default`
-	// and `params.constant.value` modes don't accidentally swallow stray
-	// `,` `)` `}` produced by their PUNCTUATION child. hl.js compiles a
-	// mode's child begins BEFORE its end regex in the combined matcher,
-	// so when PUNCTUATION's `punctuation.comma` (begin `/,/`) matches at
-	// the same index as the parent's `end: /(?=[,;#\)\{])/`, the child
-	// wins and the parent never ends.
+	// Prepend three guards to paramDefaultDecls so that `params.default` and `params.constant.value` modes don't accidentally swallow stray `,` `)` `}` produced by their PUNCTUATION child.
+	// hl.js compiles a mode's child begins BEFORE its end regex in the combined matcher,
+	//  so when PUNCTUATION's `punctuation.comma` (begin `/,/`) matches at the same index as the parent's `end: /(?=[,;#\)\{])/`, the child wins and the parent never ends.
 	//
-	// 1. `balancedParen` absorbs legitimate `(...)` (function calls,
-	//    type expressions) so their internal commas don't reach the
-	//    terminator guard below.
-	// 2. `balancedBrace` absorbs `{...}` (struct literals like `.{}`
-	//    or `.{ x = 1, y = 2 }`) for the same reason.
-	// 3. The terminator guard then claims top-level `,` `)` `}` (the
-	//    legitimate end-of-default terminators) and immediately
-	//    endsParent. Both begin and end consume one char (with
-	//    returnBegin/returnEnd so the cursor stays put) to side-step
-	//    hl.js' 0-width-match crash, which fires only when an end
-	//    lexeme is `""` at the same index as a previous begin.
+	// 1. `balancedParen` absorbs legitimate `(...)` (function calls, type expressions) so their internal commas don't reach the terminator guard below.
+	// 2. `balancedBrace` absorbs `{...}` (struct literals like `.{}` or `.{ x = 1, y = 2 }`) for the same reason.
+	// 3. The terminator guard then claims top-level `,` `)` `}` (the legitimate end-of-default terminators) and immediately endsParent.
+	//    Both begin and end consume one char (with returnBegin/returnEnd so the cursor stays put) to side-step hl.js' 0-width-match crash, which fires only when an end lexeme is `""` at the same index as a previous begin.
 	// NOTE: Save slice *before* unshift to avoid circular references.
 	const paramDefaultDeclsContent = paramDefaultDecls.slice();
 	paramDefaultDecls.unshift(

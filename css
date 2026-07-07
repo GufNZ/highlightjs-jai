@@ -90,6 +90,7 @@ operator.define_.assign__
 operator.define_.constant__
 operator.dereference_
 operator.dot_
+operator.dynamicArray_
 operator.hash_.directive__
 operator.logical_
 operator.math_
@@ -170,6 +171,7 @@ title.libraryProcName_
 title.libraryReference_
 type
 type.any_
+type.arrayOf_
 type.asm_
 type.baked_
 type.bool_
