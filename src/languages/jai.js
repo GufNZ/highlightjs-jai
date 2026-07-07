@@ -26852,37 +26852,40 @@ function jai(hljs) {
 		{
 			$name: 'AutobakedParamValue',
 			relevance: 7,
-			begin: [
-				/\$\$/,
-				identifierREFn()
-			],
-			beginScope: {
-				1: 'operator.autobake',
-				2: 'variable.param.baked'
+			scope: 'operator.autobake',
+			begin: /\$\$(?=[_A-Za-z])/,
+			starts: {
+				scope: 'variable.param.baked',
+				begin: identifierREFn(),
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
 			}
 		},
 		{
 			$name: 'BakedParamType',
 			relevance: 3,
-			begin: [
-				/\$/,
-				typeIdentifierREFn()	//NOTE: can't be a polymorph, but //FIXME: that a type can contain a baked polymorphic param...
-			],
-			beginScope: {
-				1: 'operator.bake',
-				2: 'type.baked'
+			scope: 'operator.bake',
+			begin: /\$(?=[_A-Z])/,
+			starts: {
+				scope: 'type.baked',
+				begin: typeIdentifierREFn(),	//NOTE: can't be a polymorph, but //FIXME: that a type can contain a baked polymorphic param...
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
 			}
 		},
 		{
 			$name: 'BakedParamValue',
 			relevance: 2,
-			begin: [
-				/\$/,
-				identifierREFn()
-			],
-			beginScope: {
-				1: 'operator.bake',
-				2: 'variable.param.baked'
+			scope: 'operator.bake',
+			begin: /\$(?=[_A-Za-z])/,
+			starts: {
+				scope: 'variable.param.baked',
+				begin: identifierREFn(),
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
 			}
 		}
 	];
@@ -26890,19 +26893,46 @@ function jai(hljs) {
 	const CONST_REF = {
 		scope: 'property.constant',
 		relevance: 0,
-		begin: `(?<=\\w)\\.${constIdentifierREFn()}`
+		begin: /(?<=\w)\.(?=[_A-Z])/,
+		contains: [
+			{
+				begin: constIdentifierREFn(),
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
+			}
+		],
+		end: /(?=\W)/
 	};
 
 	const ENUM_REF = {
 		scope: 'property.constant.enum',
 		relevance: 1,
-		begin: `(?<=^|\\W)\\.${typeIdentifierREFn()}`	//NOTE: can't be a polymorph.
+		begin: /(?<=^|\W)\.(?=[_A-Z])/,	//NOTE: can't be a polymorph.
+		contains: [
+			{
+				begin: typeIdentifierREFn(),
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
+			}
+		],
+		end: /(?=\W)/
 	};
 
 	const FIELD_REF = {
 		scope: 'property',
 		relevance: 0,
-		begin: `(?<=\\w)\\.${identifierREFn()}`
+		begin: /(?<=\w)\.(?=[_A-Za-z])/,
+		contains: [
+			{
+				begin: identifierREFn(),
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
+			}
+		],
+		end: /(?=\W)/
 	};
 
 	const DIRECTIVE = {
@@ -27731,7 +27761,14 @@ function jai(hljs) {
 				contains: [
 					{ scope: 'operator.returns', begin: /->/ },
 					...COMMENTS,
-					{ scope: 'type', begin: typeIdentifierREFn(), keywords }
+					{
+						scope: 'type',
+						begin: typeIdentifierREFn(),
+						returnBegin: true,
+						keywords,
+						contains: [ALIGNMENT_WS],
+						end: /(?=\W)/
+					}
 				],
 				end: /(?=\{|;)/
 			},
@@ -27772,13 +27809,15 @@ function jai(hljs) {
 			},
 			{
 				$name: 'forExpansionUse',
-				begin: [
-					/:/,
-					identifierREFn()
-				],
-				beginScope: {
-					1: 'punctuation.forExpansionInvoke',
-					2: 'title.function.forExpansion'
+				scope: 'punctuation.forExpansionInvoke',
+				begin: /:(?=[_A-Za-z])/,
+				starts: {
+					scope: 'title.function.forExpansion',
+					begin: identifierREFn(),
+					returnBegin: true,
+					keywords,
+					contains: [ALIGNMENT_WS],
+					end: /(?=\W)/
 				}
 			},
 			..._NEARLY_ALL
@@ -27847,7 +27886,10 @@ function jai(hljs) {
 				{
 					scope: `${kind}.declaration`,
 					begin: identifierREFn(),
+					returnBegin: true,
 					keywords: keywordsExceptStdLib,
+					contains: [ALIGNMENT_WS],
+					end: /(?=\W)/
 				},
 				...COMMENTS,
 				{
@@ -27942,7 +27984,10 @@ function jai(hljs) {
 			/** @type {import('highlight.js').Mode[]} */ (result.contains).unshift({
 				scope: `${kind}.constant.declaration`,
 				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}(?:${typeIdentifierREFn(0)}${skipWSAndCommentsREFn(0)})?:${skipWSAndCommentsREFn(0)}:)`,//FIXME: polymorph
+				returnBegin: true,
 				keywords: keywordsExceptStdLib,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
 			});
 			/** @type {import('highlight.js').Mode[]} */ (result.contains).splice(
 				/** @type {import('highlight.js').Mode[]} */ (result.contains).length - 2,
@@ -28018,7 +28063,10 @@ function jai(hljs) {
 					{
 						scope: `${kind}.type`,
 						begin: typeIdentifierREFn(),
-						keywords
+						returnBegin: true,
+						keywords,
+						contains: [ALIGNMENT_WS],
+						end: /(?=\W)/
 					}
 				],
 				end: /(?=[,;#\)\{=])/
@@ -28109,7 +28157,10 @@ function jai(hljs) {
 			{
 				// Library identifier (the symbol resolved as the library/module to link against).
 				scope: 'title.libraryReference',
-				begin: identifierREFn()
+				begin: identifierREFn(),
+				returnBegin: true,
+				contains: [ALIGNMENT_WS],
+				end: /(?=\W)/
 			},
 			{
 				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn(0)}:)`,	// Try not to match , in an args list.
