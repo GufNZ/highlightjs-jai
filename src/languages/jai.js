@@ -26779,7 +26779,7 @@ function jai(hljs) {
 			// Exclude the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression
 			//  (their begins are anchored on `\bstruct\b`/`\benum\b`; without this exclusion VAR_TYPE consumes them first because it starts matching at the position just-after-`:`,
 			//  which is earlier than the keyword position itself - hl.js' leftmost-match-wins rule then locks out the declaration modes regardless of contains ordering).
-			`(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?)\\b)${identifierREFn(0)})`//FIXME: polymorph tail...
+			`(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?)\\b)${identifierREFn()})`//FIXME: polymorph tail...
 		],
 		beginScope: {
 			2: 'comment'
@@ -26791,7 +26791,7 @@ function jai(hljs) {
 				scope: 'type',
 				// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or an identifier.
 				// Wrapping the whole prefix+identifier in `type` gives themes a single span covering `<arrayOf/pointer>*TypeName`.
-				begin: `(?=\\*|\\[|${identifierREFn(0)})`,
+				begin: `(?=\\*|\\[|${identifierREFn()})`,
 				keywords,
 				contains: [
 					...COMMENTS,
@@ -27924,7 +27924,7 @@ function jai(hljs) {
 							scope: `${kind}.type`,
 							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or a type-shaped ident.
 							// Sub-modes below consume each part; wrapping them all in `${kind}.type` gives themes a single span covering `<prefix>TypeName`.
-							begin: `(?=\\*|\\[|${typeIdentifierREFn(0)})`,
+							begin: `(?=\\*|\\[|${typeIdentifierREFn()})`,
 							keywords,
 							contains: [
 								...COMMENTS,

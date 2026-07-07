@@ -256,13 +256,15 @@ function reError(re, i, path, message) {
  * @param {string} re
  * @param {string} path
  * @param {boolean} [validateParenthes]
- * @returns {void}
+ * @returns {number}
  */
 function validateAtomics(re, path, validateParenthes = true) {
 	if (!/\(\?=\(.+?\\\d/.test(re) || !validateParenthes || re.indexOf(('(')) === -1) {
-		return;
+		return 0;
 	}
 
+
+	let errors = 0;
 
 	/** @type {number[]} */
 	const depthStack = [];
@@ -286,6 +288,7 @@ function validateAtomics(re, path, validateParenthes = true) {
 		} else if (re[i] === ')') {
 			if (!depthStack.length) {
 				reError(re, i, path, 'Unmatched )');
+				errors++;
 			}
 
 
@@ -294,18 +297,23 @@ function validateAtomics(re, path, validateParenthes = true) {
 			groupNum = +match[1];
 			if (groupNum > groups.length) {
 				reError(re, i, path, `Invalid backreference \\${groupNum} (only ${groups.length} groups)`);
+				errors++;
 			}
 
 
 			if (atomics[atomics.length - 1] === groups[groups.length - 1]) {
 				if (groupNum !== groups.length - 1) {
-					reError(re, i, path, `Mismatched Atomic backref \\${groupNum} (expected ${groups.length})`);
+					reError(re, i, path, `Mismatched Atomic backref \\${groupNum} (expected ${groups.length - 1})`);
+					errors++;
 				}
 			}
 		} else if (i === end && depthStack.length) {
 			reError(re, i, path, 'Unterminated (');
+			errors++;
 		}
 	}
+
+	return errors;
 }
 
 /**
@@ -320,6 +328,7 @@ function validateAtomics(re, path, validateParenthes = true) {
  * @returns {import('highlight.js').LanguageFn}
  */
 function regexDebugPre(lang) {
+	let errors = 0;
 	const defn = walk(lang, ['^begin', 'begin/', '^end', 'end/', '$pattern'], (name, value, _, namePath) => {
 		if (Array.isArray(value)) {
 			return value;
@@ -337,12 +346,17 @@ function regexDebugPre(lang) {
 		}
 
 		let i = 0;
-		validateAtomics(re, namePath.reduce((s, p) => `${s}\n${'  '.repeat(i++)}${p}`, ''));
+		errors += validateAtomics(re, namePath.reduce((s, p) => `${s}\n${'  '.repeat(i++)}${p}`, ''));
 
 		re = `(?!\n'${name}')` + re;
 
 		return re;
 	});
+
+	if (errors) {
+		throw new Error(`regexDebugPre: ${errors} error${errors === 1 ? '' : 's'} found in ${lang.name} regexes!`);
+	}
+
 	return () => defn;
 }
 
