@@ -28388,15 +28388,17 @@ function jai(hljs) {
 	// NOTE: Save slice *before* unshift to avoid circular references.
 	const paramDefaultDeclsContent = paramDefaultDecls.slice();
 	paramDefaultDecls.unshift(
-		balancedParen(paramDefaultDeclsContent, { keywords }),
-		balancedBrace(paramDefaultDeclsContent, { keywords }),
 		{
-			begin: /[,\)\}]/,
+			// Stop a param/returns default cleanly at top-level delimiters, including the proc-body `{` that follows a signature.
+			// A brace preceded by `.` (e.g. a struct literal like `.{} `) is still allowed to start a balanced-brace default value.
+			begin: /(?<!\.)\{|[,\)\}]/,
 			returnBegin: true,
-			end: /[,\)\}]/,
+			end: /(?<!\.)\{|[,\)\}]/,
 			returnEnd: true,
 			endsParent: true
-		}
+		},
+		balancedParen(paramDefaultDeclsContent, { keywords }),
+		balancedBrace(paramDefaultDeclsContent, { keywords })
 	);
 
 	const MODULE_PARAMETERS_DIRECTIVE = {

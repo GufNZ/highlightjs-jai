@@ -444,7 +444,7 @@ function applyDebugInfo() {
 
 /**
  * One-shot debug init: re-registers `langName` with the `regexDebugPre`-wrapped definition,
- * triggers `highlightAll`, times it, and attaches the hover decorations.
+ * triggers `highlight`, times it, and attaches the hover decorations.
  * @param {string} [langName]
  * @param {import('highlight.js').Language} [lang]
  * @returns {void}
@@ -463,13 +463,11 @@ function debugInit(langName = 'jai', lang) {
 	hljs.registerLanguage(langName, regexDebugPre(lang));
 	console.timeEnd('setup');
 
-	// `hljs.highlightAll()` defers to DOMContentLoaded when document.readyState === 'loading',
-	//  in which case timing it here would only measure the listener registration.
-	// Wait for the DOM ourselves so we can time the actual matching work:
-	const run = () => {
+	const w = /** @type {any} */ (window);
+	w.highlight = (/** @type {HTMLElement} */node) => {
 		try {
 			console.time('hilight');
-			hljs.highlightAll();//Element(document.getElementById('it').firstChild);
+			hljs.highlightElement(node);
 			console.timeEnd('hilight');
 
 			console.time('applyDebugInfo');
@@ -479,12 +477,6 @@ function debugInit(langName = 'jai', lang) {
 			alert(/** @type {Error} */(e).message);
 		}
 	};
-
-	if (document.readyState === 'loading') {
-		window.addEventListener('DOMContentLoaded', run, { once: true });
-	} else {
-		run();
-	}
 }
 
 //Breakpoints:

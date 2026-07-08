@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Jai for highlight.js - {}</title>
+	<title>Jai for highlight.js</title>
 	<script type="text/javascript" src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
 	<script type="text/javascript" src="../../dist/jai.min.js"></script>~
-	<link id="$" disabled rel="stylesheet" type="text/css" href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/$.min.css"/>~
+	<link id="$" disabled rel="stylesheet" type="text/css" href="../../../highlight.js/src/styles/$.css"/>~
 	<link id="jaiEverything" rel="stylesheet" type="text/css" href="../../dist/styles/jaiEverything.css"/>
 	<link rel="stylesheet" type="text/css" href="../../debug.css"/>
 	<script type="text/javascript" src="../../debug.mjs"></script>
 	<style type="text/css">
 		.menu {
-			position: absolute;
+			position: fixed;
 			top: 0;
-			right: 0;
+			right: 16px;
 			padding: 4px;
 			background: rgba(42,42,42,0.42);
 			border: 1px solid #333;
@@ -26,6 +26,29 @@
 			}
 			& span {
 				background: #FFFFFF80;
+			}
+		}
+
+		.row {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 4px;
+		}
+
+		select {
+			color: #FFF;
+			background-color: #333;
+		}
+
+		#prev, #next {
+			text-decoration: none;
+			font-size: 1.5em;
+			color: #FFF;
+
+			&[href=""] {
+				opacity: 0.5;
+				pointer-events: none;
 			}
 		}
 
@@ -48,7 +71,6 @@
 </head>
 <body>
 	<div class="menu">
-		<a id="index" href="index.html">^index</a>
 		<span>Theme:</span>
 		<select id="theme">
 			<option value="jaiEverything" selected>jaiEverything</option>
@@ -56,15 +78,121 @@
 				<option value="$">$</option>%
 			</optgroup>
 		</select>
-		<a href="file:///*">*</a>
+		<div class="row">
+			<a id="prev" href="">&#9664;</a>
+			<select id="file">^
+				<option value="$">*</option>^
+			</select>
+			<a id="next" href="">&#9654;</a>
+		</div>
 	</div>
-	<pre><code class="language-jai">[]</code></pre>
+	<pre><code id="code" class="language-jai"></code></pre>
 	<script type="text/javascript">
-		hljs.highlightAll();
+		const fileSel = document.getElementById("file");
+		let syncingHash = false;
+
+		function highlight(codeEl) {
+			hljs.highlightElement(codeEl);
+		}
+
+		function getFileFromHash() {
+			const raw = window.location.hash.startsWith('#')
+				? window.location.hash.slice(1)
+				: '';
+			return raw
+				? decodeURIComponent(raw)
+				: '';
+		}
+
+		function updateFileHash(file) {
+			if (syncingHash) {
+				return;
+			}
+
+
+			const nextHash = file
+				? `#${encodeURIComponent(file)}`
+				: '';
+			if (window.location.hash !== nextHash) {
+				window.location.hash = nextHash;
+			}
+		}
+
+		function selectFileFromHash() {
+			const file = getFileFromHash();
+			if (!file) {
+				return false;
+			}
+
+
+			const option = [...fileSel.options].find(opt => opt.value === file);
+			if (!option) {
+				return false;
+			}
+
+
+			syncingHash = true;
+			fileSel.value = file;
+			syncingHash = false;
+
+			applyFile();
+			return true;
+		}
+
+		function applyFile() {
+			const file = fileSel.value;
+			const prev = document.getElementById("prev");
+			prev.href = fileSel.selectedIndex
+				? fileSel.options[fileSel.selectedIndex - 1].value
+				: "";
+			const next = document.getElementById("next");
+			next.href = fileSel.selectedIndex < fileSel.options.length - 1
+				? fileSel.options[fileSel.selectedIndex + 1].value
+				: "";
+
+			document.title = `Jai for highlight.js - ${file}`;
+			updateFileHash(file);
+
+			fetch(file)
+				.then(response => response.text())
+				.then(text => {
+					const codeEl = document.getElementById("code");
+					codeEl.textContent = text;
+					codeEl.removeAttribute("data-highlighted");
+					highlight(codeEl);
+				})
+				.catch(alert);
+		}
+
+		fileSel.onchange = applyFile;
+		window.onhashchange = selectFileFromHash;
+
+		document.getElementById("prev").onclick = (e) => {
+			e.preventDefault();
+			if (e.target.href) {
+				fileSel.selectedIndex--;
+				applyFile();
+			}
+		};
+		document.getElementById("next").onclick = (e) => {
+			e.preventDefault();
+			if (e.target.href) {
+				fileSel.selectedIndex++;
+				applyFile();
+			}
+		};
+
 		document.getElementById("theme").onchange = (e) => {
-			[...document.getElementsByTagName("link")].forEach(el => { el.disabled = true; });
+			[...document.getElementsByTagName("link")]
+				.forEach(el => { el.disabled = true; });
 			document.getElementById(e.target.value).disabled = false;
 		};
+
+		hljs.registerLanguage('jai', jai);
+		// first:
+		if (!selectFileFromHash()) {
+			applyFile();
+		}
 	</script>
 </body>
 </html>

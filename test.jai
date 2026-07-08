@@ -20,3 +20,7 @@ nested :: (x: int) -> Nested_Type {
 	Result :: struct { value: int; }
 	return .{ x };
 }
+
+setup_xr :: () -> app: Xr_App = .{}, success := false {
+    // ...
+}

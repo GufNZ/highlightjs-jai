@@ -43,4 +43,10 @@ describe('Jai syntax highlighting', () => {
 		var actual = hljs.highlightAuto(code).language;
 		actual.should.not.eql('jai');
 	});
+
+	it('should close returns lists before a proc body brace', () => {
+		const code = 'setup_xr :: () -> app: Xr_App = .{}, success := false {\n    // ...\n}';
+		const result = hljs.highlight(code, { language: 'jai' });
+		result.value.should.match(/false<\/span><\/span>\s*<span class="hljs-punctuation brace_">\{/);
+	});
 });

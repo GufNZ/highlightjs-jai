@@ -1095,7 +1095,7 @@ var hljs = (function () {
 	 * @param {any} args
 	 */
 	const warn = (message, ...args) => {
-		console.log(`WARN: ${message}`, ...args);
+		console.warn(message, ...args);
 	};
 
 	/**
@@ -1112,7 +1112,7 @@ var hljs = (function () {
 	const deprecated = (version, message) => {
 		if (seenDeprecations[`${version}/${message}`]) return;
 
-		console.log(`Deprecated as of ${version}. ${message}`);
+		console.warn(`Deprecated as of ${version}. ${message}`);
 		seenDeprecations[`${version}/${message}`] = true;
 	};
 
