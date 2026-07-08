@@ -244,9 +244,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--params-type-function`|The type of a proc parameter when it's a proc/function.|`--params-type`=>`--type-function`=>`--type`=>`--params`=>`--default`|
 |`--params-default`|The default value for a parameter in the proc signature.|`--params`=>`--default`|
 |`--directive-modify`|The `#modify` directive on a proc declaration.`|`--directive`=>`--meta`=>`--default`|
-|`--params-returns`|The list of returns in a proc signature.|`--params`=>`--default`|
-|`--returnsList`|The list of proc returns when `()`s are used.|`--params-returns`=>`--params`=>`--default`|
 |`--params-return`|A return entry.|`--params`=>`--default`|
+|`--returnsList`|The list of proc returns; applies regardless of whether `()`s wrap the returns.|`--params`=>`--default`|
 |`--params-returnDeclaration`|The name of a return entry.|`--declaration`=>`--params-return`=>`--params`=>`--default`|
 |`--params-returnType`|The type of a return entry.|`--params-return`=>`--params-type`=>`--type`=>`--params`=>`--default`|
 |`--params-returnType-function`|The type of a return entry when it's a proc/function.|`--params-returnType`=>`--params-type-function`=>`--params-type`=>`--type-function`=>`--type`=>`--params`=>`--default`|

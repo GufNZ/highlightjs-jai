@@ -1125,19 +1125,11 @@
 	}
 
 	&.returns_ {
-		color: var(--params-returns-fg, var(--params-fg, --default-fg));
-		background-color: var(--params-returns-bg, var(--params-bg, --default-bg));
-		font-style: var(--params-returns-style, var(--params-style, --default-style));
-		font-weight: var(--params-returns-weight, var(--params-weight, --default-weight));
-		text-decoration: var(--params-returns-decoration, var(--params-decoration, --default-decoration));
-
-		& > .hljs-_BalancedParens {
-			color: var(--returnsList-fg, var(--params-returns-fg, var(--params-fg, --default-fg)));
-			background-color: var(--returnsList-bg, var(--params-returns-bg, var(--params-bg, --default-bg)));
-			font-style: var(--returnsList-style, var(--params-returns-style, var(--params-style, --default-style)));
-			font-weight: var(--returnsList-weight, var(--params-returns-weight, var(--params-weight, --default-weight)));
-			text-decoration: var(--returnsList-decoration, var(--params-returns-decoration, var(--params-decoration, --default-decoration)));
-		}
+		color: var(--returnsList-fg, var(--params-fg, --default-fg));
+		background-color: var(--returnsList-bg, var(--params-bg, --default-bg));
+		font-style: var(--returnsList-style, var(--params-style, --default-style));
+		font-weight: var(--returnsList-weight, var(--params-weight, --default-weight));
+		text-decoration: var(--returnsList-decoration, var(--params-decoration, --default-decoration));
 	}
 
 	/* Module Parameters: */

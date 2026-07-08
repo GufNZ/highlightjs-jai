@@ -27932,13 +27932,14 @@ function jai(hljs) {
 							// Complementary to parent end class - guarantees this child can never match at the same index as the parent's end (which is what triggers hl.js' "0 width match" crash).
 							// We also need an explicit end matching the parent's end: without one hl.js generates a fallback end of /\B|\b/ that matches at every position,
 							//  which combined with our zero-width begin would always fire begin+end at the same index.
-							begin: /(?=[^,;#\){])/,
-							end: /(?=[,;#\)\{])/,
+							// `}` is included so a stray closing brace of an enclosing container (e.g. the outer struct body of `Item :: struct { Y := struct { } }`) terminates this default cleanly instead of re-opening it in an endless loop with the paramDefaultDecls terminator-guard.
+							begin: /(?=[^,;#\)\{\}])/,
+							end: /(?=[,;#\)\{\}])/,
 							keywords,
 							contains: paramDefaultDecls
 						}
 					],
-					end: /(?=[,;#\)\{])/,
+					end: /(?=[,;#\)\{\}])/,
 					endsParent: true
 				},
 				{
@@ -27967,14 +27968,14 @@ function jai(hljs) {
 										ASSIGN,
 										{
 											scope: `${kind}.default`,
-											// See note above on complementary begin/end classes and the explicit end requirement.
-											begin: /(?=[^,;#\){])/,
-											end: /(?=[,;#\)\{])/,
+											// See note above on complementary begin/end classes and the explicit end requirement (including the `}` guard against infinite re-open loops on an enclosing container's closing brace).
+											begin: /(?=[^,;#\)\{\}])/,
+											end: /(?=[,;#\)\{\}])/,
 											keywords,
 											contains: paramDefaultDecls
 										}
 									],
-									end: /(?=[,;#\)\{])/,
+									end: /(?=[,;#\)\{\}])/,
 									endsParent: true
 								},
 								// Polymorph-arg list (`Foo(int, string)`) as one balanced unit.
@@ -28045,15 +28046,16 @@ function jai(hljs) {
 						..._ALL_DEFINE_ASSIGN,
 						{
 							scope: `${kind}.constant.value`,
-							// See note above on complementary begin/end classes
-							// and the explicit end requirement.
-							begin: /(?=[^,;#\){])/,
-							end: /(?=[,;#\)\{])/,
+							// See note above on complementary begin/end classes and the explicit end requirement.
+							// `}` is included so an enclosing container's closing brace (e.g. the outer struct body in `Item :: struct { Y :: struct { } }`) terminates this constant.value cleanly.
+							// Without `}` in the exclusion set, the paramDefaultDecls terminator-guard would fire (0-width) → endsParent → this mode re-opens on the same `}` (because its begin lookahead would still match) → infinite loop.
+							begin: /(?=[^,;#\)\{\}])/,
+							end: /(?=[,;#\)\{\}])/,
 							keywords,
 							contains: paramDefaultDecls
 						}
 					],
-					end: /(?=[,;#\)\{])/,
+					end: /(?=[,;#\)\{\}])/,
 					endsParent: true
 				}
 			);
@@ -28271,40 +28273,43 @@ function jai(hljs) {
 
 	// Populate the PROC_RETURNS placeholder declared before _ATOMIC.
 	// Handles the returns section of a *normal* proc declaration (not a proc-type slot - PROC_TYPE_DECLARATION/makeProcTypeAsType have their own inline handlers).
-	// Wraps `->` + return types in `params.returns` with each entry as `params.return`. `->` in Jai only ever introduces a returns list, so placing this in _ATOMIC (before plain OPERATOR) is safe.
+	// Fires on `->` itself with `operator.returns` scope, then `starts` transitions to the `params.returns` mode for the actual returns. Using `starts` (rather than a lookbehind for `->\s*` on the returns mode) means arbitrary WS *and comments* between `->` and the returns list are handled naturally by the surrounding COMMENTS rule in the starts-mode's contains.
 	Object.assign(PROC_RETURNS, /** @type {import('highlight.js').Mode} */ ({
-		scope: 'params.returns',
-		// Zero-width begin so the operator.returns sub-mode can own the actual `->` and appear as a child span inside `params.returns`.
-		begin: /(?=->)/,
-		// End at anything that unambiguously terminates the returns list:
-		//   `{` - proc body starts
-		//   `;` - end of a proc-type declaration statement
-		//   `#` - trailing modifier directive (`#foreign`, `#c_call`, ...)
-		//   `)` - the returns list is inside a proc-type-as-type param list
-		//   `=` - default value follows (`(a: int) -> int = fallback;`)
-		end: /(?=[;#{)=])/,
-		keywords,
-		contains: [
-			{ scope: 'operator.returns', begin: /->/ },
-			...COMMENTS,
-			NOTE,
-			DIRECTIVE,
-			// Parenthesized (named) returns: `-> (name: T, ok: bool)`.
-			balancedParen(
-				[
-					PARAM('params.return'),
-					COMMA,
-					NOTE,
-					DIRECTIVE,
-					...COMMENTS
-				],
-				{ keywords }
-			),
-			// Bare returns: `-> int, string, bool`.
-			// Each entry is a PARAM which handles its own `identifier: type` or bare `type` form.
-			PARAM('params.return'),
-			COMMA,
-		],
+		scope: 'operator.returns',
+		begin: /->/,
+		starts: {
+			scope: 'params.returns',
+			// Fire at the first non-whitespace after `->`. Leading WS/comments are consumed by the sub-modes inside (COMMENTS explicitly, plain whitespace as unscoped content).
+			begin: /(?=\S)/,
+			// End at anything that unambiguously terminates the returns list:
+			//   `{` - proc body starts
+			//   `;` - end of a proc-type declaration statement
+			//   `#` - trailing modifier directive (`#foreign`, `#c_call`, ...)
+			//   `)` - the returns list is inside a proc-type-as-type param list
+			//   `=` - default value follows (`(a: int) -> int = fallback;`)
+			end: /(?=[;#{)=])/,
+			keywords,
+			contains: [
+				...COMMENTS,
+				NOTE,
+				DIRECTIVE,
+				// Parenthesized (named) returns: `-> (name: T, ok: bool)`.
+				balancedParen(
+					[
+						PARAM('params.return'),
+						COMMA,
+						NOTE,
+						DIRECTIVE,
+						...COMMENTS
+					],
+					{ keywords }
+				),
+				// Bare returns: `-> int, string, bool`.
+				// Each entry is a PARAM which handles its own `identifier: type` or bare `type` form.
+				PARAM('params.return'),
+				COMMA,
+			],
+		},
 	}));
 
 	const lookbehindCheckRE = new RegExp(`[${':=(,'}]${skipWSAndCommentsREFn()}$`);
