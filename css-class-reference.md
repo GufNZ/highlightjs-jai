@@ -150,8 +150,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--variable-constant-declaration`|A constant being declared.|`--variable-declaration`=>`--declaration`=>`--variable-constant`=>`--variable`=>`--default`|
 |`--struct-declaration`|Struct variable declarations.|`--declaration`=>`--struct`=>`--title`=>`--default`|
 |`--field-declaration`|Struct field declarations.|`--declaration`=>`--field`=>`--default`|
-|`--field-type`|The type of a field.|`--declaration`=>`--field`=>`--default`|
-|`--field-type-function`|The type of a field when it's a proc/function.|`--field-type`=>`--type-function`=>`--type`=>`--declaration`=>`--field`=>`--default`|
+|`--field-type`|The type of a field.|`--type`=>`--field`=>`--default`|
+|`--field-type-function`|The type of a field when it's a proc/function.|`--field-type`=>`--type-function`=>`--type`=>`--field`=>`--default`|
 |`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
 |`--field-value`|The value of a constant field.|`--field-constant`=>`--field`=>`--default`|
 |`--external`|External things (`#foreign`, `#library`, ~~`#system_library`~~ and `#elsewhere`).|`--title`=>`--default`|
@@ -468,8 +468,6 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-property`|A field reference (`something.camelCase`)|
 |`.hljs-property.declaration_`|A field declaration (`camelCase: type` inside a struct definition)|
-|`.hljs-property.type_`|A field declaration's type.|
-|`.hljs-property.type_.function__`|A field declaration's type when it's a proc/function.|
 |`.hljs-property.default_`|A field declaration's default value.|
 |`.hljs-property.constant_.declaration__`|A constant field declaration in a struct definition.|
 |`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
@@ -496,6 +494,12 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-type.enum_.value__.declaration___`|Enum value declarations.|
 |`.hljs-type.function_`|All proc/function/quickLambda declarations.|
 |`.hljs-type.function_.declaration__`|Proc/function type declarations.|
+|`.hljs-type.function_.params__`|A proc/function type sitting in a proc-parameter slot (i.e. the type of a parameter is itself a proc/function).|
+|`.hljs-type.function_.params__.return___`|A proc/function type sitting in a proc-return slot.|
+|`.hljs-type.function_.property__`|A proc/function type sitting in a struct-field slot (i.e. the type of a field is itself a proc/function).|
+|`.hljs-type.params_`|A type sitting in a proc-parameter slot (i.e. the type of a parameter).|
+|`.hljs-type.params_.return__`|A type sitting in a proc-return slot (i.e. the type of a return entry).|
+|`.hljs-type.property_`|A type sitting in a struct-field slot (i.e. the type of a field).|
 |`.hljs-type.struct_.declaration__`|Struct type declarations.|
 |`.hljs-type.code_`|The `Code` type.|
 |`.hljs-type.void_`|The `void` type.|
@@ -521,14 +525,10 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-title.function_.declaration__`|Proc/Function declaraion.|
 |`.hljs-params`|All proc parameter declarations in the proc signature.|
 |`.hljs-params.declaration_`|A proc parameter declaration.|
-|`.hljs-params.type_`|A proc parameter's type.|
-|`.hljs-params.type_.function__`|A proc parameter's type when it's a proc/function.|
 |`.hljs-params.default_`|A proc parameter's default value.|
 |`.hljs-params.returns_`|A proc's returns list.|
 |`.hljs-params.return_`|A proc's return entry.|
 |`.hljs-params.return_.declaration__`|A return entry's name.|
-|`.hljs-params.return_.type__`|A return entry's type.|
-|`.hljs-params.return_.type__.function___`|A return entry's type when it's a proc/function.|
 |`.hljs-params.return_.default__`|A return entry's default value.|
 
 #### Specials

@@ -1,45 +1,55 @@
-SIQuantityTypeParams :: struct {
-	#insert -> string {
-		sb: String_Builder;
+calc_ballistic_range :: (
+	speed: MetersPerSecond(float),
+	gravity: MetersPerSecond2(float),
+	initial_height: Meters(float)
+) -> Meters(float)
+{
+	assert(speed.amount > 0.0);
+	assert(gravity.amount > 0.0);
+	assert(initial_height.amount >= 0.0);
 
-		ti := type_info(SIQuantity(int,0,0,0,0,0,0,0,0,0)).(*Type_Info_Struct);
-		for ti.specified_parameters {
-			print(*sb, "\t%: %;\t// @ %\n", it.name, get_type(it.type), it.offset_into_constant_storage);
-		}
+	d2r : float: cast(float)0.01745329252;
+	angle : float: 45.0 * d2r;
+	ang_cos := cos(angle);
+	ang_sin := sin(angle);
 
-		print(*sb, "\n\tlastSet : enum { NONE; LENGTH; TIME; MASS; };\n");
-
-		return builder_to_string(*sb);
-	}
+	range : Meters(float) = (speed * ang_cos / gravity)
+	   * (speed * ang_sin + sqrt(speed * speed * ang_sin * ang_sin + 2.0 * gravity * initial_height));
+	return range;
 }
 
-getSIParameters :: (t: Type) -> SIQuantityTypeParams {
-	ti := t.(*Type_Info_Struct);
-	tp := type_info(SIQuantityTypeParams);
+calc_ballistic_range2 :: (
+	speed: $T/SIQuantity,
+	gravity: $U/SIQuantity,
+	initial_height: $V/SIQuantity
+) -> $R
+#modify {
+	p := getSIParameters(T);
 
-	p: SIQuantityTypeParams;
+	R = #dynamic_specialize SIQuantity(
+		DataType=p.DataType,
+		LengthNum=p.LengthNum, LengthDenom=p.LengthDenom, LengthExp=1,
+		MassNum=0, MassDenom=0, MassExp=0,
+		TimeNum=0, TimeDenom=0, TimeExp=0
+	);
+	return true;
+} {
+	#assert T.LengthExp == 1 && T.MassExp == 0 && T.TimeExp == -1;
+	#assert U.LengthExp == 1 && U.MassExp == 0 && U.TimeExp == -2;
+	#assert V.LengthExp == 1 && V.MassExp == 0 && V.TimeExp == 0;
 
-	q := (*p).(*u64);
-	s := ti.constant_storage.data.(*u64);
+	assert(speed.amount > 0.0);
+	assert(gravity.amount > 0.0);
+	assert(initial_height.amount >= 0.0);
 
-	for param: ti.specified_parameters {
-		for tp.members {
-			if it.name == param.name/* && it.type == param.type*/ {
-				q[it.offset_in_bytes >> 3] = s[param.offset_into_constant_storage >> 3];
-				break;
-			}
-		}
-	}
+	d2r : speed.DataType: xx 0.01745329252;
+	angle :: 45.0 * d2r;
+	ang_cos := cos(angle);
+	ang_sin := sin(angle);
 
-	return p;
+	range := (speed * ang_cos / gravity)
+		* (
+			speed * ang_sin + sqrt(speed * speed * ang_sin * ang_sin + 2.0 * gravity * initial_height)
+		);
+	return range;
 }
-
-multiReturn :: (a: int, b: int) -> int, string, bool {
-	return a + b, "hi", true;
-}
-
-namedReturns :: (x: float) -> (sum: float, ok: bool) {
-	return x + 1.0, true;
-}
-
-singleReturn :: (n: int) -> string { return "x"; }

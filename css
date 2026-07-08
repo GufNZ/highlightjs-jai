@@ -112,11 +112,7 @@ params.moduleOrProgram_.declaration__
 params.return_
 params.return_.declaration__
 params.return_.default__
-params.return_.type__
-params.return_.type__.function___
 params.returns_
-params.type_
-params.type_.function__
 property
 property.constant_
 property.constant_.declaration__
@@ -124,8 +120,6 @@ property.constant_.enum__
 property.constant_.value__
 property.declaration_
 property.default_
-property.type_
-property.type_.function__
 punctuation
 punctuation.alignmentWS_
 punctuation.backslash_
@@ -184,9 +178,15 @@ type.enum_.value__.declaration___
 type.float_
 type.function_
 type.function_.declaration__
+type.function_.params__
+type.function_.params__.return___
+type.function_.property__
 type.integer_
 type.integer_.signed__
 type.integer_.unsigned__
+type.params_
+type.params_.return__
+type.property_
 type.stdLib_
 type.string_
 type.struct_

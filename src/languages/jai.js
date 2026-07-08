@@ -100,6 +100,13 @@ function jai(hljs) {
 		depth
 	).replace(/\|\x27/g, "");
 
+	// Balanced-parens pattern to `depth` levels of nesting. At the innermost level `(...)` may only contain non-paren chars (so `((()))` matches for depth=3, but `(((())))` doesn't). Useful for classifying lookaheads that need to skip over polymorph-arg lists like `Foo(Bar(int))` without letting `,`s inside them leak out.
+	const nestedBalancedParensREFn = /** @param {number} depth */ (depth) => recurRegex(
+		'\\((?:[^()]|~~~)*\\)',
+		/~~~/g,
+		depth
+	).replace(/\|\x27/g, "");
+
 	//NOTE: a++ => (?=(a))\1 so the below needs to be a function taking relative group position - luckily highlight.js remaps these for us when it combines regexes.
 	let backRefCount = 1;
 	/**
@@ -26772,18 +26779,13 @@ function jai(hljs) {
 	const VAR_TYPE = {//FIXME: polymorph
 		$name: 'Var/Param Type',
 		relevance: 0,
-		begin: [
-			/(?<=:)/,
-			skipWSAndCommentsREFn(),
-			// Peek: type expression must start with a pointer `*`, an array-prefix `[`, or a (non-declaration-keyword) identifier.
-			// Exclude the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression
-			//  (their begins are anchored on `\bstruct\b`/`\benum\b`; without this exclusion VAR_TYPE consumes them first because it starts matching at the position just-after-`:`,
-			//  which is earlier than the keyword position itself - hl.js' leftmost-match-wins rule then locks out the declaration modes regardless of contains ordering).
-			`(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?)\\b)${identifierREFn()})`//FIXME: polymorph tail...
-		],
-		beginScope: {
-			2: 'comment'
-		},
+		// Zero-width begin: variable-length lookbehind for a *single* `:` optionally followed by whitespace and/or comments, then a lookahead peeks the type expression.
+		// Starting the match at the identifier position (rather than at the `:`) lets same-position sibling rules (notably CAST modes matching `xx`/`cast`) win via contains-order, instead of losing to VAR_TYPE's earlier start-index.
+		// The `[^:]:` guard rejects the second `:` of `::` (untyped-constant delimiter) so `Foo :: bar;` doesn't wrongly type-scope `bar`.
+		// The WS/comments class here is a hand-rolled *non-atomic* equivalent of `skipWSAndCommentsREFn()`: that helper emits the `(?=(X))\N` atomic idiom, which fails inside a variable-length lookbehind because lookbehinds are evaluated right-to-left in ECMAScript - `\N` gets processed before its group `(X)` is captured, so the backref matches empty and the idiom collapses.
+		// Peek: type expression must start with a pointer `*`, an array-prefix `[`, or a (non-declaration-keyword) identifier.
+		// Excludes the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression; also excludes `cast`/`xx` so CAST modes claim them at the value-side of a typed constant (`foo : T : cast(...)` / `foo : T : xx value`) without VAR_TYPE stealing the `(` from CAST v1's terminator-carrying balancedParen.
+		begin: `(?<=[^:]:(?:\\s|//[^\\n]*\\n|/\\*[\\s\\S]*?\\*/)*)(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?|cast|xx)\\b)${identifierREFn()})`,//FIXME: polymorph tail...
 		keywords,
 		contains: [
 			...COMMENTS,
@@ -26806,16 +26808,32 @@ function jai(hljs) {
 						keywords,
 						contains: [ALIGNMENT_WS],
 						end: /(?=\W)/
+					},
+					// Module-qualified dotted continuation: `.<ident>` inside a type expression (e.g. `speed.DataType`).
+					// No scope on this sub-mode so the dot and identifier both inherit the wrapping `type` scope, giving themes a single unbroken `type` span across the dotted name.
+					{
+						begin: /\./,
+						keywords,
+						contains: [
+							{
+								begin: identifierREFn(),
+								returnBegin: true,
+								keywords,
+								contains: [ALIGNMENT_WS],
+								end: /(?=\W)/
+							}
+						],
+						end: /(?=\W)/
 					}
 				],
 				// Close on anything that unambiguously terminates the type expression.
-				// Whitespace, `*`, `[` are kept OUT so the prefix-stack sub-modes can fire across gaps like `[4] *int`.
-				end: /(?=[^\s\w\*\[])/
+				// Whitespace, `*`, `[`, `.` are kept OUT so the prefix-stack + dotted-continuation sub-modes can fire across gaps like `[4] *speed.DataType`.
+				end: /(?=[^\s\w\*\[.])/
 			}
 		],
 		// Close on anything that unambiguously terminates the type expression.
-		// Whitespace, `*`, `[` are kept OUT of this class so the prefix stack sub-modes can fire across gaps like `foo: [4] *int`.
-		end: /(?=[^\s\w\*\[])/
+		// Whitespace, `*`, `[`, `.` are kept OUT of this class so the prefix stack + dotted-continuation sub-modes can fire across gaps like `foo: [4] *speed.DataType`.
+		end: /(?=[^\s\w\*\[.])/
 	};
 
 	const TYPE = {//FIXME: polymorph
@@ -27040,7 +27058,8 @@ function jai(hljs) {
 	const FUNCTION_CALL = {
 		scope: 'title.function',
 		relevance: 0,
-		begin: `${identifierREFn()}(?=\\s*\\()`,
+		// Variable-length negative lookbehind rejects `X : Ident(...)` (type position with polymorph-arg constructor) so VAR_TYPE / PARAM's `type.${kind}` can claim it as a type instead of a call. `:: Ident(...)` is fine (the `[^:]` requirement fails against `::` because the char before the trailing `:` is another `:`), and expression-position calls like `+ foo()`, `sqrt(...)`, etc. are unaffected.
+		begin: `(?<![^:]:\\s*)${identifierREFn()}(?=\\s*\\()`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -27064,7 +27083,12 @@ function jai(hljs) {
 	const CONST_DECLARATION = {
 		scope: 'variable.constant.declaration',
 		relevance: 2,
-		begin: `${identifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}::)`,
+		// Accepts two forms:
+		//   `ident (,ident)* ::`                (untyped constant)
+		//   `ident (,ident)* : <type-expr> :`   (typed constant)
+		// The type-expr is matched loosely as "one or more non-terminator chars up to the second `:` (which must not be `:=`)"; this is only a lookahead for classifying the declaration, not a full parse.
+		// Top-level `,` and unbalanced parens are excluded so the lookahead can't jump across sibling params in `(a: X, b: Y)`. Parenthesised groups are allowed up to `nestedBalancedParensREFn(3)` deep so polymorph-arg types like `Foo(Bar(Baz(int)))` still classify correctly.
+		begin: `${identifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}(?:::|:${skipWSAndCommentsREFn(0)}(?:[^\\n:=;{,()]|${nestedBalancedParensREFn(3)})+${skipWSAndCommentsREFn(0)}:(?!=)))`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -27173,6 +27197,11 @@ function jai(hljs) {
 	//  so the whole `Foo(a, b)` is one TYPE unit.
 	// TYPE recurses because it lives in `_COMMON_EXCEPT_STRING` (via `_ATOMIC`), so `Array(Array(int))` etc. just work.
 	/** @type {import('highlight.js').Mode[]} */ (TYPE.contains).push(
+		balancedParen(_COMMON_EXCEPT_STRING_AND_FUNCTION_CALL, { keywords, endsParent: true })
+	);
+
+	// VAR_TYPE's inner `type` sub-mode (`VAR_TYPE.contains[2]`, sitting after the two spread COMMENTS) needs the same polymorph-arg treatment as TYPE, otherwise `foo : Meters(float) = ...` would type-scope `Meters` but leave `(float)` as bare punctuation. `endsParent:true` closes the wrapping `type` at the poly-arg list's own `)`, matching TYPE.
+	/** @type {import('highlight.js').Mode[]} */ (/** @type {any} */ (VAR_TYPE.contains[2]).contains).push(
 		balancedParen(_COMMON_EXCEPT_STRING_AND_FUNCTION_CALL, { keywords, endsParent: true })
 	);
 
@@ -27921,9 +27950,9 @@ function jai(hljs) {
 						WHITESPACE,
 						...(includeProcType ? [makeProcTypeAsType(kind)] : []),
 						{
-							scope: `${kind}.type`,
+							scope: `type.${kind}`,
 							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or a type-shaped ident.
-							// Sub-modes below consume each part; wrapping them all in `${kind}.type` gives themes a single span covering `<prefix>TypeName`.
+							// Sub-modes below consume each part; wrapping them all in `type.${kind}` gives themes a single span covering `<prefix>TypeName`. Scope is `type.${kind}` (rather than `${kind}.type`) so themes that only style the top-level `type` scope pick this up as a type - most themes don't distinguish sub-scopes, and the important information here is that this span *is* a type (of a particular kind), not that it's a kind (that happens to be a type).
 							begin: `(?=\\*|\\[|${typeIdentifierREFn()})`,
 							keywords,
 							contains: [
@@ -27967,6 +27996,22 @@ function jai(hljs) {
 									returnBegin: true,
 									keywords,
 									contains: [ALIGNMENT_WS],
+									end: /(?=\W)/
+								},
+								// Module-qualified dotted continuation: `.<ident>` inside a type expression (e.g. `speed.DataType`).
+								// No scope on this sub-mode so the dot and identifier both inherit the wrapping `type.${kind}` scope.
+								{
+									begin: /\./,
+									keywords,
+									contains: [
+										{
+											begin: identifierREFn(),
+											returnBegin: true,
+											keywords,
+											contains: [ALIGNMENT_WS],
+											end: /(?=\W)/
+										}
+									],
 									end: /(?=\W)/
 								}
 							],
@@ -28024,14 +28069,14 @@ function jai(hljs) {
 
 	// A proc type used in a *type* slot (parameter type, local variable type) rather than as a top-level procedure declaration.
 	// Lets things like `mod: (q: T) -> T = null` parse without the lexer desyncing on the inner `)` of the parameter list.
-	// `kind` mirrors PARAM's so resulting scopes nest under the parent param's scope (e.g. `params.type.function`).
+	// `kind` mirrors PARAM's so the resulting scope nests under the top-level `type` scope (e.g. `type.function.params`).
 	// Recursion (proc-type-as-type containing a PARAM containing another proc-type-as-type) is broken by passing includeProcType=false to the inner PARAM call below.
 	/**
 	 * @param {string} kind
 	 * @returns {import('highlight.js').Mode}
 	 */
 	const makeProcTypeAsType = (kind) => ({
-		scope: `${kind}.type.function`,
+		scope: `type.function.${kind}`,
 		// Optional `#type` prefix, then the start of `(`. The `(` itself is left unconsumed by the begin (it's a lookahead) so balancedParen below can take it.
 		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\()`,
 		keywords,
@@ -28061,7 +28106,7 @@ function jai(hljs) {
 					...COMMENTS,
 					NOTE,
 					{
-						scope: `${kind}.type`,
+						scope: `type.${kind}`,
 						begin: typeIdentifierREFn(),
 						returnBegin: true,
 						keywords,
@@ -28267,7 +28312,9 @@ function jai(hljs) {
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\(.*?\\)${skipWSAndCommentsREFn(0)}(?:->.+?)?${skipWSAndCommentsREFn(0)}(?:#(?:c_call|dump|foreign|modify)\\b|(?=\\{)))`,
+		// `[^;{}]*?` / `[^;{}]+?` instead of `.*?` / `.+?` so the params list and returns expression may span newlines (multi-line proc signatures) but *cannot* cross statement boundaries (`;`) or block braces (`{`, `}`).
+		// Without the boundary constraint the non-greedy scan can happily cross statement/scope boundaries to find the eventual `#modify`/`#c_call`/`{` end-anchor of an *unrelated* later proc, causing this rule to fire on ordinary grouping-parens like `range := (a * b) * (c + d);`.
+		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\([^;{}]*?\\)${skipWSAndCommentsREFn(0)}(?:->[^;{}]+?)?${skipWSAndCommentsREFn(0)}(?:#(?:c_call|dump|foreign|modify)\\b|(?=\\{)))`,
 		returnBegin: true,
 		//'on:begin': (match, resp) => {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);

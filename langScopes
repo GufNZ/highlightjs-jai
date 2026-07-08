@@ -226,11 +226,7 @@ params.moduleOrProgram.declaration
 params.return
 params.return.declaration
 params.return.default
-params.return.type
-params.return.type.function
 params.returns
-params.type
-params.type.function
 property
 property.constant
 property.constant.declaration
@@ -238,8 +234,6 @@ property.constant.enum
 property.constant.value
 property.declaration
 property.default
-property.type
-property.type.function
 punctuation
 punctuation.alignmentWS
 punctuation.backslash
@@ -288,8 +282,14 @@ type.enum.declaration
 type.enum.value.declaration
 type.float
 type.function.declaration
+type.function.params
+type.function.params.return
+type.function.property
 type.integer.signed
 type.integer.unsigned
+type.params
+type.params.return
+type.property
 type.stdLib.Adpcm
 type.stdLib.Android
 type.stdLib.Basic

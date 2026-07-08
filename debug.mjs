@@ -273,9 +273,21 @@ function validateAtomics(re, path, validateParenthes = true) {
 	/** @type {number[]} */
 	const atomics = [];
 	for (let i = 0, len = re.length, end = len - 1; i < len; i++) {
-		if (/^\\[()]/.test(re.slice(i, i + 2))) {
+		if (/^\\[()[\]]/.test(re.slice(i, i + 2))) {
 			i += 1;
 			continue;	// <- i++
+		} else if (re[i] === '[') {
+			// Character class - `(`, `)`, `|` etc. inside are literals, NOT regex tokens.
+			// Skip to the matching `]`, accounting for `\]` escapes. A leading `]` right after `[` or `[^` is treated as a literal `]` by JS regex, so allow that.
+			let j = i + 1;
+			if (re[j] === '^') j++;
+			if (re[j] === ']') j++; // literal `]` at start of class
+			while (j < len && re[j] !== ']') {
+				if (re[j] === '\\') j++;
+				j++;
+			}
+			i = j;	// land on `]`; loop's i++ moves past it
+			continue;
 		} else if (re[i] === '(') {
 			depthStack.push(i);
 			if (!(re[i + 1] === '?' && ':=!<'.includes(re[i + 2]))) {
