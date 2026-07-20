@@ -456,6 +456,8 @@ main :: () {
 		//true,	// Debug css parse.
 		expectedFromCSS = .["_BalancedBraces", "_BalancedParens"],
 		"built_in",
+		"doctag.label_.doctag",
+		"doctag.label_.doctag.fileName__",
 		"keyword",
 		"_BalancedParens",
 		"number.prefix__",
@@ -481,6 +483,7 @@ main :: () {
 		langScopes,
 		refStr,
 		.[],
+		".hljs-doctag:has(> .hljs-doctag.fileName__) + .hljs-doctag.label__",
 		".hljs-keyword",
 		".hljs-symbol.size_",
 		".hljs-type.integer_",

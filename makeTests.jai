@@ -47,7 +47,6 @@ main :: () {
 			"../../dist/jai.min.js",
 			"../../src/languages/jai.js"
 		);
-		print("~%~", parts[2]);
 		parts[2] = replace(
 			replace(
 				parts[2],
@@ -57,7 +56,6 @@ main :: () {
 			"// first:",
 			"jaiDebug.debugInit();"
 		);
-		print("~%~", parts[2]);
 	}
 
 	builder: String_Builder;

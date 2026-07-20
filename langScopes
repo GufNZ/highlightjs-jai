@@ -127,9 +127,15 @@ comment.block
 comment.line
 comment.line.shebang
 doctag
+doctag.addBuildString
+doctag.addBuildString.fileName
+doctag.addBuildString.path
 doctag.bug
 doctag.fixme
 doctag.hack
+doctag.insert
+doctag.insert.fileName
+doctag.insert.path
 doctag.label
 doctag.later
 doctag.maybe
@@ -140,6 +146,8 @@ doctag.question
 doctag.reminder
 doctag.test
 doctag.todo
+doctag.workspace
+doctag.workspace.name
 doctag.xxx
 keyword.cast
 keyword.cast.v1

@@ -117,6 +117,22 @@
 	--doctag-xxx-fg: #FF0;
 	--doctag-xxx-bg: #808;
 
+	--doctag-workspace-fg: #CCC;
+	--doctag-workspace-bg: #040;
+	--doctag-workspace-name-fg: #FFC;
+
+	--doctag-addBuildString-fg: #888;
+	--doctag-addBuildString-bg: #044;
+	--doctag-addBuildString-path-fg: #CCC;
+	--doctag-addBuildString-fileName-fg: #FFF;
+
+	--doctag-insert-fg: #888;
+	--doctag-insert-bg: #440;
+	--doctag-insert-path-fg: #CCC;
+	--doctag-insert-fileName-fg: #FFF;
+
+	--doctag-lineNumber-fg: #0FF;
+
 	--meta-fg: #F68;
 	--meta-bg: #660;
 	--meta-comma-fg: #888;
@@ -256,6 +272,30 @@
 	font-weight: var(--doctag-weight, var(--comment-weight, --default-weight));
 	text-decoration: var(--doctag-decoration, var(--comment-decoration, --default-decoration));
 
+	&.addBuildString_ {
+		color: var(--doctag-addBuildString-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
+		background-color: var(--doctag-addBuildString-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
+		font-style: var(--doctag-addBuildString-style, var(--doctag-style, var(--comment-style, --default-style)));
+		font-weight: var(--doctag-addBuildString-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
+		text-decoration: var(--doctag-addBuildString-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+
+		&.fileName__ {
+			color: var(--doctag-addBuildString-fileName-fg, var(--doctag-addBuildString-fg, var(--doctag-fg, var(--comment-fg, --default-fg))));
+			background-color: var(--doctag-addBuildString-fileName-bg, var(--doctag-addBuildString-bg, var(--doctag-bg, var(--comment-bg, --default-bg))));
+			font-style: var(--doctag-addBuildString-fileName-style, var(--doctag-addBuildString-style, var(--doctag-style, var(--comment-style, --default-style))));
+			font-weight: var(--doctag-addBuildString-fileName-weight, var(--doctag-addBuildString-weight, var(--doctag-weight, var(--comment-weight, --default-weight))));
+			text-decoration: var(--doctag-addBuildString-fileName-decoration, var(--doctag-addBuildString-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration))));
+		}
+
+		&.path__ {
+			color: var(--doctag-addBuildString-path-fg, var(--doctag-addBuildString-fg, var(--doctag-fg, var(--comment-fg, --default-fg))));
+			background-color: var(--doctag-addBuildString-path-bg, var(--doctag-addBuildString-bg, var(--doctag-bg, var(--comment-bg, --default-bg))));
+			font-style: var(--doctag-addBuildString-path-style, var(--doctag-addBuildString-style, var(--doctag-style, var(--comment-style, --default-style))));
+			font-weight: var(--doctag-addBuildString-path-weight, var(--doctag-addBuildString-weight, var(--doctag-weight, var(--comment-weight, --default-weight))));
+			text-decoration: var(--doctag-addBuildString-path-decoration, var(--doctag-addBuildString-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration))));
+		}
+	}
+
 	&.bug_ {
 		color: var(--doctag-bug-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
 		background-color: var(--doctag-bug-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
@@ -280,12 +320,44 @@
 		text-decoration: var(--doctag-hack-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
 	}
 
+	&.insert_ {
+		color: var(--doctag-insert-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
+		background-color: var(--doctag-insert-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
+		font-style: var(--doctag-insert-style, var(--doctag-style, var(--comment-style, --default-style)));
+		font-weight: var(--doctag-insert-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
+		text-decoration: var(--doctag-insert-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+
+		&.fileName__ {
+			color: var(--doctag-insert-fileName-fg, var(--doctag-insert-fg, var(--doctag-fg, var(--comment-fg, --default-fg))));
+			background-color: var(--doctag-insert-fileName-bg, var(--doctag-insert-bg, var(--doctag-bg, var(--comment-bg, --default-bg))));
+			font-style: var(--doctag-insert-fileName-style, var(--doctag-insert-style, var(--doctag-style, var(--comment-style, --default-style))));
+			font-weight: var(--doctag-insert-fileName-weight, var(--doctag-insert-weight, var(--doctag-weight, var(--comment-weight, --default-weight))));
+			text-decoration: var(--doctag-insert-fileName-decoration, var(--doctag-insert-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration))));
+		}
+
+		&.path__ {
+			color: var(--doctag-insert-path-fg, var(--doctag-insert-fg, var(--doctag-fg, var(--comment-fg, --default-fg))));
+			background-color: var(--doctag-insert-path-bg, var(--doctag-insert-bg, var(--doctag-bg, var(--comment-bg, --default-bg))));
+			font-style: var(--doctag-insert-path-style, var(--doctag-insert-style, var(--doctag-style, var(--comment-style, --default-style))));
+			font-weight: var(--doctag-insert-path-weight, var(--doctag-insert-weight, var(--doctag-weight, var(--comment-weight, --default-weight))));
+			text-decoration: var(--doctag-insert-path-decoration, var(--doctag-insert-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration))));
+		}
+	}
+
 	&.label_ {
 		color: var(--doctag-label-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
 		background-color: var(--doctag-label-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
 		font-style: var(--doctag-label-style, var(--doctag-style, var(--comment-style, --default-style)));
 		font-weight: var(--doctag-label-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
 		text-decoration: var(--doctag-label-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+
+		.hljs-doctag:has(> .hljs-doctag.fileName__) + & {
+			color: var(--doctag-lineNumber-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
+			background-color: var(--doctag-lineNumber-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
+			font-style: var(--doctag-lineNumber-style, var(--doctag-style, var(--comment-style, --default-style)));
+			font-weight: var(--doctag-lineNumber-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
+			text-decoration: var(--doctag-lineNumber-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+		}
 	}
 
 	&.later_ {
@@ -358,6 +430,22 @@
 		font-style: var(--doctag-todo-style, var(--doctag-style, var(--comment-style, --default-style)));
 		font-weight: var(--doctag-todo-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
 		text-decoration: var(--doctag-todo-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+	}
+
+	&.workspace_ {
+		color: var(--doctag-workspace-fg, var(--doctag-fg, var(--comment-fg, --default-fg)));
+		background-color: var(--doctag-workspace-bg, var(--doctag-bg, var(--comment-bg, --default-bg)));
+		font-style: var(--doctag-workspace-style, var(--doctag-style, var(--comment-style, --default-style)));
+		font-weight: var(--doctag-workspace-weight, var(--doctag-weight, var(--comment-weight, --default-weight)));
+		text-decoration: var(--doctag-workspace-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration)));
+
+		&.name__ {
+			color: var(--doctag-workspace-name-fg, var(--doctag-workspace-fg, var(--doctag-fg, var(--comment-fg, --default-fg))));
+			background-color: var(--doctag-workspace-name-bg, var(--doctag-workspace-bg, var(--doctag-bg, var(--comment-bg, --default-bg))));
+			font-style: var(--doctag-workspace-name-style, var(--doctag-workspace-style, var(--doctag-style, var(--comment-style, --default-style))));
+			font-weight: var(--doctag-workspace-name-weight, var(--doctag-workspace-weight, var(--doctag-weight, var(--comment-weight, --default-weight))));
+			text-decoration: var(--doctag-workspace-name-decoration, var(--doctag-workspace-decoration, var(--doctag-decoration, var(--comment-decoration, --default-decoration))));
+		}
 	}
 
 	&.xxx_ {

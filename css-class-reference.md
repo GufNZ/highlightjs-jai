@@ -45,6 +45,16 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--doctag-xxx`|E.g. `XXX:`.|`--doctag`=>`--comment`=>`--default`|
 |`--doctag-reminder`|E.g. `@Speed`.|`--doctag`=>`--comment`=>`--default`|
 |`--doctag-label`|E.g. `:Something`.|`--doctag`=>`--comment`=>`--default`|
+|**inside `.build/added_strings_*.jai`**|
+|`--doctag-workspace`|The workspace header comment.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-workspace-name`|The workspace name in the above comment.|`--doctag-workspace`=>`--doctag`=>`--comment`=>`--default`|
+|`--doctag-addBuildString`|A "String added via `add_build_string()` from" heading comment.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-addBuildString-path`|The file-path in the above comment.|`--doctag-addBuildString`=>`--doctag`=>`--comment`=>`--default`|
+|`--doctag-addBuildString-fileName`|The file-name in the above comment.|`--doctag-addBuildString`=>`--doctag`=>`--comment`=>`--default`|
+|`--doctag-insert`|A "#insert text. Generated from`" heading comment.|`--doctag`=>`--comment`=>`--default`|
+|`--doctag-insert-path`|The file-path in the above comment.|`--doctag-insert`=>`--doctag`=>`--comment`=>`--default`|
+|`--doctag-insert-fileName`|The file-name in the above comment.|`--doctag-insert`=>`--doctag`=>`--comment`=>`--default`|
+|`--doctag-lineNumber`|The line number in the above 2 comment types.|`--doctag`=>`--comment`=>`--default`|
 ||||
 |**Literals**|
 |`--literal`|Non-numeric, non-string literals: `true`, `false`, `null`.|`--default`|
@@ -344,6 +354,16 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
   |`.hljs-doctag.reminder_`|`@Something`|Reminder tags, e.g. `@Incomplete` or `@Speed`.|
   ||||
   |`.hljs-doctag.label_`|`:Label`|A label likely used somewhere else near related code.|
+  ||||
+  |`.hljs-doctag.workspace_`|`Workspace: <Name>`|The workspace header comment.|
+  |`.hljs-doctag.workspace_.name__`|`<Name>`|The workspace name in the above comment.|
+  |`.hljs-doctag.addBuildString_`|`String added via add_build_string()...`|A "String added via `add_build_string()` from" heading comment.|
+  |`.hljs-doctag.addBuildString_.path__`||The file-path in the above comment.|
+  |`.hljs-doctag.addBuildString_.fileName__`||The file-name in the above comment.|
+  |`.hljs-doctag.insert_`||A "#insert text. Generated from`" heading comment.|
+  |`.hljs-doctag.insert_.path__`||The file-path in the above comment.|
+  |`.hljs-doctag.insert_.fileName__`||The file-name in the above comment.|
+  |`.hljs-doctag:has(> .hljs-doctag.fileName__) + .hljs-doctag.label__`|`:123`|A CSS hack to change what would have been a doctag label into the line number for the above.|
 </details>
 
 ### Literals

@@ -8,10 +8,17 @@ comment.block_
 comment.line_
 comment.line_.shebang__
 doctag
+doctag.addBuildString_
+doctag.addBuildString_.fileName__
+doctag.addBuildString_.path__
 doctag.bug_
 doctag.fixme_
 doctag.hack_
+doctag.insert_
+doctag.insert_.fileName__
+doctag.insert_.path__
 doctag.label_
+doctag.label_.doctag
 doctag.later_
 doctag.maybe_
 doctag.noCheckin_
@@ -21,6 +28,8 @@ doctag.question_
 doctag.reminder_
 doctag.test_
 doctag.todo_
+doctag.workspace_
+doctag.workspace_.name__
 doctag.xxx_
 keyword
 keyword.cast_

@@ -50,7 +50,7 @@ function jai(hljs) {
 			delete cont.excludeBegin;
 			delete cont.end;
 			delete cont.begin;
-			cont.variants = doctags.map(tag => ({
+			cont.variants = /** @type {Partial<import('highlight.js').Mode>[]} */ (doctags.map(tag => ({
 				scope: `doctag.${tag.source.toLowerCase().replace('?', '').replace('z', 's').replace('_c', 'C')}`,
 				begin: new RegExp(
 					`\\b${
@@ -59,17 +59,58 @@ function jai(hljs) {
 							: tag.source
 					}:?\\b`
 				)
-			}));
-			cont.variants.push({
-				scope: 'doctag.reminder',
-				begin: /@\w+/,
-				relevance: 1
-			});
-			cont.variants.push({
-				scope: 'doctag.label',
-				begin: /:\w+/,
-				relevance: 1
-			});
+			}))).concat([
+				{
+					scope: 'doctag.reminder',
+					begin: /@\w+/,
+					relevance: 1
+				},
+				{
+					//NOTE: includes the space so we win over the '3 words' match that comes after the variants.
+					begin: [
+						/(?<=\/\/) Workspace: /,
+						/.+$/
+					],
+					beginScope: {
+						1: 'doctag.workspace',
+						2: 'doctag.workspace.name'
+					},
+					relevance: 5
+				},
+				{
+					scope: 'doctag.label',
+					begin: /:\w+/,
+					relevance: 1
+				},
+				{
+					//NOTE: includes the space so we win over the '3 words' match that comes after the variants.
+					begin: [
+						/(?<=\/\/) String added via add_build_string\(\) from /,
+						/(?:.+\/)?/,
+						/[^/:]+(?=(?::\d+)?\.?$)/
+					],
+					beginScope: {
+						1: 'doctag.addBuildString',
+						2: 'doctag.addBuildString.path',
+						3: 'doctag.addBuildString.fileName'
+					},
+					relevance: 5
+				},
+				{
+					//NOTE: includes the space so we win over the '3 words' match that comes after the variants.
+					begin: [
+						/(?<=\/\/) #insert text\. Generated from /,
+						/(?:.+\/)?/,
+						/[^/:]+(?=(?::\d+)?\.?$)/
+					],
+					beginScope: {
+						1: 'doctag.insert',
+						2: 'doctag.insert.path',
+						3: 'doctag.insert.fileName'
+					},
+					relevance: 5
+				}
+			]);
 		});
 
 		mode.relevance = 0;
@@ -26675,7 +26716,7 @@ function jai(hljs) {
 	const HERESTRING = {
 		scope: 'string.here',
 		relevance: 5,
-		begin: `(?=#string(?=\\s|\\/[\\/*]|,)${skipWSAndCommentsREFn()}(?:,${skipWSAndCommentsREFn(0)}cr(?=\\s|\\/[\\/*])${skipWSAndCommentsREFn(0)})?(\\w+)[ \\t]*\\n)`,
+		begin: `(?=#string(?=\\s|\\/[\\/*]|,)${skipWSAndCommentsREFn()}(?:,${skipWSAndCommentsREFn(0)}cr(?=\\s|\\/[\\/*])${skipWSAndCommentsREFn(0)})?(\\w+)[ \\t]*\\r?\\n)`,
 		contains: [
 			{
 				scope: 'operator.hash.directive',
@@ -26699,14 +26740,14 @@ function jai(hljs) {
 				}
 			}
 		],
-		end: `(?=\\w+${skipWSAndCommentsREFn(undefined, true)}\\n)`,
+		end: `(?=\\w+${skipWSAndCommentsREFn(undefined, true)}\\r?\\n)`,
 		starts: {
 			contains: [
 				{
 					scope: 'string.here',
 					begin: [
 						/\w+/,
-						/[ \t]*\n/
+						/[ \t]*\r?\n/
 					],
 					beginScope: {
 						1: 'meta.stringTerminator'
@@ -27088,7 +27129,7 @@ function jai(hljs) {
 		//   `ident (,ident)* : <type-expr> :`   (typed constant)
 		// The type-expr is matched loosely as "one or more non-terminator chars up to the second `:` (which must not be `:=`)"; this is only a lookahead for classifying the declaration, not a full parse.
 		// Top-level `,` and unbalanced parens are excluded so the lookahead can't jump across sibling params in `(a: X, b: Y)`. Parenthesised groups are allowed up to `nestedBalancedParensREFn(3)` deep so polymorph-arg types like `Foo(Bar(Baz(int)))` still classify correctly.
-		begin: `${identifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}(?:::|:${skipWSAndCommentsREFn(0)}(?:[^\\n:=;{,()]|${nestedBalancedParensREFn(3)})+${skipWSAndCommentsREFn(0)}:(?!=)))`,
+		begin: `${identifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}(?:::|:${skipWSAndCommentsREFn(0)}(?:[^\\r\\n:=;{,()]|${nestedBalancedParensREFn(3)})+${skipWSAndCommentsREFn(0)}:(?!=)))`,
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -28194,7 +28235,11 @@ function jai(hljs) {
 			...COMMENTS,
 			{
 				// Override proc-name string: `"..."` (contents may be any non-quote, non-newline chars - e.g. `?baker_init@Thekla@@YAXP6AXPEBD@Z@Z`).
-				begin: [/"/, /[^"\n]*/, /"/],
+				begin: [
+					/"/,
+					/[^"\r\n]*/,
+					/"/
+				],
 				beginScope: {
 					1: 'punctuation.quote',
 					2: 'title.libraryProcName',

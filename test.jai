@@ -1,26 +1,22 @@
-Item :: struct {
-	Item :: struct {
-		x: int;
-	}
-	Y :: struct { }
-	Z :: struct {
-		a: int;
-		b :: struct {
-			c: float;
-		}
-	}
-}
+// Workspace: First Workspace
 
-foo :: struct {
-	bar := struct { x: int; }
-	baz : Foo = .{ 1, 2 }
-}
+#import "Default_Metaprogram";
 
-nested :: (x: int) -> Nested_Type {
-	Result :: struct { value: int; }
-	return .{ x };
-}
+//
+// String added via add_build_string() from D:/jai/modules/Metaprogram_Plugins.jai:153.
+//
+PLUGIN_INIT_STRING :: #string DONE
+        Plugin_0 :: #import "Check";
+        p_0: *Metaprogram_Plugin = Plugin_0.get_plugin();
+        p_0.workspace = w;
+        array_add(results, p_0);
 
-setup_xr :: () -> app: Xr_App = .{}, success := false {
-    // ...
-}
+DONE
+
+//
+// #insert text. Generated from D:/jai/modules/Metaprogram_Plugins.jai:175.
+//
+        Plugin_0 :: #import "Check";
+        p_0: *Metaprogram_Plugin = Plugin_0.get_plugin();
+        p_0.workspace = w;
+        array_add(results, p_0);

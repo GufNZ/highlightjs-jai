@@ -3,6 +3,7 @@
 
 #Extra CSS scopes:
 (built_in)
+(doctag.label_.doctag)
 (keyword)
 (_BalancedParens)
 (literal.bool_)
@@ -25,6 +26,7 @@
 #CSS classes missing from reference:
 
 #Extra CSS classes in reference:
+(.hljs-doctag:has(> .hljs-doctag.fileName__) + .hljs-doctag.label__)
 (.hljs-literal.bool_)
 (.hljs-keyword)
 (.hljs-type.integer_)
