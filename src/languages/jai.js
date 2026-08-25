@@ -26631,6 +26631,10 @@ function jai(hljs) {
 				begin: /\.(?!\()/	// Not .( as that's cast v3.
 			},
 			{
+				scope: 'operator.rotate',
+				begin: /<<<|>>>/
+			},
+			{
 				scope: 'operator.comparison',
 				begin: /[=!<>]=|<|>/
 			},
@@ -26655,10 +26659,6 @@ function jai(hljs) {
 				scope: 'operator.bitwise',
 				begin: /[&|^~]/
 			},
-			{
-				scope: 'operator.rotate',
-				begin: /<<<|>>>/
-			}
 		]
 	};
 
@@ -26673,7 +26673,7 @@ function jai(hljs) {
 	const SHIFTS = [
 		{
 			scope: 'operator.shift',
-			begin: /<</,
+			begin: /(?<!<)<<(?!<)/,
 			relevance: 0,
 			contains: [
 				...COMMENTS,
@@ -26687,7 +26687,7 @@ function jai(hljs) {
 		},
 		{
 			scope: 'operator.shift',
-			begin: />>/,
+			begin: /(?<!<)>>(?!>)/,
 			relevance: 0,
 			contains: [
 				...COMMENTS,
@@ -27281,33 +27281,57 @@ function jai(hljs) {
 	const castArgsHaveTopLevelComma = (input, start) => {
 		let depth = 0;
 		for (let index = input.indexOf('(', start); index >= 0 && index < input.length; index++) {
-			if (input[index] === '"') {
-				for (index++; index < input.length && input[index] !== '"'; index++) {
-					if (input[index] === '\\') {
-						index++;
+			switch (input[index]) {
+				case '"':
+					for (index++; index < input.length && input[index] !== '"'; index++) {
+						if (input[index] === '\\') {
+							index++;
+						}
 					}
-				}
-			} else if (input[index] === '/' && input[index + 1] === '/') {
-				index = input.indexOf('\n', index + 2);
-				if (index < 0) {
-					return false;
-				}
-			} else if (input[index] === '/' && input[index + 1] === '*') {
-				index = input.indexOf('*/', index + 2);
-				if (index < 0) {
-					return false;
-				}
+
+					break;
+
+				case '/':
+					switch (input[index + 1]) {
+						case '/':
+							index = input.indexOf('\n', index + 2);
+							if (index < 0) {
+								return false;
+							}
 
 
-				index++;
-			} else if (input[index] === '(') {
-				depth++;
-			} else if (input[index] === ')') {
-				if (--depth === 0) {
-					return false;
-				}
-			} else if (input[index] === ',' && depth === 1) {
-				return true;
+							break;
+						case '*':
+							index = input.indexOf('*/', index + 2);
+							if (index < 0) {
+								return false;
+							}
+
+
+							index++;
+							break;
+					}
+
+
+					break;
+				case '(':
+					depth++;
+					break;
+
+				case ')':
+					if (--depth === 0) {
+						return false;
+					}
+
+
+					break;
+				case ',':
+					if (depth === 1) {
+						return true;
+					}
+
+
+					break;
 			}
 		}
 

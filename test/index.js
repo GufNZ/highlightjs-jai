@@ -67,7 +67,7 @@ describe('Jai syntax highlighting', () => {
 		}
 
 		bodyBraceScopes.should.be.Array();
-		bodyBraceScopes.should.not.matchAny(scope => /\b(?:returns_|return_)\b/.test(scope));
+		bodyBraceScopes.should.not.matchAny(scope => /\b(?:returns?_)\b/.test(scope));
 	});
 
 	it('should highlight recursively nested anonymous structs', () => {
@@ -207,5 +207,38 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.match(/hljs-type function_ params__/);
 		result.value.should.match(/hljs-type params_ return__/);
 		(result.value.split('hljs-_BalancedParens').length - 1).should.be.above(10);
+	});
+
+	it('should exercise the compiler-valid grammar coverage fixtures', async function () {
+		this.timeout(20000);
+		const fixturePaths = [
+			path.join(__dirname, 'grammarCoverage', 'grammar-coverage.jai'),
+			path.join(__dirname, 'grammarCoverage', 'modules', 'Grammar_Coverage_Module', 'module.jai')
+		];
+		const sources = await Promise.all(fixturePaths.map(filePath => readFile(filePath, 'utf-8')));
+		const results = sources.map(code => hljs.highlight(code, { language: 'jai' }));
+		const emittedClasses = new Set(results.flatMap(result =>
+			Array.from(result.value.matchAll(/class="([^"]+)"/g), match => match[1].split(' ')).flat()
+		));
+		const expectedClasses = [
+			'shebang__', 'block_', 'todo_', 'reminder_',
+			'binary_', 'hex_', 'hexFloat_', 'float_', 'exponent__', 'integer_',
+			'here_', 'stringTerminator_', 'char_', 'escape_',
+			'arrayOf_', 'dynamicArray_', 'pointerTo_', 'unsigned__', 'signed__', 'bool_', 'void_', 'any_',
+			'struct_', 'union_', 'anonymous__', 'binding__', 'tag__', 'enum_', 'flags___',
+			'quickLambda_', 'rotate_', 'shift_', 'modifier__', 'varargs_', 'commaComma_',
+			'uninitialised_', 'dereference_', 'range_', 'backtick_',
+			'v1__', 'v2__', 'v3__',
+			'import__', 'load__', 'modify__', 'insert__', 'foreignOrLibrary__', 'module_parameters__',
+			'forExpansion__', 'forExpansionInvoke_', 'forModifier_',
+			'asm__', 'statement__', 'mnemonic__', 'clue___',
+			'moduleOrProgram_', 'returns_', 'return__', 'proc_',
+			'workspace_', 'fileName__', 'addBuildString_'
+		];
+
+		results.forEach(result => result.illegal.should.equal(false));
+		expectedClasses.forEach(className =>
+			emittedClasses.has(className).should.equal(true, `Missing fixture scope class: ${className}`)
+		);
 	});
 });

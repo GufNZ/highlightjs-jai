@@ -8,6 +8,8 @@ The grammar has broad and unusually detailed coverage of Jai. It recognizes the 
 
 The largest mismatches found by the audit have now been corrected: structured union parsing covers named, anonymous, polymorphic, tagged, and bound unions; the primitive-type inventory recognizes the current built-in names in structured type slots; and directive modifiers, varargs markers, and dedicated `#insert` handling now receive structural scopes. Anonymous struct and union fields share an unlimited self-recursive record mode, allowing arbitrarily mixed nesting without a fixed depth limit. Newer unprefixed struct literals and uncommon nested forms remain inherent or lightly tested limitations.
 
+Two original, distributable fixtures now exercise the non-standard-library grammar surface: `test/grammarCoverage/grammar-coverage.jai` contains the program syntax and `test/grammarCoverage/modules/Grammar_Coverage_Module/module.jai` contains module-only syntax such as `#module_parameters`. They do not copy source from the Jai distribution. Both are highlighted by an automated invariant, and the pair compiles and links with Jai's normal checks enabled.
+
 ## Reference baseline
 
 The review used:
@@ -70,6 +72,14 @@ Import modifiers such as `#import,file`, `#import,dir`, and `#import,string` now
 
 Targeted tests now cover every recognized primitive in parameter, property, and return slots; `#type` variants; context `,,`; module arguments; here-strings; all three cast generations; and deeply nested procedure and polymorphic type signatures. This coverage exposed an ordering bug in which the broad v1 cast modes claimed `xx(...)` and `cast(type, value)` before v2 could match. The v1 modes now defer based on the parenthesized form and top-level argument commas while preserving v1 casts whose type contains nested commas.
 
+#### Compiler-valid coverage fixtures
+
+The original fixture pair covers comments and doctags, generated-source annotations, literals, strings and here-strings, primitive and compound types, records, unions and tagged bindings, enums and flags, polymorphism, procedure types, quick lambdas, control flow, operators, casts, context arguments, custom for-expansions, directives, module parameters, and inline assembly. Disabled `#if false` code carries syntax that must remain parseable but cannot be linked in a self-contained fixture, such as synthetic foreign libraries and file imports.
+
+The corresponding Mocha invariant highlights both files, rejects illegal parses, and requires representative emitted classes from every major non-stdlib grammar family. Exhaustively naming generated standard-library symbols is intentionally excluded because that inventory has its own generation/versioning path.
+
+This fixture also exposed unreachable rotate highlighting: the earlier shift modes consumed `<<<` and `>>>` in pieces before `operator.rotate` could match. Shift matching now rejects adjacent third brackets and rotate matching precedes comparison operators. Ordinary `<<`, `>>`, `<<,small`, and `>>,logical` remain independently covered.
+
 ### Validated current forms
 
 - `#type,distinct` and `#type,isa` correctly scope `#type`, the comma, the modifier, and the following base type.
@@ -88,7 +98,7 @@ Targeted tests now cover every recognized primitive in parameter, property, and 
 
 - The grammar depends heavily on mode ordering, variable-length lookbehind, generated atomic backreferences, zero-width starts/ends, and manually coordinated `endsParent` behavior. This enables excellent scopes but raises regression risk for malformed or deeply nested input.
 - Standard-library names are version-pinned generated data. Coverage is excellent for beta 0.2.030 but will drift with a newer compiler until `generateStdLib.jai` is rerun.
-- The automated markup suite has only one full markup fixture plus targeted assertions. It now includes passing regressions for six-level anonymous struct recursion; named, anonymous, nested, polymorphic, tagged, and bound unions; every primitive in structured type slots; `#type` variants; context and module arguments; here-strings; all cast forms; and deeply nested signatures. The `BucketAllocator` expected HTML has been reviewed and refreshed against the current grammar. The returns-list regression now parses emitted span scopes and verifies that no return scope remains active at the procedure body brace instead of depending on an incidental number of closing tags. The much larger `test/visualTests` corpus remains primarily for manual/browser inspection.
+- The automated suite has one full markup snapshot, targeted assertions, and the two compiler-valid grammar coverage fixtures. It includes passing regressions for six-level anonymous struct recursion; named, anonymous, nested, polymorphic, tagged, and bound unions; every primitive in structured type slots; `#type` variants; context and module arguments; here-strings; all cast forms; rotates versus shifts; and deeply nested signatures. The `BucketAllocator` expected HTML has been reviewed and refreshed against the current grammar. The returns-list regression now parses emitted span scopes and verifies that no return scope remains active at the procedure body brace instead of depending on an incidental number of closing tags. The much larger `test/visualTests` corpus remains primarily for manual/browser inspection.
 - Some fixed identifier heuristics assume uppercase type names and uppercase constants. Jai style follows that convention, but legal unconventional names can receive generic variable scopes in contexts where structural type parsing does not take over.
 
 ## Validation performed
@@ -98,6 +108,9 @@ Targeted tests now cover every recognized primitive in parameter, property, and 
 - Focused anonymous-record and union regressions pass.
 - Focused directive-modifier, varargs/range isolation, and top-level/procedure-body insert-precedence regressions pass.
 - Focused primitive-slot, type-variant, context/module-argument, here-string/cast, and deeply nested signature regressions pass.
+- Both original grammar coverage fixtures highlight without an illegal parse, and their broad emitted-scope invariant passes.
+- `test/grammarCoverage/grammar-coverage.jai` compiles and links with normal checks using `jai test/grammarCoverage/grammar-coverage.jai -import_dir test/grammarCoverage/modules -verbose`.
+- A direct operator probe confirms distinct rotate and shift scopes after the precedence correction.
 - A direct runtime probe covers untagged, anonymous, `using`, tagged, bound, inferred-member, polymorphic, and mixed nested record forms.
 - The current Highlight.js API emits no deprecation warning.
 - `git diff --check` passes.
@@ -105,10 +118,9 @@ Targeted tests now cover every recognized primitive in parameter, property, and 
 
 ## Remaining recommendations
 
-1. Promote a representative subset of `test/visualTests` to automated invariant tests that assert key scopes and that highlighting terminates without illegal/zero-width failures.
-2. Keep the generated standard-library version marker tied to the compiler version used for generation and report drift in CI.
-3. Treat unprefixed `{...}` struct literals as an intentional context-sensitive limitation unless a conservative expression-context rule can avoid misclassifying ordinary blocks.
+1. Keep the generated standard-library version marker tied to the compiler version used for generation and report drift in CI.
+2. Treat unprefixed `{...}` struct literals as an intentional context-sensitive limitation unless a conservative expression-context rule can avoid misclassifying ordinary blocks.
 
 ## Overall rating
 
-Lexical feature coverage is excellent, and structured semantic highlighting is now strong across procedures, structs, unions, tagged unions, enums, directives, and varargs parameters. Fundamental primitive names are consistently classified in structured type slots, anonymous records can nest without a fixed grammar depth, and the principal syntax families now have targeted automated invariants. The full automated suite has a clean baseline; the highest-value remaining work is promoting representative visual fixtures. After that, the largest practical risk is regression from the complexity of nested Highlight.js modes rather than missing basic Jai tokens.
+Lexical feature coverage is excellent, and structured semantic highlighting is now strong across procedures, structs, unions, tagged unions, enums, directives, and varargs parameters. Fundamental primitive names are consistently classified in structured type slots, anonymous records can nest without a fixed grammar depth, and the principal syntax families now have targeted automated invariants plus original compiler-valid integration fixtures. The largest practical risk is regression from the complexity of nested Highlight.js modes rather than missing basic Jai tokens.
