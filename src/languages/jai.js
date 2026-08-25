@@ -28,7 +28,7 @@ Precedence table, high to low::
  * @type {import('highlight.js').LanguageFn}
  */
 function jai(hljs) {
-	const primativesRE = 'u8|u16|u32|u64|s8|s16|s32|s64|float|float64|bool|string';
+	const primativesRE = 'u(?:8|16|32|64)|s(?:8|16|32|64)|int|float(?:32|64|)|f(?:32|64)|bool|string|void';
 
 	/**
 	 * Rewrite a comment mode (the one returned by `hljs.COMMENT`) so its scope is `comment` (optionally with a `.<scope>` suffix) and its built-in `doctag` sub-rule is replaced with our extended Jai-specific doctag set.
@@ -26319,6 +26319,7 @@ function jai(hljs) {
 		],
 		'type.float': [
 			'float',
+			'float32',
 			'float64',
 			`f32`,
 			`f64`
