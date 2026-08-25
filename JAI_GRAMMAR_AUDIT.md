@@ -6,7 +6,7 @@ Audit target: Jai beta 0.2.030 (2 July 2026), using the installed language distr
 
 The grammar has broad and unusually detailed coverage of Jai. It recognizes the core declaration syntax, procedure and procedure-type signatures, polymorphic types and baked arguments, comments, current literals, casts, compiler directives, module parameters, inline assembly, for-expansions, standard-library symbols, and generated-source annotations. Many constructs that initially look like likely omissions are already explicitly handled: `0h` literals, `---`, backtick export, `,,`, `#through`, `#location`, `#modify`, parameterized imports, unary enum tags, and trailing commas.
 
-The two largest mismatches found by the audit have now been corrected: structured union parsing covers named, anonymous, polymorphic, tagged, and bound unions, and the primitive-type inventory recognizes the current built-in names in structured type slots. Anonymous struct and union fields now share an unlimited self-recursive record mode, allowing arbitrarily mixed nesting without a fixed depth limit. Import modifiers such as `#import,dir`, underscore-containing library modifiers, and the varargs `..` marker still have scope defects. The dedicated top-level `#insert` mode remains shadowed by the generic directive mode. Newer unprefixed struct literals and uncommon nested forms remain inherent or lightly tested limitations.
+The largest mismatches found by the audit have now been corrected: structured union parsing covers named, anonymous, polymorphic, tagged, and bound unions; the primitive-type inventory recognizes the current built-in names in structured type slots; and directive modifiers, varargs markers, and dedicated `#insert` handling now receive structural scopes. Anonymous struct and union fields share an unlimited self-recursive record mode, allowing arbitrarily mixed nesting without a fixed depth limit. Newer unprefixed struct literals and uncommon nested forms remain inherent or lightly tested limitations.
 
 ## Reference baseline
 
@@ -62,12 +62,13 @@ The primitive inventory now includes the current Jai built-ins needed in structu
 
 The markup test runner now uses the current `hljs.highlight(code, { language: 'jai' })` API. The deprecated positional `highlight(language, code, ...)` call has been removed, and a repository scan found no remaining project call sites using it. The compatibility warning text inside the bundled `localHilightDebug.js` implementation is vendor/debug code, not a deprecated invocation.
 
-### Other verified mismatches
+#### Directive modifiers, varargs, and inserts
 
-- Dedicated `#import` parsing does not model comma modifiers such as `#import,dir`. The whole construct remains inside `meta.directive.import`, and the path is recognized, but `,dir` is emitted as plain text rather than `punctuation.comma` plus `meta.directive.modifier`.
-- Foreign/library modifier rules use `[A-Za-z]+`, so active modifiers containing underscores are split. For example, only `link` in `link_always` and `no` in `no_dll` / `no_static_library` receives `meta.directive.modifier`; the suffix is plain text. Chained modifiers otherwise remain parseable.
-- `.. string` varargs stays safely inside the parameter mode, but `..` is emitted as plain text. The general range-operator mode does not fire in this structured parameter path, and there is no varargs-specific scope.
-- `INSERT_DIRECTIVE` is ordered after `_COMMON_EXCEPT_DIRECTIVES`, which still contains the generic `DIRECTIVE` rule and explicitly recognizes `insert`. At top level, `#insert` is therefore emitted as generic `meta`/`meta.directive`, not `meta.directive.insert`, and the dedicated expression/lambda-body handling is unreachable there. The dedicated rule can still win in selected nested lists where it is placed first, such as a struct body.
+Import modifiers such as `#import,file`, `#import,dir`, and `#import,string` now receive `punctuation.comma` and `meta.directive.modifier` scopes. Generic and foreign/library modifier names are identifier-shaped, so underscore-containing forms such as `no_dll`, `no_static_library`, and `link_always` are handled in chained, comment-separated lists. The `..` marker in parameter type slots now receives `operator.varargs` without affecting ordinary `operator.range` expressions. `INSERT_DIRECTIVE` now precedes the generic directive-containing list, so dedicated `meta.directive.insert` parsing wins consistently at top level and inside procedure bodies as it already did in record bodies.
+
+#### Automated invariants and cast precedence
+
+Targeted tests now cover every recognized primitive in parameter, property, and return slots; `#type` variants; context `,,`; module arguments; here-strings; all three cast generations; and deeply nested procedure and polymorphic type signatures. This coverage exposed an ordering bug in which the broad v1 cast modes claimed `xx(...)` and `cast(type, value)` before v2 could match. The v1 modes now defer based on the parenthesized form and top-level argument commas while preserving v1 casts whose type contains nested commas.
 
 ### Validated current forms
 
@@ -87,7 +88,7 @@ The markup test runner now uses the current `hljs.highlight(code, { language: 'j
 
 - The grammar depends heavily on mode ordering, variable-length lookbehind, generated atomic backreferences, zero-width starts/ends, and manually coordinated `endsParent` behavior. This enables excellent scopes but raises regression risk for malformed or deeply nested input.
 - Standard-library names are version-pinned generated data. Coverage is excellent for beta 0.2.030 but will drift with a newer compiler until `generateStdLib.jai` is rerun.
-- The automated markup suite has only one full markup fixture plus targeted assertions. It now includes passing regressions for six-level anonymous struct recursion and named, anonymous, nested, polymorphic, tagged, and bound unions. The full suite is still red for two pre-existing stale expectations: the `BucketAllocator` expected HTML is out of sync with the grammar (the first difference is the current, richer type wrapper around `[$N]int`), and the returns-list assertion assumes an older exact span nesting. The much larger `test/visualTests` corpus is primarily for manual/browser inspection and its checked-in copy does not contain the current directive-modifier examples above. Until those two expectations are refreshed and reviewed, the suite cannot provide a fully trustworthy regression baseline.
+- The automated markup suite has only one full markup fixture plus targeted assertions. It now includes passing regressions for six-level anonymous struct recursion; named, anonymous, nested, polymorphic, tagged, and bound unions; every primitive in structured type slots; `#type` variants; context and module arguments; here-strings; all cast forms; and deeply nested signatures. The `BucketAllocator` expected HTML has been reviewed and refreshed against the current grammar. The returns-list regression now parses emitted span scopes and verifies that no return scope remains active at the procedure body brace instead of depending on an incidental number of closing tags. The much larger `test/visualTests` corpus remains primarily for manual/browser inspection.
 - Some fixed identifier heuristics assume uppercase type names and uppercase constants. Jai style follows that convention, but legal unconventional names can receive generic variable scopes in contexts where structural type parsing does not take over.
 
 ## Validation performed
@@ -95,20 +96,19 @@ The markup test runner now uses the current `hljs.highlight(code, { language: 'j
 - `npx tsc --noEmit` passes.
 - Editor diagnostics report no errors in `src/languages/jai.js` or `test/index.js`.
 - Focused anonymous-record and union regressions pass.
+- Focused directive-modifier, varargs/range isolation, and top-level/procedure-body insert-precedence regressions pass.
+- Focused primitive-slot, type-variant, context/module-argument, here-string/cast, and deeply nested signature regressions pass.
 - A direct runtime probe covers untagged, anonymous, `using`, tagged, bound, inferred-member, polymorphic, and mixed nested record forms.
 - The current Highlight.js API emits no deprecation warning.
 - `git diff --check` passes.
-- The full test suite reaches only the two known stale failures described above; the new union and recursion tests pass.
+- The full automated test suite passes, including the refreshed `BucketAllocator` snapshot and direct returns-list scope-closure invariant.
 
 ## Remaining recommendations
 
-1. Add dedicated import-modifier and varargs-marker modes, allow underscores in directive modifiers, and move the dedicated `#insert` rule ahead of its generic competitor.
-2. Extend automated coverage to every primitive in parameters/properties/returns, `#type` variants, import/library modifiers, varargs, context `,,`, module arguments, here-strings, casts, and deeply nested procedure/type signatures.
-3. Review and refresh the current `BucketAllocator` snapshot and make the returns-list assertion test scope closure without depending on incidental wrapper counts.
-4. Promote a representative subset of `test/visualTests` to automated invariant tests that assert key scopes and that highlighting terminates without illegal/zero-width failures.
-5. Keep the generated standard-library version marker tied to the compiler version used for generation and report drift in CI.
-6. Treat unprefixed `{...}` struct literals as an intentional context-sensitive limitation unless a conservative expression-context rule can avoid misclassifying ordinary blocks.
+1. Promote a representative subset of `test/visualTests` to automated invariant tests that assert key scopes and that highlighting terminates without illegal/zero-width failures.
+2. Keep the generated standard-library version marker tied to the compiler version used for generation and report drift in CI.
+3. Treat unprefixed `{...}` struct literals as an intentional context-sensitive limitation unless a conservative expression-context rule can avoid misclassifying ordinary blocks.
 
 ## Overall rating
 
-Lexical feature coverage is excellent, and structured semantic highlighting is now strong across procedures, structs, unions, tagged unions, and enums. Fundamental primitive names are consistently classified in structured type slots, and anonymous records can nest without a fixed grammar depth. The highest-value remaining correctness work is directive/import modifier handling, varargs scoping, and restoring a clean full-suite baseline. After those, the largest practical risk is regression from the complexity of nested Highlight.js modes rather than missing basic Jai tokens.
+Lexical feature coverage is excellent, and structured semantic highlighting is now strong across procedures, structs, unions, tagged unions, enums, directives, and varargs parameters. Fundamental primitive names are consistently classified in structured type slots, anonymous records can nest without a fixed grammar depth, and the principal syntax families now have targeted automated invariants. The full automated suite has a clean baseline; the highest-value remaining work is promoting representative visual fixtures. After that, the largest practical risk is regression from the complexity of nested Highlight.js modes rather than missing basic Jai tokens.

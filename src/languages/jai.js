@@ -27015,17 +27015,22 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
-				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn(0)}:)`,	// Try not to match `,` in an args list.
-				returnBegin: true,
-				contains: [
-					...COMMENTS,
-					COMMA,
-					{
-						scope: 'meta.directive.modifier',
-						relevance: 2,
-						begin: /[A-Za-z]+/
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					identifierREFn()
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				},
+				'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+					const rest = (match.input ?? '').slice((match.index ?? 0) + match[0].length);
+					if (/^(?:\s|\/\/[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)*:/.test(rest)) {
+						resp.ignoreMatch();
 					}
-				]
+				})
 			}
 		]
 	};
@@ -27264,17 +27269,70 @@ function jai(hljs) {
 		begin: /\b(trunc|no_check|force|FORCE)\b/
 	};
 
+	/**
+	 * Distinguish `cast(type)value` (v1) from `cast(type, value)` (v2) before
+	 * Highlight.js commits to the earlier v1 mode. Only a comma in the outer
+	 * cast argument list selects v2; commas inside nested type arguments,
+	 * strings, or comments do not.
+	 *
+	 * @param {string} input
+	 * @param {number} start
+	 */
+	const castArgsHaveTopLevelComma = (input, start) => {
+		let depth = 0;
+		for (let index = input.indexOf('(', start); index >= 0 && index < input.length; index++) {
+			if (input[index] === '"') {
+				for (index++; index < input.length && input[index] !== '"'; index++) {
+					if (input[index] === '\\') {
+						index++;
+					}
+				}
+			} else if (input[index] === '/' && input[index + 1] === '/') {
+				index = input.indexOf('\n', index + 2);
+				if (index < 0) {
+					return false;
+				}
+			} else if (input[index] === '/' && input[index + 1] === '*') {
+				index = input.indexOf('*/', index + 2);
+				if (index < 0) {
+					return false;
+				}
+
+
+				index++;
+			} else if (input[index] === '(') {
+				depth++;
+			} else if (input[index] === ')') {
+				if (--depth === 0) {
+					return false;
+				}
+			} else if (input[index] === ',' && depth === 1) {
+				return true;
+			}
+		}
+
+
+		return false;
+	};
+
 	const CASTS = [
 		{	// Option 0: xx value
 			scope: 'keyword.cast.v1.auto',
 			relevance: 8,
-			begin: `\\bxx\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?`
+			begin: `\\bxx\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?`,
+			'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+				const rest = (match.input ?? '').slice((match.index ?? 0) + match[0].length);
+				if (/^(?:\s|\/\/[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)*\(/.test(rest)) resp.ignoreMatch();
+			})
 		},
 		{	// Option 1: cast[,modifier...](type)value
 			scope: 'keyword.cast.v1',
 			relevance: 5,
 			begin: `\\bcast\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?${skipWSAndCommentsREFn(0)}\\(`,
 			returnBegin: true,
+			'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+				if (castArgsHaveTopLevelComma(match.input ?? '', match.index ?? 0)) resp.ignoreMatch();
+			}),
 			keywords,
 			contains: [
 				balancedParen([CAST_MODIFIER, COMMA, ..._COMMON_EXCEPT_STRING], { endsParent: true }),
@@ -27758,6 +27816,18 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			{
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					/[_A-Za-z][_A-Za-z0-9]*/
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				}
+			},
+			{
 				...STRING,
 				scope: 'string.path.import',
 			},
@@ -27870,11 +27940,11 @@ function jai(hljs) {
 
 	/** @type {import('highlight.js').Mode[]} */
 	const _NEARLY_ALL = [
+		INSERT_DIRECTIVE,
 		..._COMMON_EXCEPT_DIRECTIVES,
 		IMPORT_DIRECTIVE,
 		LOAD_DIRECTIVE,
 		MODIFY_DIRECTIVE,
-		INSERT_DIRECTIVE,
 		SEMICOLON
 	];
 
@@ -28006,6 +28076,10 @@ function jai(hljs) {
 						...COMMENTS,
 						DEFINE,
 						WHITESPACE,
+						{
+							scope: 'operator.varargs',
+							begin: /\.\./
+						},
 						...(includeProcType ? [makeProcTypeAsType(kind)] : []),
 						...(includeAnonymousRecord ? [ANONYMOUS_RECORD_TYPE] : []),
 						{
@@ -28415,17 +28489,22 @@ function jai(hljs) {
 				end: /(?=\W)/
 			},
 			{
-				begin: `,${skipWSAndCommentsREFn()}[A-Za-z]+(?!${skipWSAndCommentsREFn(0)}:)`,	// Try not to match , in an args list.
-				returnBegin: true,
-				contains: [
-					...COMMENTS,
-					COMMA,
-					{
-						scope: 'meta.directive.modifier',
-						relevance: 2,
-						begin: /[A-Za-z]+/
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					/[_A-Za-z][_A-Za-z0-9]*/
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				},
+				'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+					const rest = (match.input ?? '').slice((match.index ?? 0) + match[0].length);
+					if (/^(?:\s|\/\/[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)*:/.test(rest)) {
+						resp.ignoreMatch();
 					}
-				]
+				})
 			}
 		]
 	};
