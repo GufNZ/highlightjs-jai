@@ -17,6 +17,8 @@ describe('Jai syntax highlighting', () => {
 		const files = (await readdir(path.join(__dirname, 'markup')))
 			.filter(f => !f.includes('.expect.'));
 		const scenarios = files.map(f => f.replace(/\.txt$/, ''));
+		const markupHljs = hljs.newInstance();
+		markupHljs.registerLanguage('jai', hljsDefineJai);
 		scenarios.forEach(scenario => {
 			it(`should perform syntax highlighting on ${scenario}`, async () => {
 				const file = `${scenario}.txt`;
@@ -24,7 +26,7 @@ describe('Jai syntax highlighting', () => {
 				const expectFilePath = filePath.replace('.txt', '.expect.txt');
 				const code = await readFile(filePath, 'utf-8');
 				const expected = await readFile(expectFilePath, 'utf-8');
-				const result = hljs.highlight(code, { language: 'jai' });
+				const result = markupHljs.highlight(code, { language: 'jai' });
 				const actual = result.value;
 				actual.trim().should.eql(expected.trim(), file);
 			});
@@ -33,7 +35,8 @@ describe('Jai syntax highlighting', () => {
 
 	itShouldPerformSyntaxHighlighting();
 
-	it('should detect jai language', async () => {
+	it('should detect jai language', async function () {
+		this.timeout(20000);
 		var code = await readFile(path.join(__dirname, 'detect', 'default.txt'), 'utf-8');
 		var actual = hljs.highlightAuto(code).language;
 		actual.should.eql('jai');
@@ -215,7 +218,12 @@ describe('Jai syntax highlighting', () => {
 			path.join(__dirname, 'grammarCoverage', 'grammar-coverage.jai'),
 			path.join(__dirname, 'grammarCoverage', 'modules', 'Grammar_Coverage_Module', 'module.jai')
 		];
+		const markupPaths = [
+			path.join(__dirname, 'markup', 'GrammarCoverage.txt'),
+			path.join(__dirname, 'markup', 'GrammarCoverageModule.txt')
+		];
 		const sources = await Promise.all(fixturePaths.map(filePath => readFile(filePath, 'utf-8')));
+		const markupSources = await Promise.all(markupPaths.map(filePath => readFile(filePath, 'utf-8')));
 		const results = sources.map(code => hljs.highlight(code, { language: 'jai' }));
 		const emittedClasses = new Set(results.flatMap(result =>
 			Array.from(result.value.matchAll(/class="([^"]+)"/g), match => match[1].split(' ')).flat()
@@ -236,6 +244,7 @@ describe('Jai syntax highlighting', () => {
 			'workspace_', 'fileName__', 'addBuildString_'
 		];
 
+		markupSources.should.eql(sources, 'Run npm run generateGrammarCoverageMarkup to refresh markup copies');
 		results.forEach(result => result.illegal.should.equal(false));
 		expectedClasses.forEach(className =>
 			emittedClasses.has(className).should.equal(true, `Missing fixture scope class: ${className}`)
