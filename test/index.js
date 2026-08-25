@@ -49,4 +49,23 @@ describe('Jai syntax highlighting', () => {
 		const result = hljs.highlight(code, { language: 'jai' });
 		result.value.should.match(/false<\/span><\/span>\s*<span class="hljs-punctuation brace_">\{/);
 	});
+
+	it('should highlight recursively nested anonymous structs', () => {
+		const code = `Machine_Options_X86 :: struct {
+			features: struct {
+				leaves: [Leaf.NUMBER] u32;
+				nested: struct { a: struct { b: struct { c: struct { d: struct { value: int; } } } } }
+			}
+		}`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const anonymousStructCount = result.value.split('hljs-type struct_ anonymous__').length - 1;
+
+		anonymousStructCount.should.equal(6);
+		result.value.should.match(/hljs-property declaration_">features/);
+		result.value.should.match(/hljs-property declaration_">leaves/);
+		result.value.should.match(/hljs-type arrayOf_/);
+		result.value.should.match(/hljs-property constant_">\.NUMBER/);
+		result.value.should.match(/hljs-type integer_ unsigned__">u32/);
+		result.value.should.match(/hljs-property declaration_">value/);
+	});
 });

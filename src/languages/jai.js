@@ -27937,6 +27937,9 @@ function jai(hljs) {
 		// ...other decls go here.
 	];
 
+	/** @type {import('highlight.js').Mode} */
+	const ANONYMOUS_STRUCT_TYPE = {};
+
 	/**
 	 * Build a `params`-style mode for a single parameter slot. `kind` is the scope prefix (e.g. `'params'`, `'property'`).
 	 * With `includeConsts === true` the result also recognises top-level `::` constant declarations.
@@ -27945,9 +27948,10 @@ function jai(hljs) {
 	 * @param {string} kind
 	 * @param {boolean} [includeConsts]
 	 * @param {boolean} [includeProcType]
+	 * @param {boolean} [includeAnonymousStruct]
 	 * @returns {import('highlight.js').Mode}
 	 */
-	const PARAM = (kind, includeConsts, includeProcType = true) => {
+	const PARAM = (kind, includeConsts, includeProcType = true, includeAnonymousStruct = true) => {
 		/** @type {import('highlight.js').Mode} */
 		const result = {
 			scope: kind,
@@ -27992,6 +27996,7 @@ function jai(hljs) {
 						DEFINE,
 						WHITESPACE,
 						...(includeProcType ? [makeProcTypeAsType(kind)] : []),
+						...(includeAnonymousStruct ? [ANONYMOUS_STRUCT_TYPE] : []),
 						{
 							scope: `type.${kind}`,
 							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or a type-shaped ident.
@@ -28135,7 +28140,7 @@ function jai(hljs) {
 					//  the endsParent cascade walks up through the inner balancedParen and pops it WITHOUT giving its own /\)/ end a chance to consume `)`.
 					// The cursor would then sit on the inner `)` and every ancestor mode (`params.type.function`, `:` submode, outer `params`, ...) would in turn fire its own `/(?=[,;#\)\{])/`-style end and cascade out
 					//  - making the outer `params` (for `mod`) wrongly close at the inner `)` instead of the outer one.
-					Object.assign(PARAM('params', false, false), { endsParent: false }),
+					Object.assign(PARAM('params', false, false, false), { endsParent: false }),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -28182,6 +28187,63 @@ function jai(hljs) {
 		end: /(?=[,;#\)\{])/,
 		endsParent: true
 	});
+
+	/** @type {import('highlight.js').Mode} */
+	const ANONYMOUS_STRUCT_FIELD = {
+		scope: 'type.struct.anonymous',
+		begin: [
+			identifierREFn(),
+			skipWSAndCommentsREFn(),
+			/:/,
+			skipWSAndCommentsREFn(),
+			/\bstruct\b/
+		],
+		beginScope: {
+			1: 'property.declaration',
+			2: 'comment',
+			3: 'operator.define',
+			4: 'comment',
+			5: 'keyword.struct'
+		},
+		keywords: keywordsExceptStdLib,
+		contains: [
+			...COMMENTS,
+			NOTE,
+			DIRECTIVE,
+			'self',
+			PARAM('property', true, true, false),
+			INSERT_DIRECTIVE,
+			SEMICOLON,
+			{
+				scope: 'punctuation.brace',
+				begin: /\{/
+			}
+		],
+		end: [/\}/],
+		endScope: { 1: 'punctuation.brace' }
+	};
+
+	Object.assign(ANONYMOUS_STRUCT_TYPE, /** @type {import('highlight.js').Mode} */ ({
+		scope: 'type.struct.anonymous',
+		begin: [/\bstruct\b/],
+		beginScope: { 1: 'keyword.struct' },
+		keywords: keywordsExceptStdLib,
+		contains: [
+			...COMMENTS,
+			NOTE,
+			DIRECTIVE,
+			ANONYMOUS_STRUCT_FIELD,
+			PARAM('property', true, true, false),
+			INSERT_DIRECTIVE,
+			SEMICOLON,
+			{
+				scope: 'punctuation.brace',
+				begin: /\{/
+			}
+		],
+		end: [/\}/],
+		endScope: { 1: 'punctuation.brace' }
+	}));
 
 	const STRUCT_TYPE_DECLARATION = {
 		scope: 'type.struct.declaration',
