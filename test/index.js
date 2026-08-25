@@ -24,7 +24,7 @@ describe('Jai syntax highlighting', () => {
 				const expectFilePath = filePath.replace('.txt', '.expect.txt');
 				const code = await readFile(filePath, 'utf-8');
 				const expected = await readFile(expectFilePath, 'utf-8');
-				const result = hljs.highlight('jai', code);
+				const result = hljs.highlight(code, { language: 'jai' });
 				const actual = result.value;
 				actual.trim().should.eql(expected.trim(), file);
 			});
@@ -58,7 +58,7 @@ describe('Jai syntax highlighting', () => {
 			}
 		}`;
 		const result = hljs.highlight(code, { language: 'jai' });
-		const anonymousStructCount = result.value.split('hljs-type struct_ anonymous__').length - 1;
+		const anonymousStructCount = result.value.split('hljs-type record_ anonymous__').length - 1;
 
 		anonymousStructCount.should.equal(6);
 		result.value.should.match(/hljs-property declaration_">features/);
@@ -67,5 +67,34 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.match(/hljs-property constant_">\.NUMBER/);
 		result.value.should.match(/hljs-type integer_ unsigned__">u32/);
 		result.value.should.match(/hljs-property declaration_">value/);
+	});
+
+	it('should highlight named, anonymous, polymorphic, and tagged unions', () => {
+		const code = `Plain :: union { x: int; }
+			Holder :: struct {
+				using value: union kind: Value_Kind {
+					.SCALAR ,, scalar: float64;
+					nested: struct { code: int; }
+				}
+			}
+			Value :: union /* note */ #align 8 kind: Value_Kind { scalar: float64; }
+			Thing :: union fruit: Fruit {
+				.APPLE ,, x: int;
+				.BANANA ,, y: float;
+				.ORANGE ,, z := "value";
+			}
+			SymbolBuffer :: union(name_length: u32 = 0) { data: [name_length] u8; }`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const namedUnionCount = result.value.split('hljs-type union_ declaration__').length - 1;
+		const taggedBindingCount = result.value.split('hljs-meta union_ binding__').length - 1;
+
+		namedUnionCount.should.equal(4);
+		taggedBindingCount.should.equal(4);
+		result.value.should.match(/hljs-type record_ anonymous__/);
+		result.value.should.match(/hljs-keyword meta_">using/);
+		result.value.should.match(/hljs-property tag_ declaration__">kind/);
+		result.value.should.match(/hljs-property constant_ enum__">ORANGE/);
+		result.value.should.match(/hljs-property declaration_">z/);
+		result.value.should.match(/hljs-params declaration_">name_length/);
 	});
 });

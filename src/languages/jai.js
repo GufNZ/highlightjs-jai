@@ -26493,6 +26493,11 @@ function jai(hljs) {
 		relevance: 0
 	};
 
+	const USING_MODIFIER = {
+		scope: 'keyword.meta',
+		begin: /\busing\b/
+	};
+
 	/** @type {import('highlight.js').Mode[]} */
 	const COMMENTS = [
 		fixDocTags(hljs.COMMENT('//', /$/), 'line'),
@@ -27190,6 +27195,11 @@ function jai(hljs) {
 		end: `(?=${skipWSAndCommentsREFn()}::)`
 	};
 
+	const UNION_DECLARATION = {
+		...STRUCT_DECLARATION,
+		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::${skipWSAndCommentsREFn(0)}union)`
+	};
+
 	const EXTERNAL_DECLARATION = {
 		scope: 'title.external.declaration',
 		relevance: 5,
@@ -27220,6 +27230,7 @@ function jai(hljs) {
 		PROC_DECLARATION,
 		ENUM_DECLARATION,
 		STRUCT_DECLARATION,
+		UNION_DECLARATION,
 		CONST_DECLARATION,
 		TYPE_DECLARATION,
 		VAR_TYPE,
@@ -27938,7 +27949,7 @@ function jai(hljs) {
 	];
 
 	/** @type {import('highlight.js').Mode} */
-	const ANONYMOUS_STRUCT_TYPE = {};
+	const ANONYMOUS_RECORD_TYPE = {};
 
 	/**
 	 * Build a `params`-style mode for a single parameter slot. `kind` is the scope prefix (e.g. `'params'`, `'property'`).
@@ -27948,10 +27959,10 @@ function jai(hljs) {
 	 * @param {string} kind
 	 * @param {boolean} [includeConsts]
 	 * @param {boolean} [includeProcType]
-	 * @param {boolean} [includeAnonymousStruct]
+	 * @param {boolean} [includeAnonymousRecord]
 	 * @returns {import('highlight.js').Mode}
 	 */
-	const PARAM = (kind, includeConsts, includeProcType = true, includeAnonymousStruct = true) => {
+	const PARAM = (kind, includeConsts, includeProcType = true, includeAnonymousRecord = true) => {
 		/** @type {import('highlight.js').Mode} */
 		const result = {
 			scope: kind,
@@ -27996,7 +28007,7 @@ function jai(hljs) {
 						DEFINE,
 						WHITESPACE,
 						...(includeProcType ? [makeProcTypeAsType(kind)] : []),
-						...(includeAnonymousStruct ? [ANONYMOUS_STRUCT_TYPE] : []),
+						...(includeAnonymousRecord ? [ANONYMOUS_RECORD_TYPE] : []),
 						{
 							scope: `type.${kind}`,
 							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or a type-shaped ident.
@@ -28069,7 +28080,7 @@ function jai(hljs) {
 					]
 				}
 			],
-			end: /(?=[,;#\)\{])/,
+			end: /(?=[,;#\)\{\}])/,
 			//endsParent: true
 		};
 
@@ -28188,28 +28199,64 @@ function jai(hljs) {
 		endsParent: true
 	});
 
+	const TAGGED_UNION_BINDING = {
+		scope: 'meta.union.binding',
+		begin: [
+			/\./,
+			typeIdentifierREFn(),
+			skipWSAndCommentsREFn(),
+			/,,/
+		],
+		beginScope: {
+			1: 'operator.dot',
+			2: 'property.constant.enum',
+			3: 'comment',
+			4: 'punctuation.comma'
+		},
+		keywords: keywordsExceptStdLib,
+		contains: [
+			...COMMENTS,
+			PARAM('property', true),
+			NOTE,
+			DIRECTIVE
+		],
+		end: /(?=;|})/
+	};
+
 	/** @type {import('highlight.js').Mode} */
-	const ANONYMOUS_STRUCT_FIELD = {
-		scope: 'type.struct.anonymous',
+	const ANONYMOUS_RECORD_FIELD = {
+		scope: 'type.record.anonymous',
 		begin: [
 			identifierREFn(),
 			skipWSAndCommentsREFn(),
 			/:/,
 			skipWSAndCommentsREFn(),
-			/\bstruct\b/
+			/\b(?:struct|union)\b/
 		],
 		beginScope: {
 			1: 'property.declaration',
 			2: 'comment',
 			3: 'operator.define',
 			4: 'comment',
-			5: 'keyword.struct'
+			5: 'keyword'
 		},
 		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
 			DIRECTIVE,
+			USING_MODIFIER,
+			TAGGED_UNION_BINDING,
+			balancedParen(
+				[
+					PARAM('params', false),
+					COMMA,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS,
+				],
+				{ keywords }
+			),
 			'self',
 			PARAM('property', true, true, false),
 			INSERT_DIRECTIVE,
@@ -28223,16 +28270,28 @@ function jai(hljs) {
 		endScope: { 1: 'punctuation.brace' }
 	};
 
-	Object.assign(ANONYMOUS_STRUCT_TYPE, /** @type {import('highlight.js').Mode} */ ({
-		scope: 'type.struct.anonymous',
-		begin: [/\bstruct\b/],
-		beginScope: { 1: 'keyword.struct' },
+	Object.assign(ANONYMOUS_RECORD_TYPE, /** @type {import('highlight.js').Mode} */ ({
+		scope: 'type.record.anonymous',
+		begin: [/\b(?:struct|union)\b/],
+		beginScope: { 1: 'keyword' },
 		keywords: keywordsExceptStdLib,
 		contains: [
 			...COMMENTS,
 			NOTE,
 			DIRECTIVE,
-			ANONYMOUS_STRUCT_FIELD,
+			USING_MODIFIER,
+			TAGGED_UNION_BINDING,
+			balancedParen(
+				[
+					PARAM('params', false),
+					COMMA,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS,
+				],
+				{ keywords }
+			),
+			ANONYMOUS_RECORD_FIELD,
 			PARAM('property', true, true, false),
 			INSERT_DIRECTIVE,
 			SEMICOLON,
@@ -28271,6 +28330,7 @@ function jai(hljs) {
 			balancedBrace(
 				[
 					INSERT_DIRECTIVE,
+					USING_MODIFIER,
 					PARAM('property', true),
 					SEMICOLON,
 					NOTE,
@@ -28281,6 +28341,43 @@ function jai(hljs) {
 			),
 		],
 		end: /(?<=})|(?<!\n)^/		//HACK: endMatch truncates the input at the match rather than using lastIndex, so we need to detect start-of-content as an option.
+	};
+
+	const UNION_TYPE_DECLARATION = {
+		scope: 'type.union.declaration',
+		begin: [/\bunion\b/],
+		beginScope: { 1: 'keyword.union' },
+		keywords: keywordsExceptStdLib,
+		contains: [
+			...COMMENTS,
+			NOTE,
+			DIRECTIVE,
+			balancedParen(
+				[
+					PARAM('params', false),
+					COMMA,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS,
+				],
+				{ keywords }
+			),
+			PARAM('property.tag', false),
+			balancedBrace(
+				[
+					TAGGED_UNION_BINDING,
+					INSERT_DIRECTIVE,
+					USING_MODIFIER,
+					PARAM('property', true),
+					SEMICOLON,
+					NOTE,
+					DIRECTIVE,
+					...COMMENTS,
+				],
+				{ keywords, endsParent: true }
+			),
+		],
+		end: /(?<=})|(?<!\n)^/
 	};
 
 	const FOREIGN_OR_LIBRARY_DIRECTIVE = {
@@ -28484,6 +28581,7 @@ function jai(hljs) {
 
 	paramDefaultDecls.push(PROC_DECLARATION);
 	paramDefaultDecls.push(STRUCT_DECLARATION);
+	paramDefaultDecls.push(UNION_DECLARATION);
 
 	// Prepend three guards to paramDefaultDecls so that `params.default` and `params.constant.value` modes don't accidentally swallow stray `,` `)` `}` produced by their PUNCTUATION child.
 	// hl.js compiles a mode's child begins BEFORE its end regex in the combined matcher,
@@ -28552,6 +28650,7 @@ function jai(hljs) {
 		FOR,
 		PRINTLIKE,
 		STRUCT_TYPE_DECLARATION,
+		UNION_TYPE_DECLARATION,
 		ENUM_TYPE_DECLARATION,
 		PROC_TYPE_DECLARATION,
 		FOREIGN_OR_LIBRARY_DIRECTIVE,
