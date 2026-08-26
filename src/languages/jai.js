@@ -79,7 +79,7 @@ function jai(hljs) {
 				},
 				{
 					scope: 'doctag.label',
-					begin: /:\w+/,
+					begin: /(?<!:):\w+/,
 					relevance: 1
 				},
 				{

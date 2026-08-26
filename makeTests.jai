@@ -16,7 +16,7 @@ main :: () {
 
 	files: [..]string;
 	assert(
-			visit_files(
+		visit_files(
 			"../highlight.js/src/styles",
 			false,
 			*files,
@@ -115,6 +115,8 @@ main :: () {
 		)
 	);
 
+	array_add(*files, join(basePath, "/../highlightjs-jai/test/grammarCoverage/grammar-coverage.jai"));
+	array_add(*files, join(basePath, "/../highlightjs-jai/test/grammarCoverage/modules/Grammar_Coverage_Module/module.jai"));
 
 	sorted = quick_sort(files, compare_strings);
 

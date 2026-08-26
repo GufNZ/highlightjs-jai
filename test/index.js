@@ -17,8 +17,6 @@ describe('Jai syntax highlighting', () => {
 		const files = (await readdir(path.join(__dirname, 'markup')))
 			.filter(f => !f.includes('.expect.'));
 		const scenarios = files.map(f => f.replace(/\.txt$/, ''));
-		const markupHljs = hljs.newInstance();
-		markupHljs.registerLanguage('jai', hljsDefineJai);
 		scenarios.forEach(scenario => {
 			it(`should perform syntax highlighting on ${scenario}`, async () => {
 				const file = `${scenario}.txt`;
@@ -26,6 +24,8 @@ describe('Jai syntax highlighting', () => {
 				const expectFilePath = filePath.replace('.txt', '.expect.txt');
 				const code = await readFile(filePath, 'utf-8');
 				const expected = await readFile(expectFilePath, 'utf-8');
+				const markupHljs = hljs.newInstance();
+				markupHljs.registerLanguage('jai', hljsDefineJai);
 				const result = markupHljs.highlight(code, { language: 'jai' });
 				const actual = result.value;
 				actual.trim().should.eql(expected.trim(), file);
@@ -245,6 +245,8 @@ describe('Jai syntax highlighting', () => {
 		];
 
 		markupSources.should.eql(sources, 'Run npm run generateGrammarCoverageMarkup to refresh markup copies');
+		sources[0].should.match(/for values \{\s*total \+= it \+ it_index;/);
+		sources[0].should.match(/for :for_expansion values \{\s*mapped \+= it \+ it_index;/);
 		results.forEach(result => result.illegal.should.equal(false));
 		expectedClasses.forEach(className =>
 			emittedClasses.has(className).should.equal(true, `Missing fixture scope class: ${className}`)

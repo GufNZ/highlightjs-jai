@@ -1,18 +1,18 @@
 // Original module fixture for module-parameter highlighting.
-#module_parameters (PROGRAM_FEATURE := true) (FEATURE_ENABLED := true, SAMPLE_LIMIT: int = 4) {
-    Module_Callback :: #type (value: int) -> int;
+#module_parameters (FEATURE := true, SAMPLE_LIMIT: int = 4) (PROGRAM_FEATURE_ENABLED := true) {
+	Module_Callback :: #type (value: int) -> int;
 }
 
 Module_Mode :: enum_flags u8 {
-    READ;
-    WRITE;
+	READ;
+	WRITE;
 }
 
 Module_Record :: struct (T: Type, count: int = SAMPLE_LIMIT) {
-    values: [count] T;
-    mode: Module_Mode = .READ;
+	values: [count] T;
+	mode: Module_Mode = .READ;
 }
 
 module_identity :: inline (value: $T) -> T {
-    return value;
+	return value;
 }

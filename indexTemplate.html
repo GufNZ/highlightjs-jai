@@ -79,11 +79,11 @@
 			</optgroup>
 		</select>
 		<div class="row">
-			<a id="prev" href="">&#9664;</a>
+			<a id="prev" href="" title="Previous (p)">&#9664;</a>
 			<select id="file">^
 				<option value="$">*</option>^
 			</select>
-			<a id="next" href="">&#9654;</a>
+			<a id="next" href="" title="Next (n)">&#9654;</a>
 		</div>
 	</div>
 	<pre><code id="code" class="language-jai"></code></pre>
@@ -167,14 +167,16 @@
 		fileSel.onchange = applyFile;
 		window.onhashchange = selectFileFromHash;
 
-		document.getElementById("prev").onclick = (e) => {
+		const prev = document.getElementById("prev");
+		prev.onclick = (e) => {
 			e.preventDefault();
 			if (e.target.href) {
 				fileSel.selectedIndex--;
 				applyFile();
 			}
 		};
-		document.getElementById("next").onclick = (e) => {
+		const next = document.getElementById("next")
+		next.onclick = (e) => {
 			e.preventDefault();
 			if (e.target.href) {
 				fileSel.selectedIndex++;
@@ -193,6 +195,14 @@
 		if (!selectFileFromHash()) {
 			applyFile();
 		}
+
+		document.body.onkeypress = (e) => {
+			if (e.key === 'n') {
+				next.click();
+			} else if (e.key === 'p') {
+				prev.click();
+			}
+		};
 	</script>
 </body>
 </html>
