@@ -236,6 +236,26 @@ describe('Jai syntax highlighting', () => {
 		(result.value.split('hljs-_BalancedParens').length - 1).should.be.above(10);
 	});
 
+	it('should not treat parenthesized expressions as procedure declarations', () => {
+		const code = `check :: (left: s64, right: s64, oldsize: s64) {
+			if (left >= right) && (right >= (oldsize / 2)) {}
+			if left <= (oldsize / 2) {}
+			if left == (oldsize / 2) {}
+			if left != (oldsize / 2) {}
+			callback := (value: s64) -> s64 { return value; };
+			empty = () {};
+		}`;
+		const result = hljs.highlight(code, { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		(result.value.split('hljs-type function_ declaration__').length - 1).should.equal(3);
+		result.value.should.not.match(/hljs-operator comparison_">(?:&gt;=|&lt;=|==|!=)<\/span>\s*<span class="hljs-type function_ declaration__"/);
+		['>=', '<=', '==', '!=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>='].forEach(operator => {
+			const operatorResult = hljs.highlight(`target ${operator} (value: s64) {}`, { language: 'jai' });
+			operatorResult.value.should.not.match(/hljs-type function_ declaration__/);
+		});
+	});
+
 	it('should exercise the compiler-valid grammar coverage fixtures', async function () {
 		this.timeout(20000);
 		const fixturePaths = [

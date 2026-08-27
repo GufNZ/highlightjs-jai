@@ -28649,7 +28649,73 @@ function jai(hljs) {
 		},
 	}));
 
-	const lookbehindCheckRE = new RegExp(`[${':=(,'}]${skipWSAndCommentsREFn()}$`);
+	const procTypeContextRE = new RegExp(`(?:[:(,]|:=|(?<![=!<>+\\-*/%^&|:])=)${skipWSAndCommentsREFn()}$`);
+
+	/** @param {string} input @param {number} start */
+	const procParamsHaveDeclarationShape = (input, start) => {
+		const open = input.indexOf('(', start);
+		if (open === -1) {
+			return false;
+		}
+
+
+		let depth = 1;
+		let hasContent = false;
+		let hasTopLevelColon = false;
+		for (let index = open + 1; index < input.length; index += 1) {
+			const char = input[index];
+			const next = input[index + 1];
+			if (char === '/' && next === '/') {
+				index = input.indexOf('\n', index + 2);
+				if (index === -1) {
+					return false;
+				}
+
+
+				continue;
+			}
+
+
+			if (char === '/' && next === '*') {
+				const end = input.indexOf('*/', index + 2);
+				if (end === -1) {
+					return false;
+				}
+
+
+				index = end + 1;
+				continue;
+			}
+
+
+			if (char === '(') {
+				depth += 1;
+				continue;
+			}
+
+
+			if (char === ')') {
+				depth -= 1;
+				if (depth === 0) {
+					return !hasContent || hasTopLevelColon;
+				}
+
+
+				continue;
+			}
+
+
+			if (depth === 1 && !/\s/.test(char)) {
+				hasContent = true;
+				if (char === ':') {
+					hasTopLevelColon = true;
+				}
+			}
+		}
+
+
+		return false;
+	};
 
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
 	const PROC_TYPE_DECLARATION = {
@@ -28663,7 +28729,7 @@ function jai(hljs) {
 		//	lastMatchedProcTypeAt = match.index;
 		//},
 		'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
-			// Reject match if it's not actually a proc type declaration (i.e. not preceded by #type, ::, :=, or inside a call).
+			// Reject matches that are not proc parameter lists or are not preceded by #type, a declaration/assignment, or a containing argument separator.
 
 			const fullText = match.input ?? '';
 			const index = match.index ?? 0;
@@ -28673,11 +28739,15 @@ function jai(hljs) {
 			if (matched.startsWith('#type')) {
 				return;
 			}
+			if (!procParamsHaveDeclarationShape(fullText, index)) {
+				resp.isMatchIgnored = true;
+				return;
+			}
 
 			// Otherwise, check what precedes the match (allowing whitespace/comments in between):
 			const beforeMatch = fullText.slice(Math.max(0, index - 50), index);
-			// Valid if preceded by `:` (declaration), `=` (assignment), `(` or `,` (function argument):
-			if (lookbehindCheckRE.test(beforeMatch)) {
+			// Valid if preceded by a declaration colon, plain `=`/`:=`, `(`, or `,` (function argument).
+			if (procTypeContextRE.test(beforeMatch)) {
 				return;
 			}
 
