@@ -60,10 +60,16 @@ Payload_Kind :: enum {
 	TEXT;
 }
 
-Payload :: union kind: Payload_Kind {
+Payload :: union kind: Payload_Kind = .NONE {
 	.NONE    ,, empty: void;
 	.INTEGER ,, integer: s64;
 	.TEXT    ,, text := "default";
+}
+
+Integer_Tagged_Union :: union tag: s64 {
+}
+
+Type_Tagged_Union :: union tag: Type {
 }
 
 Access_Flags :: enum_flags u32 {

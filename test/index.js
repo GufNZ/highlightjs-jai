@@ -92,6 +92,26 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.match(/hljs-property declaration_">value/);
 	});
 
+	it('should contain bake prefixes inside parameter spans', () => {
+		const code = `Holder :: struct ($T: Type, $N: s64) {
+			array: [N] T;
+		}
+		hello2 :: (p: *[..] *Holder) {
+			print("p.* is %\\n", p.*);
+		}
+		bake_probe :: ($T: Type, $$N: s64, value: $T) {
+		}`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const parameterListStart = '<span class="hljs-_BalancedParens"><span class="hljs-punctuation paren_">(</span><span class="hljs-params">';
+
+		(result.value.split(parameterListStart).length - 1).should.equal(3);
+		result.value.should.match(/hljs-params"><span class="hljs-operator bake_">\$<\/span><span class="hljs-params declaration_">T/);
+		result.value.should.match(/hljs-params"><span class="hljs-operator bake_">\$<\/span><span class="hljs-params declaration_">N/);
+		result.value.should.match(/hljs-params"><span class="hljs-operator autobake_">\$\$<\/span><span class="hljs-params declaration_">N/);
+		result.value.should.match(/hljs-params declaration_">value<\/span><span class="hljs-operator define_">:<\/span> <span class="hljs-operator bake_">\$<\/span>/);
+		result.value.should.not.match(/<\/span>\$<span class="hljs-params">/);
+	});
+
 	it('should highlight named, anonymous, polymorphic, and tagged unions', () => {
 		const code = `Plain :: union { x: int; }
 			Holder :: struct {
@@ -109,14 +129,15 @@ describe('Jai syntax highlighting', () => {
 			SymbolBuffer :: union(name_length: u32 = 0) { data: [name_length] u8; }`;
 		const result = hljs.highlight(code, { language: 'jai' });
 		const namedUnionCount = result.value.split('hljs-type union_ declaration__').length - 1;
-		const taggedBindingCount = result.value.split('hljs-meta union_ binding__').length - 1;
+		const taggedBindingCount = result.value.split('class="hljs-meta union_ binding__"').length - 1;
 
 		namedUnionCount.should.equal(4);
 		taggedBindingCount.should.equal(4);
 		result.value.should.match(/hljs-type record_ anonymous__/);
 		result.value.should.match(/hljs-keyword meta_">using/);
 		result.value.should.match(/hljs-property tag_ declaration__">kind/);
-		result.value.should.match(/hljs-property constant_ enum__">ORANGE/);
+		result.value.should.match(/hljs-meta union_ binding__ tag___"><span class="hljs-operator dot_">\.<\/span><span class="hljs-property constant_ enum__">ORANGE/);
+		result.value.should.match(/hljs-punctuation commaComma_">,,/);
 		result.value.should.match(/hljs-property declaration_">z/);
 		result.value.should.match(/hljs-params declaration_">name_length/);
 	});

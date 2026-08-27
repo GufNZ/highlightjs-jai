@@ -82,8 +82,14 @@
 
 	--declaration-style: italic;
 
-	--struct-fg: #880;
-	--struct-inherited-decoration: underline;
+	--record-fg: #880;
+	--record-inherited-decoration: underline;
+	--struct-fg: var(--record-fg);
+	--union-fg: var(--record-fg);
+	--type-union-fg: #860;
+	--field-tag-bg: #040;
+	--meta-union-binding-bg: var(--default-bg);
+	--meta-union-binding-tag-bg: var(--field-tag-bg);
 
 	--proc-fg: #F80;
 	--proc-printLike-fg: #8F0;
@@ -584,6 +590,14 @@
 		font-weight: var(--keyword-struct-weight, var(--keyword-weight, --default-weight));
 		text-decoration: var(--keyword-struct-decoration, var(--keyword-decoration, --default-decoration));
 	}
+
+	&.union_ {
+		color: var(--keyword-union-fg, var(--keyword-fg, --default-fg));
+		background-color: var(--keyword-union-bg, var(--keyword-bg, --default-bg));
+		font-style: var(--keyword-union-style, var(--keyword-style, --default-style));
+		font-weight: var(--keyword-union-weight, var(--keyword-weight, --default-weight));
+		text-decoration: var(--keyword-union-decoration, var(--keyword-decoration, --default-decoration));
+	}
 }
 
 .hljs-literal {
@@ -791,6 +805,24 @@
 		font-style: var(--hereString-termiator-style, var(--hereString-style, var(--string-style, --default-style)));
 		font-weight: var(--hereString-termiator-weight, var(--hereString-weight, var(--string-weight, --default-weight)));
 		text-decoration: var(--hereString-termiator-decoration, var(--hereString-decoration, var(--string-decoration, --default-decoration)));
+	}
+
+	&.union_ {
+		&.binding__ {
+			color: var(--meta-union-binding-fg, var(--meta-fg, --default-fg));
+			background-color: var(--meta-union-binding-bg, var(--meta-bg, --default-bg));
+			font-style: var(--meta-union-binding-style, var(--meta-style, --default-style));
+			font-weight: var(--meta-union-binding-weight, var(--meta-weight, --default-weight));
+			text-decoration: var(--meta-union-binding-decoration, var(--meta-decoration, --default-decoration));
+
+			&.tag___ {
+				color: var(--meta-union-binding-tag-fg, var(--meta-union-binding-fg, var(--meta-fg, --default-fg)));
+				background-color: var(--meta-union-binding-tag-bg, var(--meta-union-binding-bg, var(--meta-bg, --default-bg)));
+				font-style: var(--meta-union-binding-tag-style, var(--meta-union-binding-style, var(--meta-style, --default-style)));
+				font-weight: var(--meta-union-binding-tag-weight, var(--meta-union-binding-weight, var(--meta-weight, --default-weight)));
+				text-decoration: var(--meta-union-binding-tag-decoration, var(--meta-union-binding-decoration, var(--meta-decoration, --default-decoration)));
+			}
+		}
 	}
 }
 
@@ -1163,6 +1195,14 @@
 		font-weight: var(--operator-uninitialised-weight, var(--operator-weight, --default-weight));
 		text-decoration: var(--operator-uninitialised-decoration, var(--operator-decoration, --default-decoration));
 	}
+
+	&.varargs_ {
+		color: var(--operator-varargs-fg, var(--operator-fg, --default-fg));
+		background-color: var(--operator-varargs-bg, var(--operator-bg, --default-bg));
+		font-style: var(--operator-varargs-style, var(--operator-style, --default-style));
+		font-weight: var(--operator-varargs-weight, var(--operator-weight, --default-weight));
+		text-decoration: var(--operator-varargs-decoration, var(--operator-decoration, --default-decoration));
+	}
 }
 
 .hljs-params {
@@ -1310,6 +1350,30 @@
 		font-style: var(--field-default-style, var(--declaration-style, var(--field-style, --default-style)));
 		font-weight: var(--field-default-weight, var(--declaration-weight, var(--field-weight, --default-weight)));
 		text-decoration: var(--field-default-decoration, var(--declaration-decoration, var(--field-decoration, --default-decoration)));
+	}
+
+	&.tag_ {
+		color: var(--field-tag-fg, var(--field-fg, --default-fg));
+		background-color: var(--field-tag-bg, var(--field-bg, --default-bg));
+		font-style: var(--field-tag-style, var(--field-style, --default-style));
+		font-weight: var(--field-tag-weight, var(--field-weight, --default-weight));
+		text-decoration: var(--field-tag-decoration, var(--field-decoration, --default-decoration));
+
+		&.declaration__ {
+			color: var(--field-tag-declaration-fg, var(--declaration-fg, var(--field-tag-fg, var(--field-fg, --default-fg))));
+			background-color: var(--field-tag-declaration-bg, var(--declaration-bg, var(--field-tag-bg, var(--field-bg, --default-bg))));
+			font-style: var(--field-tag-declaration-style, var(--declaration-style, var(--field-tag-style, var(--field-style, --default-style))));
+			font-weight: var(--field-tag-declaration-weight, var(--declaration-weight, var(--field-tag-weight, var(--field-weight, --default-weight))));
+			text-decoration: var(--field-tag-declaration-decoration, var(--declaration-decoration, var(--field-tag-decoration, var(--field-decoration, --default-decoration))));
+		}
+
+		&.default__ {
+			color: var(--field-tag-default-fg, var(--field-default-fg, var(--declaration-fg, var(--field-tag-fg, var(--field-fg, --default-fg)))));
+			background-color: var(--field-tag-default-bg, var(--field-default-bg, var(--declaration-bg, var(--field-tag-bg, var(--field-bg, --default-bg)))));
+			font-style: var(--field-tag-default-style, var(--field-default-style, var(--declaration-style, var(--field-tag-style, var(--field-style, --default-style)))));
+			font-weight: var(--field-tag-default-weight, var(--field-default-weight, var(--declaration-weight, var(--field-tag-weight, var(--field-weight, --default-weight)))));
+			text-decoration: var(--field-tag-default-decoration, var(--field-default-decoration, var(--declaration-decoration, var(--field-tag-decoration, var(--field-decoration, --default-decoration)))));
+		}
 	}
 }
 
@@ -1545,26 +1609,26 @@
 	text-decoration: var(--title-decoration, --default-decoration);
 
 	&.class_ {
-		color: var(--struct-fg, var(--title-fg, --default-fg));
-		background-color: var(--struct-bg, var(--title-bg, --default-bg));
-		font-style: var(--struct-style, var(--title-style, --default-style));
-		font-weight: var(--struct-weight, var(--title-weight, --default-weight));
-		text-decoration: var(--struct-decoration, var(--title-decoration, --default-decoration));
+		color: var(--record-fg, var(--title-fg, --default-fg));
+		background-color: var(--record-bg, var(--title-bg, --default-bg));
+		font-style: var(--record-style, var(--title-style, --default-style));
+		font-weight: var(--record-weight, var(--title-weight, --default-weight));
+		text-decoration: var(--record-decoration, var(--title-decoration, --default-decoration));
 
 		&.declaration__ {
-			color: var(--struct-declaration-fg, var(--declaration-fg, var(--struct-fg, var(--title-fg, --default-fg))));
-			background-color: var(--struct-declaration-bg, var(--declaration-bg, var(--struct-bg, var(--title-bg, --default-bg))));
-			font-style: var(--struct-declaration-style, var(--declaration-style, var(--struct-style, var(--title-style, --default-style))));
-			font-weight: var(--struct-declaration-weight, var(--declaration-weight, var(--struct-weight, var(--title-weight, --default-weight))));
-			text-decoration: var(--struct-declaration-decoration, var(--declaration-decoration, var(--struct-decoration, var(--title-decoration, --default-decoration))));
+			color: var(--record-declaration-fg, var(--declaration-fg, var(--record-fg, var(--title-fg, --default-fg))));
+			background-color: var(--record-declaration-bg, var(--declaration-bg, var(--record-bg, var(--title-bg, --default-bg))));
+			font-style: var(--record-declaration-style, var(--declaration-style, var(--record-style, var(--title-style, --default-style))));
+			font-weight: var(--record-declaration-weight, var(--declaration-weight, var(--record-weight, var(--title-weight, --default-weight))));
+			text-decoration: var(--record-declaration-decoration, var(--declaration-decoration, var(--record-decoration, var(--title-decoration, --default-decoration))));
 		}
 
 		&.inherited__ {
-			color: var(--struct-inherited-fg, var(--struct-fg, var(--title-fg, --default-fg)));
-			background-color: var(--struct-inherited-bg, var(--struct-bg, var(--title-bg, --default-bg)));
-			font-style: var(--struct-inherited-style, var(--struct-style, var(--title-style, --default-style)));
-			font-weight: var(--struct-inherited-weight, var(--struct-weight, var(--title-weight, --default-weight)));
-			text-decoration: var(--struct-inherited-decoration, var(--struct-decoration, var(--title-decoration, --default-decoration)));
+			color: var(--record-inherited-fg, var(--record-fg, var(--title-fg, --default-fg)));
+			background-color: var(--record-inherited-bg, var(--record-bg, var(--title-bg, --default-bg)));
+			font-style: var(--record-inherited-style, var(--record-style, var(--title-style, --default-style)));
+			font-weight: var(--record-inherited-weight, var(--record-weight, var(--title-weight, --default-weight)));
+			text-decoration: var(--record-inherited-decoration, var(--record-decoration, var(--title-decoration, --default-decoration)));
 		}
 	}
 
@@ -1878,6 +1942,30 @@
 		font-style: var(--field-type-style, var(--type-style, var(--field-style, --default-style)));
 		font-weight: var(--field-type-weight, var(--type-weight, var(--field-weight, --default-weight)));
 		text-decoration: var(--field-type-decoration, var(--type-decoration, var(--field-decoration, --default-decoration)));
+
+		&.tag__ {
+			color: var(--field-tag-type-fg, var(--field-type-fg, var(--type-fg, var(--field-tag-fg, var(--field-fg, --default-fg)))));
+			background-color: var(--field-tag-type-bg, var(--field-type-bg, var(--type-bg, var(--field-tag-bg, var(--field-bg, --default-bg)))));
+			font-style: var(--field-tag-type-style, var(--field-type-style, var(--type-style, var(--field-tag-style, var(--field-style, --default-style)))));
+			font-weight: var(--field-tag-type-weight, var(--field-type-weight, var(--type-weight, var(--field-tag-weight, var(--field-weight, --default-weight)))));
+			text-decoration: var(--field-tag-type-decoration, var(--field-type-decoration, var(--type-decoration, var(--field-tag-decoration, var(--field-decoration, --default-decoration)))));
+		}
+	}
+
+	&.record_ {
+		color: var(--type-record-fg, var(--record-fg, var(--type-fg, --default-fg)));
+		background-color: var(--type-record-bg, var(--record-bg, var(--type-bg, --default-bg)));
+		font-style: var(--type-record-style, var(--record-style, var(--type-style, --default-style)));
+		font-weight: var(--type-record-weight, var(--record-weight, var(--type-weight, --default-weight)));
+		text-decoration: var(--type-record-decoration, var(--record-decoration, var(--type-decoration, --default-decoration)));
+
+		&.anonymous__ {
+			color: var(--type-record-anonymous-fg, var(--type-record-fg, var(--record-fg, var(--type-fg, --default-fg))));
+			background-color: var(--type-record-anonymous-bg, var(--type-record-bg, var(--record-bg, var(--type-bg, --default-bg))));
+			font-style: var(--type-record-anonymous-style, var(--type-record-style, var(--record-style, var(--type-style, --default-style))));
+			font-weight: var(--type-record-anonymous-weight, var(--type-record-weight, var(--record-weight, var(--type-weight, --default-weight))));
+			text-decoration: var(--type-record-anonymous-decoration, var(--type-record-decoration, var(--record-decoration, var(--type-decoration, --default-decoration))));
+		}
 	}
 
 	&.stdLib_ {
@@ -1897,18 +1985,26 @@
 	}
 
 	&.struct_ {
-		color: var(--type-struct-fg, var(--type-fg, --default-fg));
-		background-color: var(--type-struct-bg, var(--type-bg, --default-bg));
-		font-style: var(--type-struct-style, var(--type-style, --default-style));
-		font-weight: var(--type-struct-weight, var(--type-weight, --default-weight));
-		text-decoration: var(--type-struct-decoration, var(--type-decoration, --default-decoration));
+		color: var(--type-struct-fg, var(--type-record-fg, var(--struct-fg, var(--record-fg, var(--type-fg, --default-fg)))));
+		background-color: var(--type-struct-bg, var(--type-record-bg, var(--struct-bg, var(--record-bg, var(--type-bg, --default-bg)))));
+		font-style: var(--type-struct-style, var(--type-record-style, var(--struct-style, var(--record-style, var(--type-style, --default-style)))));
+		font-weight: var(--type-struct-weight, var(--type-record-weight, var(--struct-weight, var(--record-weight, var(--type-weight, --default-weight)))));
+		text-decoration: var(--type-struct-decoration, var(--type-record-decoration, var(--struct-decoration, var(--record-decoration, var(--type-decoration, --default-decoration)))));
 
 		&.declaration__ {
-			color: var(--type-struct-declaration-fg, var(--type-declaration-fg, var(--declaration-fg, var(--struct-fg, var(--type-fg, --default-fg)))));
-			background-color: var(--type-struct-declaration-bg, var(--type-declaration-bg, var(--declaration-bg, var(--struct-bg, var(--type-bg, --default-bg)))));
-			font-style: var(--type-struct-declaration-style, var(--type-declaration-style, var(--declaration-style, var(--struct-style, var(--type-style, --default-style)))));
-			font-weight: var(--type-struct-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, var(--struct-weight, var(--type-weight, --default-weight)))));
-			text-decoration: var(--type-struct-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, var(--struct-decoration, var(--type-decoration, --default-decoration)))));
+			color: var(--type-struct-declaration-fg, var(--type-declaration-fg, var(--declaration-fg, var(--type-struct-fg, var(--type-record-fg, var(--struct-fg, var(--record-fg, var(--type-fg, --default-fg))))))));
+			background-color: var(--type-struct-declaration-bg, var(--type-declaration-bg, var(--declaration-bg, var(--type-struct-bg, var(--type-record-bg, var(--struct-bg, var(--record-bg, var(--type-bg, --default-bg))))))));
+			font-style: var(--type-struct-declaration-style, var(--type-declaration-style, var(--declaration-style, var(--type-struct-style, var(--type-record-style, var(--struct-style, var(--record-style, var(--type-style, --default-style))))))));
+			font-weight: var(--type-struct-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, var(--type-struct-weight, var(--type-record-weight, var(--struct-weight, var(--record-weight, var(--type-weight, --default-weight))))))));
+			text-decoration: var(--type-struct-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, var(--type-struct-decoration, var(--type-record-decoration, var(--struct-decoration, var(--record-decoration, var(--type-decoration, --default-decoration))))))));
+
+			& > .hljs-keyword.struct_ + .hljs-_BalancedParens {
+				color: var(--paramsList-fg, var(--type-struct-declaration-fg, var(--type-struct-fg, var(--type-fg, --default-fg))));
+				background-color: var(--paramsList-bg, var(--type-struct-declaration-bg, var(--type-struct-bg, var(--type-bg, --default-bg))));
+				font-style: var(--paramsList-style, var(--type-struct-declaration-style, var(--type-struct-style, var(--type-style, --default-style))));
+				font-weight: var(--paramsList-weight, var(--type-struct-declaration-weight, var(--type-struct-weight, var(--type-weight, --default-weight))));
+				text-decoration: var(--paramsList-decoration, var(--type-struct-declaration-decoration, var(--type-struct-decoration, var(--type-decoration, --default-decoration))));
+			}
 		}
 	}
 
@@ -1918,6 +2014,22 @@
 		font-style: var(--type-type-style, var(--type-style, --default-style));
 		font-weight: var(--type-type-weight, var(--type-weight, --default-weight));
 		text-decoration: var(--type-type-decoration, var(--type-decoration, --default-decoration));
+	}
+
+	&.union_ {
+		color: var(--type-union-fg, var(--type-record-fg, var(--union-fg, var(--record-fg, var(--type-fg, --default-fg)))));
+		background-color: var(--type-union-bg, var(--type-record-bg, var(--union-bg, var(--record-bg, var(--type-bg, --default-bg)))));
+		font-style: var(--type-union-style, var(--type-record-style, var(--union-style, var(--record-style, var(--type-style, --default-style)))));
+		font-weight: var(--type-union-weight, var(--type-record-weight, var(--union-weight, var(--record-weight, var(--type-weight, --default-weight)))));
+		text-decoration: var(--type-union-decoration, var(--type-record-decoration, var(--union-decoration, var(--record-decoration, var(--type-decoration, --default-decoration)))));
+
+		&.declaration__ {
+			color: var(--type-union-declaration-fg, var(--type-declaration-fg, var(--declaration-fg, var(--type-union-fg, var(--type-record-fg, var(--union-fg, var(--record-fg, var(--type-fg, --default-fg))))))));
+			background-color: var(--type-union-declaration-bg, var(--type-declaration-bg, var(--declaration-bg, var(--type-union-bg, var(--type-record-bg, var(--union-bg, var(--record-bg, var(--type-bg, --default-bg))))))));
+			font-style: var(--type-union-declaration-style, var(--type-declaration-style, var(--declaration-style, var(--type-union-style, var(--type-record-style, var(--union-style, var(--record-style, var(--type-style, --default-style))))))));
+			font-weight: var(--type-union-declaration-weight, var(--type-declaration-weight, var(--declaration-weight, var(--type-union-weight, var(--type-record-weight, var(--union-weight, var(--record-weight, var(--type-weight, --default-weight))))))));
+			text-decoration: var(--type-union-declaration-decoration, var(--type-declaration-decoration, var(--declaration-decoration, var(--type-union-decoration, var(--type-record-decoration, var(--union-decoration, var(--record-decoration, var(--type-decoration, --default-decoration))))))));
+		}
 	}
 
 	&.void_ {

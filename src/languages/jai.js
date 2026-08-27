@@ -28054,15 +28054,26 @@ function jai(hljs) {
 	 * @param {boolean} [includeConsts]
 	 * @param {boolean} [includeProcType]
 	 * @param {boolean} [includeAnonymousRecord]
+	 * @param {boolean} [includeBakePrefix]
 	 * @returns {import('highlight.js').Mode}
 	 */
-	const PARAM = (kind, includeConsts, includeProcType = true, includeAnonymousRecord = true) => {
+	const PARAM = (kind, includeConsts, includeProcType = true, includeAnonymousRecord = true, includeBakePrefix = false) => {
 		/** @type {import('highlight.js').Mode} */
 		const result = {
 			scope: kind,
-			begin: identifierREFn(),
+			begin: includeBakePrefix ? `(?:\\$\\$?)?${identifierREFn()}` : identifierREFn(),
 			returnBegin: true,
 			contains: [
+				...(includeBakePrefix ? [
+					{
+						scope: 'operator.autobake',
+						begin: /\$\$/
+					},
+					{
+						scope: 'operator.bake',
+						begin: /\$/
+					}
+				] : []),
 				{
 					scope: `${kind}.declaration`,
 					begin: identifierREFn(),
@@ -28249,7 +28260,7 @@ function jai(hljs) {
 					//  the endsParent cascade walks up through the inner balancedParen and pops it WITHOUT giving its own /\)/ end a chance to consume `)`.
 					// The cursor would then sit on the inner `)` and every ancestor mode (`params.type.function`, `:` submode, outer `params`, ...) would in turn fire its own `/(?=[,;#\)\{])/`-style end and cascade out
 					//  - making the outer `params` (for `mod`) wrongly close at the inner `)` instead of the outer one.
-					Object.assign(PARAM('params', false, false, false), { endsParent: false }),
+					Object.assign(PARAM('params', false, false, false, true), { endsParent: false }),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -28297,23 +28308,26 @@ function jai(hljs) {
 		endsParent: true
 	});
 
-	const TAGGED_UNION_BINDING = {
-		scope: 'meta.union.binding',
+	const TAGGED_UNION_TAG_VALUE = {
+		scope: 'meta.union.binding.tag',
 		begin: [
 			/\./,
-			typeIdentifierREFn(),
-			skipWSAndCommentsREFn(),
-			/,,/
+			typeIdentifierREFn()
 		],
 		beginScope: {
 			1: 'operator.dot',
-			2: 'property.constant.enum',
-			3: 'comment',
-			4: 'punctuation.comma'
-		},
+			2: 'property.constant.enum'
+		}
+	};
+
+	const TAGGED_UNION_BINDING = {
+		scope: 'meta.union.binding',
+		begin: /(?=\.)/,
 		keywords: keywordsExceptStdLib,
 		contains: [
+			TAGGED_UNION_TAG_VALUE,
 			...COMMENTS,
+			PUNCTUATION.variants.find(v => v.scope === 'punctuation.commaComma'),
 			PARAM('property', true),
 			NOTE,
 			DIRECTIVE
@@ -28347,7 +28361,7 @@ function jai(hljs) {
 			TAGGED_UNION_BINDING,
 			balancedParen(
 				[
-					PARAM('params', false),
+					PARAM('params', false, true, true, true),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -28381,7 +28395,7 @@ function jai(hljs) {
 			TAGGED_UNION_BINDING,
 			balancedParen(
 				[
-					PARAM('params', false),
+					PARAM('params', false, true, true, true),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -28415,7 +28429,7 @@ function jai(hljs) {
 			// Lives BEFORE the body brace; once the body sub-mode (below) opens, this rule is out of scope, so any `(` inside field types/defaults can't be mistaken for another poly-arg list.
 			balancedParen(
 				[
-					PARAM('params', false),
+					PARAM('params', false, true, true, true),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -28452,7 +28466,7 @@ function jai(hljs) {
 			DIRECTIVE,
 			balancedParen(
 				[
-					PARAM('params', false),
+					PARAM('params', false, true, true, true),
 					COMMA,
 					NOTE,
 					DIRECTIVE,
@@ -28460,7 +28474,7 @@ function jai(hljs) {
 				],
 				{ keywords }
 			),
-			PARAM('property.tag', false),
+			PARAM('property.tag', false, false, false),
 			balancedBrace(
 				[
 					TAGGED_UNION_BINDING,
@@ -28667,7 +28681,7 @@ function jai(hljs) {
 			},
 			balancedParen(
 				[
-					Object.assign(PARAM('params'), { endsParent: false }),
+					Object.assign(PARAM('params', false, true, true, true), { endsParent: false }),
 					COMMA,
 					NOTE,
 					DIRECTIVE,

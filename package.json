@@ -6,7 +6,9 @@
 	"scripts": {
 		"compileAll": "ls *.jai | xargs -n 1 jai",
 		"generateStdLib": "jai generateStdLib.jai && generateStdLib >stdLib.js",
+		"pregenerateGrammarCoverageMarkup": "jai test/grammarCoverage/grammar-coverage.jai",
 		"generateGrammarCoverageMarkup": "node generateGrammarCoverageMarkup.cjs",
+		"postgenerateGrammarCoverageMarkup": "rm -rf test/grammarCoverage/.build test/grammarCoverage/grammar-coverage test/grammarCoverage/grammar-coverage.exe test/grammarCoverage/grammar-coverage.pdb",
 		"patchStdLib": "bash mergeStdLib.sh",
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && checkRef >check",

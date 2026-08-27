@@ -149,6 +149,7 @@ doctag.todo
 doctag.workspace
 doctag.workspace.name
 doctag.xxx
+keyword
 keyword.cast
 keyword.cast.v1
 keyword.cast.v1.auto
@@ -162,6 +163,7 @@ keyword.if
 keyword.meta
 keyword.proc
 keyword.struct
+keyword.union
 literal
 literal.bool.false
 literal.bool.true
@@ -184,6 +186,8 @@ meta.directive.module_parameters
 meta.directive.module_parameters.block
 meta.note
 meta.stringTerminator
+meta.union.binding
+meta.union.binding.tag
 number
 number.binary
 number.binary.prefix
@@ -226,6 +230,7 @@ operator.rotate
 operator.shift
 operator.shift.modifier
 operator.uninitialised
+operator.varargs
 params
 params.declaration
 params.default
@@ -242,6 +247,9 @@ property.constant.enum
 property.constant.value
 property.declaration
 property.default
+property.tag
+property.tag.declaration
+property.tag.default
 punctuation
 punctuation.alignmentWS
 punctuation.backslash
@@ -298,6 +306,8 @@ type.integer.unsigned
 type.params
 type.params.return
 type.property
+type.property.tag
+type.record.anonymous
 type.stdLib.Adpcm
 type.stdLib.Android
 type.stdLib.Basic
@@ -397,6 +407,7 @@ type.stdLib.xxHash
 type.string
 type.struct.declaration
 type.type
+type.union.declaration
 type.void
 variable
 variable.constant

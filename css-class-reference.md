@@ -103,7 +103,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--keyword-flowControl`|`continue`, `break`, `defer` and `return`.|`--keyword`=>`--default`|
 |`--keyword-meta`|`type_of`, `type_info`, `size_of`, `initializer_of`, `code_of`, `is_constant` and `using`|`--keyword`=>`--default`|
 |`--keyword-proc`|`inline`, `no_inline` and `interface`.|`--keyword`=>`--default`|
-|`--keyword-struct`|`struct` and `union`.|`--keyword`=>`--default`|
+|`--keyword-struct`|The `struct` keyword.|`--keyword`=>`--default`|
+|`--keyword-union`|The `union` keyword.|`--keyword`=>`--default`|
 |`--keyword-cast`|The `cast` keyword, its parameters, and `()`s and `,`, as used in Option 1 and Option 2, and the `xx` autocast keyword.|`--keyword`=>`--default` for the keyword;<br/>`--keyword`=>`--punctuation`=>`--default` for the `()`s and `,`;|
 |`--keyword-cast-v1`|The `cast` keyword & parameters, as used in Option 1.|`--keyword-cast`=>`--keyword`=>`--default`|
 |`--keyword-cast-v1-auto`|The `xx` keyword, as used in Option 1.|`--keyword-cast-v1`=>`--keyword-cast`=>`--keyword`=>`--default`|
@@ -136,6 +137,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--operator-shift`|The bitwise shift operators (`<<`, `>>`).|`--operator`=>`--default`|
 |`--operator-shift-modifier`|Things like `,small` or `,logical` for the bit-shift operators.|`--operator-shift`=>`--operator`=>`--default`|
 |`--operator-uninitialised`|The `---` operator.|`--operator`=>`--default`|
+|`--operator-varargs`|The `..` operator marking a variadic parameter.|`--operator`=>`--default`|
 |`--operator-pinRegister`|The `===` operator.|`--operator`=>`--default`|
 |`--operator-asm-broadcastValueOrSuppressFloatExceptions`|The `!` operator in inline ASM.|`--operator`=>`--default`|
 |`--operator-asm-maskControl`|The `&` and `&*` operators in inline ASM.|`--operator`=>`--default`|
@@ -158,7 +160,7 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--declaration`|All declarations - if they fall back to this.|`--default`|
 |`--variable-declaration`|Variable declarations.|`--declaration`=>`--variable`=>`--default`|
 |`--variable-constant-declaration`|A constant being declared.|`--variable-declaration`=>`--declaration`=>`--variable-constant`=>`--variable`=>`--default`|
-|`--struct-declaration`|Struct variable declarations.|`--declaration`=>`--struct`=>`--title`=>`--default`|
+|`--record-declaration`|Struct or union variable declarations.|`--declaration`=>`--record`=>`--title`=>`--default`|
 |`--field-declaration`|Struct field declarations.|`--declaration`=>`--field`=>`--default`|
 |`--field-type`|The type of a field.|`--type`=>`--field`=>`--default`|
 |`--field-type-function`|The type of a field when it's a proc/function.|`--field-type`=>`--type-function`=>`--type`=>`--field`=>`--default`|
@@ -206,6 +208,10 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--field-default`|The default value of a field.|`--declaration`=>`--field`=>`--default`|
 |`--field-constant-declaration`|Struct constant-field declarations.|`--declaration`=>`--field-constant`=>`--field`=>`--default`|
 |`--field-enum`|Enum value references (`.ALL_UPPER` or `.PascalCase`).|`--field-constant`=>`--field`=>`--default`|
+|`--field-tag`|A tagged union's discriminator declaration.|`--field`=>`--default`|
+|`--field-tag-declaration`|The name of a tagged union's discriminator.|`--declaration`=>`--field-tag`=>`--field`=>`--default`|
+|`--field-tag-default`|The default value of a tagged union's discriminator.|`--field-default`=>`--declaration`=>`--field-tag`=>`--field`=>`--default`|
+|`--field-tag-type`|The type of a tagged union's discriminator.|`--field-type`=>`--type`=>`--field-tag`=>`--field`=>`--default`|
 ||||
 |**Types**|
 |`--type`|All types (PascalCase).|`--default`|
@@ -224,11 +230,15 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |`--type-integer`|All integer types.|`--type`=>`--default`|
 |`--type-integer-signed`|All signed integer types (`int`, `s8`, `s16`, `s32`, `s64`).|`--type-integer`=>`--type`=>`--default`|
 |`--type-integer-unsigned`|All unsigned integer types (`u8`, `u16`, `u32`, `u64`).|`--type-integer`=>`--type`=>`--default`|
+|`--type-record`|All record types (`struct` and `union`).|`--record`=>`--type`=>`--default`|
+|`--type-record-anonymous`|An anonymous inline `struct` or `union` type.|`--type-record`=>`--record`=>`--type`=>`--default`|
 |`--type-string`|The `string` type.|`--type`=>`--default`|
 |`--type-stdLib`|Any types defined in the standard library.|`--type`=>`--default`|
-|`--type-struct`|All struct types.|`--type`=>`--default`|
-|`--type-struct-declaration`|Struct type declarations.|`--type-declaration`=>`--declaration`=>`--struct`=>`--type`=>`--default`|
+|`--type-struct`|All struct types.|`--type-record`=>`--struct`=>`--record`=>`--type`=>`--default`|
+|`--type-struct-declaration`|Struct type declarations.|`--type-declaration`=>`--declaration`=>`--type-struct`=>`--type-record`=>`--struct`=>`--record`=>`--type`=>`--default`|
 |`--type-type`|The `Type` type.|`--type`=>`--default`|
+|`--type-union`|All union types.|`--type-record`=>`--union`=>`--record`=>`--type`=>`--default`|
+|`--type-union-declaration`|Union type declarations.|`--type-declaration`=>`--declaration`=>`--type-union`=>`--type-record`=>`--union`=>`--record`=>`--type`=>`--default`|
 |`--type-void`|The `void` type.|`--type`=>`--default`|
 |`--type-asm`|The `reg` (and `__reg`) types.|`--type`=>`--default`|
 |`--type-baked`|Any polymorphic type that is baked, e.g. `$T`.|`--type`=>`--default`|
@@ -239,10 +249,13 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 ||||
 |`--title`|The names of structs, procs & functions.|`--default`|
 ||||
-|**Structs**|
-|`--struct`|Structs.|`--title`=>`--default`|
-|`--struct-inherited`|Struct fields marked with `#as`.|`--struct`=>`--title`=>`--default`|
-|`--struct-declaration`|A struct being declared.|`--declaration`=>`--struct`=>`--title`=>`--default`|
+|**Records - Structs/Unions**|
+|`--record`|Structs and unions.|`--title`=>`--default`|
+|`--record-inherited`|Record fields marked with `#as`.|`--record`=>`--title`=>`--default`|
+|`--record-declaration`|A struct or union being declared.|`--declaration`=>`--record`=>`--title`=>`--default`|
+|`--struct`|Struct-specific override.|`--record`=>`--title`=>`--default`|
+|`--union`|Union-specific override.|`--record`=>`--title`=>`--default`|
+|`--paramsList`|The list of struct parameters.|`--type-struct-declaration`=>`--type-struct`=>`--type-record`=>`--struct`=>`--record`=>`--type`=>`--default`|
 ||||
 |**Procs/Functions**|
 |`--proc`|Procedures & functions.|`--title`=>`--default`|
@@ -271,6 +284,8 @@ Each section below can be defined up to 5 times (once for each suffix above), e.
 |**Meta Information**|
 |`--meta`|Meta-information, e.g. directives and notes.|`--default`|
 |`--meta-comma`|Commas in directives.|`--punctuation`=>`--default`|
+|`--meta-union-binding`|A tagged-union binding, e.g. `.TAG ,, member: Type;`.|`--meta`=>`--default`|
+|`--meta-union-binding-tag`|The tag value at the start of a tagged-union binding.|`--meta-union-binding`=>`--meta`=>`--default`|
 |`--note`|Notes, e.g. `@PrintLike`|`--meta`=>`--default`|
 |**Directives**|
 |`--directive`|Directives.|`--meta`=>`--default`|
@@ -417,7 +432,8 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-keyword.if_`|`if`, `then`, `else`, `case` and `ifx`.|
 |`.hljs-keyword.meta_`|`using`, `is_constant`, `type_of`, `size_of`, `code_of` and `initializer_of`.|
 |`.hljs-keyword.proc_`|`interface`, `inline` and `no_inline`.|
-|`.hljs-keyword.struct_`|`struct` and `union`.|
+|`.hljs-keyword.struct_`|The `struct` keyword.|
+|`.hljs-keyword.union_`|The `union` keyword.|
 |`.hljs-keyword.for_`|`for`, `while` and `remove`.|
 |`.hljs-title.function_.forExpansion__`|A named for_expansion invocation.|
 
@@ -451,6 +467,7 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-operator.shift_`|Bit-shift operators.|
 |`.hljs-operator.shift_.modifier__`|Shift operator modifiers, e.g. `,small`.|
 |`.hljs-operator.uninitialised_`|`---`.|
+|`.hljs-operator.varargs_`|`..` marking a variadic parameter.|
 
 ### Punctuation
 | CSS class | Definition |
@@ -492,6 +509,9 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-property.constant_`|A constant field reference (`something.ALL_UPPER`)|
 |`.hljs-property.constant_.value__`|A constant value.|
 |`.hljs-property.constant_.enum__`|An enum value reference (`.ALL_UPPER` or `.PascalCase`)|
+|`.hljs-property.tag_`|A tagged union's discriminator declaration.|
+|`.hljs-property.tag_.declaration__`|The discriminator name in a tagged union declaration.|
+|`.hljs-property.tag_.default__`|The discriminator's default value in a tagged union declaration.|
 
 ### Types
 | CSS class | Definition |
@@ -519,7 +539,13 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |`.hljs-type.params_`|A type sitting in a proc-parameter slot (i.e. the type of a parameter).|
 |`.hljs-type.params_.return__`|A type sitting in a proc-return slot (i.e. the type of a return entry).|
 |`.hljs-type.property_`|A type sitting in a struct-field slot (i.e. the type of a field).|
+|`.hljs-type.property_.tag__`|The discriminator type in a tagged union declaration.|
+|`.hljs-type.record_`|All record types (`struct` and `union`).|
+|`.hljs-type.record_.anonymous__`|An anonymous inline `struct` or `union` type.|
+|`.hljs-type.struct_`|Struct types.|
 |`.hljs-type.struct_.declaration__`|Struct type declarations.|
+|`.hljs-type.union_`|Union types.|
+|`.hljs-type.union_.declaration__`|Union type declarations.|
 |`.hljs-type.code_`|The `Code` type.|
 |`.hljs-type.void_`|The `void` type.|
 |`.hljs-type.baked_`|Types on parameters that are being baked (`$`-prefixed).|
@@ -572,6 +598,8 @@ If you feel it necessary, you can alter the structural CSS that uses the variabl
 |-|-|
 |`.hljs-meta`|All meta information.|
 |`.hljs-meta.note_`|All notes (e.g. `@PrintLike`).|
+|`.hljs-meta.union_.binding__`|A tagged-union binding, e.g. `.TAG ,, member: Type;`.|
+|`.hljs-meta.union_.binding__.tag___`|The tag value before `,,` in a tagged-union binding.|
 |||
 |`.hljs-meta.directive_`|All directives.|
 |`.hljs-meta.directive_.modifier__`|All directive modifiers.|

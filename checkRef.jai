@@ -404,11 +404,11 @@ verifyCSSVarsInReference :: (vars: []Var, ref: string, refLines: []string, expec
 			eol := find_index_from_left(remaining, #char "\n");
 			path := join(..var.path, separator = "`=>`");
 			validPathAt := find_index_from_left(remaining, join("`", path, "`"));
-			if validPathAt == -1 || validPathAt > eol {
+			if (validPathAt == -1 || validPathAt > eol) && !array_find(expectedPathDiffs, base) {
 				line := slice(remaining, 0, eol);
 				advance(*line, find_index_from_right(line, "|`") + 2);
 				line.count -= 2;
-				print("%-% has incorrect path\n    ;should be: `%`\n    ;  but was: `%`\n", base, var.suffix, path, line);
+				print("%-% (line %) has incorrect path\n    ;should be: `%`\n    ;  but was: `%`\n", base, var.suffix, var.line, path, line);
 			}
 		} else {
 			if array_find(reported, base)  continue;
@@ -475,8 +475,11 @@ main :: () {
 		"type.enum_",
 		"type.function_",
 		"type.integer_",
+		"type.record_",
 		"type.struct_",
-		"literal.bool_"
+		"type.union_",
+		"literal.bool_",
+		"meta.union_"
 	);
 
 	refLines := verifyCSSClassesInReference(
@@ -489,6 +492,9 @@ main :: () {
 		".hljs-type.integer_",
 		".hljs-type.enum_",
 		".hljs-type.function_",
+		".hljs-type.record_",
+		".hljs-type.struct_",
+		".hljs-type.union_",
 		".hljs-symbol",
 		".hljs-symbol.<flag>_",
 		".hljs-_BalancedParens",
@@ -496,7 +502,7 @@ main :: () {
 		".hljs-literal.bool_"
 	);
 
-	verifyCSSVarsInReference(vars, refStr, refLines, .[], "--declaration");
+	verifyCSSVarsInReference(vars, refStr, refLines, .["--paramsList"], "--declaration", "--struct", "--union");
 };
 
 #import "Basic";

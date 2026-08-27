@@ -45,6 +45,7 @@ keyword.if_
 keyword.meta_
 keyword.proc_
 keyword.struct_
+keyword.union_
 literal
 literal.bool_
 literal.bool_.false__
@@ -68,6 +69,9 @@ meta.directive_.module_parameters__
 meta.directive_.module_parameters__.block___
 meta.note_
 meta.stringTerminator_
+meta.union_
+meta.union_.binding__
+meta.union_.binding__.tag___
 number
 number.binary_
 number.binary_.prefix__
@@ -113,6 +117,7 @@ operator.rotate_
 operator.shift_
 operator.shift_.modifier__
 operator.uninitialised_
+operator.varargs_
 params
 params.declaration_
 params.default_
@@ -129,6 +134,9 @@ property.constant_.enum__
 property.constant_.value__
 property.declaration_
 property.default_
+property.tag_
+property.tag_.declaration__
+property.tag_.default__
 punctuation
 punctuation.alignmentWS_
 punctuation.backslash_
@@ -196,11 +204,16 @@ type.integer_.unsigned__
 type.params_
 type.params_.return__
 type.property_
+type.property_.tag__
+type.record_
+type.record_.anonymous__
 type.stdLib_
 type.string_
 type.struct_
 type.struct_.declaration__
 type.type_
+type.union_
+type.union_.declaration__
 type.void_
 variable
 variable.constant_
