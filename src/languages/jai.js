@@ -27187,6 +27187,11 @@ function jai(hljs) {
 		scope: 'title.function.declaration',
 		relevance: 5,
 		begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}::(?:${skipWSAndCommentsREFn(0)}(?:#?:no_a[bo]c|(?:no_)?inline))*(?:${skipWSAndCommentsREFn(0)}#bake_arguments${skipWSAndCommentsREFn(0)}${identifierREFn(0)})?(?:${skipWSAndCommentsREFn(0)}#type)?${skipWSAndCommentsREFn(0)}\\()`,
+		'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+			if (!procParamsHaveDeclarationShape(match.input ?? '', match.index ?? 0)) {
+				resp.isMatchIgnored = true;
+			}
+		}),
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],

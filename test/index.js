@@ -244,12 +244,15 @@ describe('Jai syntax highlighting', () => {
 			if left != (oldsize / 2) {}
 			callback := (value: s64) -> s64 { return value; };
 			empty = () {};
-		}`;
+		}
+		LARGE_SIZE_LIMIT :: (LARGE_CLASS_COUNT * MEMORY_SPAN_SIZE) - SPAN_HEADER_SIZE;`;
 		const result = hljs.highlight(code, { language: 'jai' });
 
 		result.illegal.should.equal(false);
 		(result.value.split('hljs-type function_ declaration__').length - 1).should.equal(3);
 		result.value.should.not.match(/hljs-operator comparison_">(?:&gt;=|&lt;=|==|!=)<\/span>\s*<span class="hljs-type function_ declaration__"/);
+		result.value.should.match(/hljs-variable constant_ declaration__">LARGE_SIZE_LIMIT/);
+		result.value.should.not.match(/hljs-title function_ declaration__">LARGE_SIZE_LIMIT/);
 		['>=', '<=', '==', '!=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>='].forEach(operator => {
 			const operatorResult = hljs.highlight(`target ${operator} (value: s64) {}`, { language: 'jai' });
 			operatorResult.value.should.not.match(/hljs-type function_ declaration__/);
