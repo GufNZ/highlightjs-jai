@@ -26955,6 +26955,19 @@ function jai(hljs) {
 		}
 	];
 
+	const POLYMORPH_ANCESTOR_TYPE_PREFIX = {
+		begin: [
+			/\$/,
+			typeIdentifierREFn(),
+			/\//
+		],
+		beginScope: {
+			1: 'operator.bake',
+			2: 'type.baked',
+			3: 'operator.math'
+		}
+	};
+
 	const CONST_REF = {
 		scope: 'property.constant',
 		relevance: 0,
@@ -27777,9 +27790,10 @@ function jai(hljs) {
 		],
 	};
 
+	// rg -PUoNI --no-heading '(\s*+)(\w++)(?=\s*+::.*+\n(?:\1\s++.++\n)*+\1\}\s*+@PrintLike)' *|grep -o '^\w+]'
 	const PRINTLIKE = {
 		scope: 'title.function.printLike',
-		begin: /(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)(?=\()/,
+		begin: /\b(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)\b/,
 		keywords: keywordsExceptStdLib,
 		contains: [
 			// Whole argument list: balanced `(...)`. When the matching outer `)` is consumed, `endsParent` closes PRINTLIKE so the scope only covers the one call - not everything through the next `;` (which would swallow sibling calls in e.g. `string.[tprint(...), tprint(...)]`).
@@ -28119,9 +28133,9 @@ function jai(hljs) {
 						...(includeAnonymousRecord ? [ANONYMOUS_RECORD_TYPE] : []),
 						{
 							scope: `type.${kind}`,
-							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), or a type-shaped ident.
+							// Peek: type expression must start with `*` (pointer), `[` (array-prefix), an ancestor polymorph, or a type-shaped ident.
 							// Sub-modes below consume each part; wrapping them all in `type.${kind}` gives themes a single span covering `<prefix>TypeName`. Scope is `type.${kind}` (rather than `${kind}.type`) so themes that only style the top-level `type` scope pick this up as a type - most themes don't distinguish sub-scopes, and the important information here is that this span *is* a type (of a particular kind), not that it's a kind (that happens to be a type).
-							begin: `(?=\\*|\\[|${typeIdentifierREFn()})`,
+							begin: `(?=\\*|\\[|\\$${typeIdentifierREFn()}/|${typeIdentifierREFn(0)})`,
 							keywords,
 							contains: [
 								...COMMENTS,
@@ -28151,6 +28165,7 @@ function jai(hljs) {
 								//  - collapsing the whole signature at the first inner `)`.
 								// Uses the FUNCTION_CALL-free content list so nested type constructors like `Foo(Bar(int, string))` bind `Bar` as a TYPE rather than a function call (poly-args are compile-time, never a call).
 								balancedParen(_COMMON_EXCEPT_STRING_AND_FUNCTION_CALL, { keywords }),
+								POLYMORPH_ANCESTOR_TYPE_PREFIX,
 								// Array-type prefix (`[]`, `[..]`, `[N]`, `[CONST]`) - may stack with `*`s and further `[...]`s.
 								ARRAY_TYPE_PREFIX,
 								// Pointer-prefix `*`s.

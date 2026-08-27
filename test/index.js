@@ -223,13 +223,16 @@ describe('Jai syntax highlighting', () => {
 		const code = `deep :: (
 			callback: (input: Wrapper(Map(string, Array(Array(int))))) -> (Nested(Result(float64))),
 			fallback: (value: Array(Array(Array(u32)))) -> Array(Array(string))
-		) -> (handler: (item: Wrapper(Array(int))) -> Result(string), ok: bool) {}`;
+		) -> (handler: (item: Wrapper(Array(int))) -> Result(string), ok: bool) {}
+		ancestor_poly :: (direct: $T/Blentity, nested: *[..] *[3] $U/Blentity) {}`;
 		const result = hljs.highlight(code, { language: 'jai' });
 
 		result.illegal.should.equal(false);
 		result.value.should.match(/hljs-title function_ declaration__">deep/);
 		result.value.should.match(/hljs-type function_ params__/);
 		result.value.should.match(/hljs-type params_ return__/);
+		result.value.should.match(/hljs-type params_"><span class="hljs-operator bake_">\$<\/span><span class="hljs-type baked_">T<\/span><span class="hljs-operator math_">\/<\/span>Blentity/);
+		result.value.should.match(/hljs-type baked_">U<\/span><span class="hljs-operator math_">\/<\/span>Blentity<\/span>/);
 		(result.value.split('hljs-_BalancedParens').length - 1).should.be.above(10);
 	});
 
