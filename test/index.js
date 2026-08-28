@@ -47,6 +47,23 @@ describe('Jai syntax highlighting', () => {
 		actual.should.not.eql('jai');
 	});
 
+	it('should highlight #if conditions consistently inside records', () => {
+		const code = `#if OS == .LINUX {
+			global_value := 1;
+		}
+		Example :: struct {
+			#if OS == .LINUX {
+				field: int;
+			}
+		}`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const conditionMarkup = '<span class="hljs-meta"><span class="hljs-operator hash_ directive__">#</span><span class="hljs-meta directive_">if</span></span> <span class="hljs-variable constant_">OS</span> <span class="hljs-operator comparison_">==</span> <span class="hljs-property constant_ enum__">.LINUX</span>';
+
+		result.illegal.should.equal(false);
+		(result.value.split(conditionMarkup).length - 1).should.equal(2);
+		result.value.should.match(/hljs-property declaration_">field<\/span><span class="hljs-operator define_">:<\/span> <span class="hljs-type property_">/);
+	});
+
 	it('should close returns lists before a proc body brace', () => {
 		const code = 'setup_xr :: () -> app: Xr_App = .{}, success := false {\n    // ...\n}';
 		const result = hljs.highlight(code, { language: 'jai' });
@@ -236,6 +253,32 @@ describe('Jai syntax highlighting', () => {
 		(result.value.split('hljs-_BalancedParens').length - 1).should.be.above(10);
 	});
 
+	it('should highlight unnamed pointer parameters and empty returns in procedure types', () => {
+		const code = `Popup_Info :: struct {
+			callback: (*void) -> ();
+		}
+		add_popup :: (callback: (*void) -> (), data: *void) {}`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const signatureMarkup = '<span class="hljs-_BalancedParens"><span class="hljs-punctuation paren_">(</span><span class="hljs-type"><span class="hljs-operator pointerTo_">*</span><span class="hljs-type void_">void</span></span><span class="hljs-punctuation paren_">)</span></span> <span class="hljs-operator returns_">-&gt;</span> <span class="hljs-params returns_"><span class="hljs-_BalancedParens"><span class="hljs-punctuation paren_">(</span><span class="hljs-punctuation paren_">)</span></span></span>';
+
+		result.illegal.should.equal(false);
+		(result.value.split(signatureMarkup).length - 1).should.equal(2);
+		result.value.should.match(/hljs-type function_ params__">[\s\S]*?<\/span><span class="hljs-punctuation comma_">,<\/span> <span class="hljs-params"><span class="hljs-params declaration_">data/);
+	});
+
+	it('should distinguish procedure-type defaults from parameter defaults', () => {
+		const code = `draw_text: (x: float = 0, y: float, str: string, color: Vector4) = dummy_draw_text;
+		text_width: (s: string) -> float = dummy_text_width;
+		LARGE_SIZE_LIMIT :: (A * B) - C;`;
+		const result = hljs.highlight(code, { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		(result.value.split('hljs-type function_ declaration__').length - 1).should.equal(2);
+		result.value.should.match(/hljs-type params_"><span class="hljs-type float_">float<\/span> <span class="hljs-operator assign_">=<\/span><span class="hljs-params default_"> <span class="hljs-number integer_">0/);
+		result.value.should.match(/hljs-params returns_"><span class="hljs-params return_">[\s\S]*?hljs-type float_">float<\/span><\/span><\/span><\/span> <span class="hljs-operator assign_">=<\/span> <span class="hljs-variable">dummy_text_width/);
+		result.value.should.not.match(/hljs-title function_ declaration__">LARGE_SIZE_LIMIT/);
+	});
+
 	it('should not treat parenthesized expressions as procedure declarations', () => {
 		const code = `check :: (left: s64, right: s64, oldsize: s64) {
 			if (left >= right) && (right >= (oldsize / 2)) {}
@@ -259,6 +302,32 @@ describe('Jai syntax highlighting', () => {
 		});
 	});
 
+	it('should close return scopes before trailing directives', () => {
+		const code = `c_malloc  :: (size: u64) -> *void                #foreign crt "malloc";
+		c_free    :: (memory: *void)                     #foreign crt "free";
+		c_realloc :: (memory: *void, size: u64) -> *void #foreign crt "realloc";`;
+		const result = hljs.highlight(code, { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		(result.value.split('hljs-params returns_').length - 1).should.equal(2);
+		result.value.should.match(/hljs-operator returns_">-&gt;<\/span> <span class="hljs-params returns_"><span class="hljs-operator pointerTo_">\*<\/span><span class="hljs-params return_"><span class="hljs-params return_ declaration__"><span class="hljs-type void_">void<\/span><\/span><\/span><\/span>\s+<span class="hljs-meta directive_ foreignOrLibrary__"/);
+		const activeScopes = [];
+		let foreignDirectiveCount = 0;
+		for (const match of result.value.matchAll(/<span class="([^"]+)">|<\/span>/g)) {
+			if (match[1]) {
+				if (match[1] === 'hljs-meta directive_ foreignOrLibrary__') {
+					activeScopes.should.not.containEql('hljs-params returns_');
+					activeScopes.should.not.containEql('hljs-params return_');
+					foreignDirectiveCount += 1;
+				}
+				activeScopes.push(match[1]);
+			} else {
+				activeScopes.pop();
+			}
+		}
+		foreignDirectiveCount.should.equal(6);
+	});
+
 	it('should exercise the compiler-valid grammar coverage fixtures', async function () {
 		this.timeout(20000);
 		const fixturePaths = [
@@ -272,6 +341,8 @@ describe('Jai syntax highlighting', () => {
 		const sources = await Promise.all(fixturePaths.map(filePath => readFile(filePath, 'utf-8')));
 		const markupSources = await Promise.all(markupPaths.map(filePath => readFile(filePath, 'utf-8')));
 		const results = sources.map(code => hljs.highlight(code, { language: 'jai' }));
+		const coverageSourceLines = sources[0].split(/\r?\n/);
+		const coverageMarkupLines = results[0].value.split(/\r?\n/);
 		const emittedClasses = new Set(results.flatMap(result =>
 			Array.from(result.value.matchAll(/class="([^"]+)"/g), match => match[1].split(' ')).flat()
 		));
@@ -292,6 +363,15 @@ describe('Jai syntax highlighting', () => {
 		];
 
 		markupSources.should.eql(sources, 'Run npm run generateGrammarCoverageMarkup to refresh markup copies');
+		coverageSourceLines.forEach((line, index) => {
+			if (/^proc_value_/.test(line)) {
+				coverageMarkupLines[index].should.match(/hljs-type function_ declaration__/);
+			}
+			if (/^proc_(?:params|returns)_/.test(line)) {
+				coverageMarkupLines[index].should.match(/hljs-title function_ declaration__/);
+				coverageMarkupLines[index].should.match(/hljs-type function_ declaration__/);
+			}
+		});
 		sources[0].should.match(/for values \{\s*total \+= it \+ it_index;/);
 		sources[0].should.match(/for :for_expansion values \{\s*mapped \+= it \+ it_index;/);
 		results.forEach(result => result.illegal.should.equal(false));

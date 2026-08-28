@@ -121,6 +121,38 @@ consume_many :: (first: int, rest: .. Any, location := #caller_location) -> (sum
 
 Transform_Proc :: #type (value: int) -> int;
 
+// Normal procedure declarations: parameter and return-shape permutations.
+proc_params_empty :: () {}
+proc_params_named :: (value: int) {}
+proc_params_defaulted :: (value: int = 1) {}
+
+proc_returns_absent :: () {}
+proc_returns_empty :: () -> () {}
+proc_returns_unnamed :: () -> int { return 1; }
+proc_returns_named :: () -> (result: int) { return 1; }
+proc_returns_defaulted :: () -> (result: int = 1) { return 1; }
+
+// Procedure types as values: each shape without and with an assigned default value.
+proc_value_params_empty: ();
+proc_value_params_empty_defaulted: () = proc_params_empty;
+proc_value_params_unnamed: (int);
+proc_value_params_unnamed_defaulted: (int) = proc_params_named;
+proc_value_params_named: (value: int);
+proc_value_params_named_defaulted: (value: int) = proc_params_named;
+proc_value_params_inner_default: (value: int = 1);
+proc_value_params_inner_and_outer_default: (value: int = 1) = proc_params_defaulted;
+
+proc_value_returns_absent: ();
+proc_value_returns_absent_defaulted: () = proc_returns_absent;
+proc_value_returns_empty: () -> ();
+proc_value_returns_empty_defaulted: () -> () = proc_returns_empty;
+proc_value_returns_unnamed: () -> int;
+proc_value_returns_unnamed_defaulted: () -> int = proc_returns_unnamed;
+proc_value_returns_named: () -> (result: int);
+proc_value_returns_named_defaulted: () -> (result: int) = proc_returns_named;
+proc_value_returns_inner_default: () -> (result: int = 1);
+proc_value_returns_inner_and_outer_default: () -> (result: int = 1) = proc_returns_defaulted;
+
 apply_transform :: (transform: Transform_Proc, value: int) -> int {
 	return transform(value);
 }

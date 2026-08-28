@@ -26666,6 +26666,10 @@ function jai(hljs) {
 	const ASSIGN = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.assign'));
 	const DEFINE_ASSIGN = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.define.assign'));
 	const DEFINE_CONSTANT = /** @type {import('highlight.js').Mode} */ (OPERATOR.variants.find(v => v.scope === 'operator.define.constant'));
+	const POINTER_TO = {
+		scope: 'operator.pointerTo',
+		begin: /\*+/
+	};
 
 	const _ALL_DEFINE_ASSIGN = [DEFINE_CONSTANT, DEFINE_ASSIGN, DEFINE, ASSIGN];
 
@@ -26845,10 +26849,7 @@ function jai(hljs) {
 				contains: [
 					...COMMENTS,
 					ARRAY_TYPE_PREFIX,
-					{
-						scope: 'operator.pointerTo',
-						begin: /\*+/
-					},
+					POINTER_TO,
 					{
 						begin: identifierREFn(),
 						returnBegin: true,
@@ -27098,6 +27099,8 @@ function jai(hljs) {
 	//  Kept as a shared object reference so late mutation propagates through every array that spreads _ATOMIC (`_COMMON_EXCEPT_STRING`, etc.), which happens *before* the object is populated.
 	/** @type {import('highlight.js').Mode} */
 	const PROC_RETURNS = {};
+	/** @type {import('highlight.js').Mode} */
+	const PROC_TYPE_SLOT_RETURNS = {};
 
 	/** @type {import('highlight.js').Mode[]} */
 	const _ATOMIC = [
@@ -27930,6 +27933,33 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
+	const IF_DIRECTIVE = {
+		scope: 'meta',
+		relevance: 7,
+		begin: [
+			/#/,
+			/if\b/
+		],
+		beginScope: {
+			1: 'operator.hash.directive',
+			2: 'meta.directive'
+		},
+		starts: {
+			keywords,
+			contains: [
+				{
+					begin: /\{/,
+					returnBegin: true,
+					end: /\{/,
+					returnEnd: true,
+					endsParent: true
+				},
+				..._COMMON_EXCEPT_DIRECTIVES
+			],
+			end: /(?=\{)/
+		}
+	};
+
 	// `#insert` directive. Two common forms:
 	//   1. `#insert some_expression;`  (expression-form, ends at `;`).
 	//   2. `#insert -> ReturnType { lambda body }` (compile-time lambda form, may or may not be followed by `();` for immediate invocation).
@@ -27983,6 +28013,7 @@ function jai(hljs) {
 
 	/** @type {import('highlight.js').Mode[]} */
 	const _NEARLY_ALL = [
+		IF_DIRECTIVE,
 		INSERT_DIRECTIVE,
 		..._COMMON_EXCEPT_DIRECTIVES,
 		IMPORT_DIRECTIVE,
@@ -28038,7 +28069,9 @@ function jai(hljs) {
 			NOTE,
 			DIRECTIVE,
 			balancedBrace(
-				_COMMON_EXCEPT_DIRECTIVES.map(
+				[
+					IF_DIRECTIVE,
+					..._COMMON_EXCEPT_DIRECTIVES.map(
 					r => (typeof r.scope === 'string' && r.scope.startsWith('variable')) || r.scope === 'type.declaration'
 						? {
 							...r,
@@ -28046,7 +28079,8 @@ function jai(hljs) {
 							keywords: keywordsExceptStdLib
 						}
 						: r
-				),
+					)
+				],
 				{
 					endsParent: true
 				}
@@ -28174,10 +28208,7 @@ function jai(hljs) {
 								// Array-type prefix (`[]`, `[..]`, `[N]`, `[CONST]`) - may stack with `*`s and further `[...]`s.
 								ARRAY_TYPE_PREFIX,
 								// Pointer-prefix `*`s.
-								{
-									scope: 'operator.pointerTo',
-									begin: /\*+/
-								},
+								POINTER_TO,
 								// The type identifier itself.
 								{
 									begin: typeIdentifierREFn(),
@@ -28209,7 +28240,7 @@ function jai(hljs) {
 					]
 				}
 			],
-			end: /(?=[,;#\)\{\}])/,
+			end: kind === 'params.return' ? /(?=\s*[,;#=\)\{\}])/ : /(?=[,;#\)\{\}])/,
 			//endsParent: true
 		};
 
@@ -28275,6 +28306,7 @@ function jai(hljs) {
 			DIRECTIVE,
 			balancedParen(
 				[
+					TYPE,
 					// 3rd arg: don't recurse into another proc-type-as-type.
 					// Also disable endsParent on this inner PARAM: otherwise when it ends at the inner `)`,
 					//  the endsParent cascade walks up through the inner balancedParen and pops it WITHOUT giving its own /\)/ end a chance to consume `)`.
@@ -28288,23 +28320,7 @@ function jai(hljs) {
 				],
 				{ keywords }
 			),
-			{
-				begin: /->/,
-				keywords,
-				contains: [
-					...COMMENTS,
-					NOTE,
-					{
-						scope: `type.${kind}`,
-						begin: typeIdentifierREFn(),
-						returnBegin: true,
-						keywords,
-						contains: [ALIGNMENT_WS],
-						end: /(?=\W)/
-					}
-				],
-				end: /(?=[,;#\)\{=])/
-			},
+			PROC_TYPE_SLOT_RETURNS,
 			{
 				begin: /=/,
 				returnBegin: true,
@@ -28376,6 +28392,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			NOTE,
+			IF_DIRECTIVE,
 			DIRECTIVE,
 			USING_MODIFIER,
 			TAGGED_UNION_BINDING,
@@ -28410,6 +28427,7 @@ function jai(hljs) {
 		contains: [
 			...COMMENTS,
 			NOTE,
+			IF_DIRECTIVE,
 			DIRECTIVE,
 			USING_MODIFIER,
 			TAGGED_UNION_BINDING,
@@ -28461,6 +28479,7 @@ function jai(hljs) {
 			// PARAM('property', true) handles each field/const declaration; the balancedBrace nests properly for any inner braced expressions in default values.
 			balancedBrace(
 				[
+					IF_DIRECTIVE,
 					INSERT_DIRECTIVE,
 					USING_MODIFIER,
 					PARAM('property', true),
@@ -28497,6 +28516,7 @@ function jai(hljs) {
 			PARAM('property.tag', false, false, false),
 			balancedBrace(
 				[
+					IF_DIRECTIVE,
 					TAGGED_UNION_BINDING,
 					INSERT_DIRECTIVE,
 					USING_MODIFIER,
@@ -28574,6 +28594,7 @@ function jai(hljs) {
 			...COMMENTS,
 			NOTE,
 			DIRECTIVE,
+			POINTER_TO,
 			{
 				begin: /\(/,
 				returnBegin: true,
@@ -28617,24 +28638,22 @@ function jai(hljs) {
 	// Handles the returns section of a *normal* proc declaration (not a proc-type slot - PROC_TYPE_DECLARATION/makeProcTypeAsType have their own inline handlers).
 	// Fires on `->` itself with `operator.returns` scope, then `starts` transitions to the `params.returns` mode for the actual returns. Using `starts` (rather than a lookbehind for `->\s*` on the returns mode) means arbitrary WS *and comments* between `->` and the returns list are handled naturally by the surrounding COMMENTS rule in the starts-mode's contains.
 	Object.assign(PROC_RETURNS, /** @type {import('highlight.js').Mode} */ ({
-		scope: 'operator.returns',
-		begin: /->/,
+		begin: [/->/, /\s*/],
+		beginScope: { 1: 'operator.returns' },
 		starts: {
 			scope: 'params.returns',
-			// Fire at the first non-whitespace after `->`. Leading WS/comments are consumed by the sub-modes inside (COMMENTS explicitly, plain whitespace as unscoped content).
-			begin: /(?=\S)/,
 			// End at anything that unambiguously terminates the returns list:
 			//   `{` - proc body starts
 			//   `;` - end of a proc-type declaration statement
 			//   `#` - trailing modifier directive (`#foreign`, `#c_call`, ...)
 			//   `)` - the returns list is inside a proc-type-as-type param list
 			//   `=` - default value follows (`(a: int) -> int = fallback;`)
-			end: /(?=[;#{)=])/,
+			end: /(?=\s*[;#{)=])/,
 			keywords,
 			contains: [
 				...COMMENTS,
 				NOTE,
-				DIRECTIVE,
+				POINTER_TO,
 				// Parenthesized (named) returns: `-> (name: T, ok: bool)`.
 				balancedParen(
 					[
@@ -28654,7 +28673,34 @@ function jai(hljs) {
 		},
 	}));
 
+	Object.assign(PROC_TYPE_SLOT_RETURNS, /** @type {import('highlight.js').Mode} */ ({
+		begin: [/->/, /\s*/],
+		beginScope: { 1: 'operator.returns' },
+		starts: {
+			scope: 'params.returns',
+			end: /(?=\s*[,;#{)=])/,
+			keywords,
+			contains: [
+				...COMMENTS,
+				NOTE,
+				POINTER_TO,
+				balancedParen(
+					[
+						PARAM('params.return'),
+						COMMA,
+						NOTE,
+						DIRECTIVE,
+						...COMMENTS
+					],
+					{ keywords }
+				),
+				PARAM('params.return')
+			]
+		}
+	}));
+
 	const procTypeContextRE = new RegExp(`(?:[:(,]|:=|(?<![=!<>+\\-*/%^&|:])=)${skipWSAndCommentsREFn()}$`);
+	const procTypeVariableContextRE = new RegExp(`(?<!:):${skipWSAndCommentsREFn()}$`);
 
 	/** @param {string} input @param {number} start */
 	const procParamsHaveDeclarationShape = (input, start) => {
@@ -28725,9 +28771,8 @@ function jai(hljs) {
 	//let lastMatchedProcTypeAt = -1; -- neat HACK: but turns out I didn't need it.
 	const PROC_TYPE_DECLARATION = {
 		scope: 'type.function.declaration',
-		// `[^;{}]*?` / `[^;{}]+?` instead of `.*?` / `.+?` so the params list and returns expression may span newlines (multi-line proc signatures) but *cannot* cross statement boundaries (`;`) or block braces (`{`, `}`).
-		// Without the boundary constraint the non-greedy scan can happily cross statement/scope boundaries to find the eventual `#modify`/`#c_call`/`{` end-anchor of an *unrelated* later proc, causing this rule to fire on ordinary grouping-parens like `range := (a * b) * (c + d);`.
-		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\([^;{}]*?\\)${skipWSAndCommentsREFn(0)}(?:->[^;{}]+?)?${skipWSAndCommentsREFn(0)}(?:#(?:c_call|dump|foreign|modify)\\b|(?=\\{)))`,
+		// The suffix is checked only after a closing parameter-list `)`, so an `=` used by a named parameter default cannot be mistaken for the proc-type variable's outer assignment.
+		begin: `(?:#type${skipWSAndCommentsREFn()})?(?=\\([^;{}]*?\\)${skipWSAndCommentsREFn(0)}(?:->[^;{}]+?)?${skipWSAndCommentsREFn(0)}(?:#(?:c_call|dump|foreign|modify)\\b|(?=[;{=])))`,
 		returnBegin: true,
 		//'on:begin': (match, resp) => {
 		//	resp.isMatchIgnored = (match.index === lastMatchedProcTypeAt);
@@ -28739,18 +28784,18 @@ function jai(hljs) {
 			const fullText = match.input ?? '';
 			const index = match.index ?? 0;
 			const matched = match[0];
+			const beforeMatch = fullText.slice(Math.max(0, index - 50), index);
 
 			// If the match starts with #type, it's valid:
 			if (matched.startsWith('#type')) {
 				return;
 			}
-			if (!procParamsHaveDeclarationShape(fullText, index)) {
+			if (!procParamsHaveDeclarationShape(fullText, index) && !procTypeVariableContextRE.test(beforeMatch)) {
 				resp.isMatchIgnored = true;
 				return;
 			}
 
 			// Otherwise, check what precedes the match (allowing whitespace/comments in between):
-			const beforeMatch = fullText.slice(Math.max(0, index - 50), index);
 			// Valid if preceded by a declaration colon, plain `=`/`:=`, `(`, or `,` (function argument).
 			if (procTypeContextRE.test(beforeMatch)) {
 				return;
