@@ -24,6 +24,8 @@ HEX_FLOAT_VALUE :: 0h3f80_0000;
 FLOAT_VALUE     :: 1.25e-3;
 INTEGER_VALUE   :: 1_000_000;
 STRING_VALUE    :: "quotes: \" slash: \\ tab: \t unicode: \u0041";
+MASK_SHIFT: u8 : (0b1111 << 4);
+Explicit_Proc_Type: Type : #type (value: int) -> int;
 
 f32 :: float32;
 f64 :: float64;
@@ -254,12 +256,13 @@ exercise_calls :: (values: [] int) {
 	}
 }
 
-exercise_asm :: () -> s64 {
+exercise_asm :: (source: *u8) -> s64 {
 	BITS :: 64;
 	result: s64 = 0;
 	#asm FPU, AVX2 {
 		pinned: gpr === a;
 		mov.64 result, 7;
+		mov.64 result, [source + 16];
 		mov pinned, result;
 		popcnt?BITS result, pinned;
 	}

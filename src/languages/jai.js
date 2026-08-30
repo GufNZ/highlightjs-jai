@@ -26830,13 +26830,18 @@ function jai(hljs) {
 	const VAR_TYPE = {//FIXME: polymorph
 		$name: 'Var/Param Type',
 		relevance: 0,
-		// Zero-width begin: variable-length lookbehind for a *single* `:` optionally followed by whitespace and/or comments, then a lookahead peeks the type expression.
+		// Zero-width begin: variable-length lookbehind for a single `:` optionally followed by whitespace/comments, then a lookahead peeks the type expression.
 		// Starting the match at the identifier position (rather than at the `:`) lets same-position sibling rules (notably CAST modes matching `xx`/`cast`) win via contains-order, instead of losing to VAR_TYPE's earlier start-index.
-		// The `[^:]:` guard rejects the second `:` of `::` (untyped-constant delimiter) so `Foo :: bar;` doesn't wrongly type-scope `bar`.
+		// The on:begin callback validates the complete declaration prefix forwards; this prevents comment colons and typed-constant value colons from opening a type slot without relying on right-to-left lookbehind evaluation.
 		// The WS/comments class here is a hand-rolled *non-atomic* equivalent of `skipWSAndCommentsREFn()`: that helper emits the `(?=(X))\N` atomic idiom, which fails inside a variable-length lookbehind because lookbehinds are evaluated right-to-left in ECMAScript - `\N` gets processed before its group `(X)` is captured, so the backref matches empty and the idiom collapses.
 		// Peek: type expression must start with a pointer `*`, an array-prefix `[`, or a (non-declaration-keyword) identifier.
 		// Excludes the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression; also excludes `cast`/`xx` so CAST modes claim them at the value-side of a typed constant (`foo : T : cast(...)` / `foo : T : xx value`) without VAR_TYPE stealing the `(` from CAST v1's terminator-carrying balancedParen.
 		begin: `(?<=[^:]:(?:\\s|//[^\\n]*\\n|/\\*[\\s\\S]*?\\*/)*)(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?|cast|xx)\\b)${identifierREFn()})`,//FIXME: polymorph tail...
+		'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+			if (!variableDeclarationContextRE.test((match.input ?? '').slice(0, match.index ?? 0))) {
+				resp.isMatchIgnored = true;
+			}
+		}),
 		keywords,
 		contains: [
 			...COMMENTS,
@@ -27122,12 +27127,21 @@ function jai(hljs) {
 		CHAR_DIRECTIVE,
 		DIRECTIVE
 	];
+	const variableDeclarationContextRE = new RegExp(
+		`(?:^|[;{}(),\\n])${skipWSAndCommentsREFn()}${identifierREFn(0)}`
+		+ `(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*`
+		+ `${skipWSAndCommentsREFn(0)}:(?!:)${skipWSAndCommentsREFn(0)}$`
+	);
 
 	const FUNCTION_CALL = {
 		scope: 'title.function',
 		relevance: 0,
-		// Variable-length negative lookbehind rejects `X : Ident(...)` (type position with polymorph-arg constructor) so VAR_TYPE / PARAM's `type.${kind}` can claim it as a type instead of a call. `:: Ident(...)` is fine (the `[^:]` requirement fails against `::` because the char before the trailing `:` is another `:`), and expression-position calls like `+ foo()`, `sqrt(...)`, etc. are unaffected.
-		begin: `(?<![^:]:\\s*)${identifierREFn()}(?=\\s*\\()`,
+		begin: `${identifierREFn()}(?=\\s*\\()`,
+		'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
+			if (variableDeclarationContextRE.test((match.input ?? '').slice(0, match.index ?? 0))) {
+				resp.isMatchIgnored = true;
+			}
+		}),
 		returnBegin: true,
 		keywords,
 		contains: [ALIGNMENT_WS],
@@ -27364,7 +27378,35 @@ function jai(hljs) {
 		{	// Option 0: xx value
 			scope: 'keyword.cast.v1.auto',
 			relevance: 8,
-			begin: `\\bxx\\b(?:${skipWSAndCommentsREFn()},${skipWSAndCommentsREFn(0)}(?:trunc|no_check|force|FORCE))?`,
+			variants: [
+				{
+					begin: [
+						/\bxx\b/,
+						skipWSAndCommentsREFn(),
+						/,/,
+						skipWSAndCommentsREFn(),
+						/\b(?:trunc|no_check|force|FORCE)\b/
+					],
+					beginScope: {
+						1: 'keyword.cast',
+						2: 'comment',
+						3: 'punctuation.comma',
+						4: 'comment',
+						5: 'meta.directive.modifier'
+					}
+				},
+				{
+					begin: /\bxx\b/,
+					returnBegin: true,
+					contains: [
+						{
+							scope: 'keyword.cast',
+							begin: /\bxx\b/,
+							endsParent: true
+						}
+					]
+				}
+			],
 			'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
 				const rest = (match.input ?? '').slice((match.index ?? 0) + match[0].length);
 				if (/^(?:\s|\/\/[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)*\(/.test(rest)) resp.ignoreMatch();
@@ -27773,6 +27815,11 @@ function jai(hljs) {
 									],
 								},
 								contains: [
+									{
+										...VAR,
+										keywords: asmKeywords
+									},
+									NUMBER,
 									{
 										...OPERATOR,
 										variants: OPERATOR.variants.filter(
@@ -28699,8 +28746,7 @@ function jai(hljs) {
 		}
 	}));
 
-	const procTypeContextRE = new RegExp(`(?:[:(,]|:=|(?<![=!<>+\\-*/%^&|:])=)${skipWSAndCommentsREFn()}$`);
-	const procTypeVariableContextRE = new RegExp(`(?<!:):${skipWSAndCommentsREFn()}$`);
+	const procTypeContextRE = new RegExp(`(?:::|[(,]|:=|(?<![=!<>+\\-*/%^&|:])=)${skipWSAndCommentsREFn()}$`);
 
 	/** @param {string} input @param {number} start */
 	const procParamsHaveDeclarationShape = (input, start) => {
@@ -28790,7 +28836,10 @@ function jai(hljs) {
 			if (matched.startsWith('#type')) {
 				return;
 			}
-			if (!procParamsHaveDeclarationShape(fullText, index) && !procTypeVariableContextRE.test(beforeMatch)) {
+			if (variableDeclarationContextRE.test(fullText.slice(0, index))) {
+				return;
+			}
+			if (!procParamsHaveDeclarationShape(fullText, index)) {
 				resp.isMatchIgnored = true;
 				return;
 			}

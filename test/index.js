@@ -219,6 +219,7 @@ describe('Jai syntax highlighting', () => {
 			DONE
 			main :: () {
 				a := xx value;
+				auto_unchecked := xx,no_check value;
 				b := cast,no_check(*u8) value;
 				c := cast(*u8, value, no_check);
 				d := value.(*u8, no_check);
@@ -231,6 +232,7 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.match(/hljs-string here_/);
 		result.value.should.match(/hljs-meta stringTerminator_">DONE/);
 		result.value.should.match(/hljs-keyword cast_ v1__ auto___/);
+		result.value.should.match(/hljs-keyword cast_ v1__ auto___"><span class="hljs-keyword cast_">xx<\/span><span class="hljs-punctuation comma_">,<\/span><span class="hljs-meta directive_ modifier__">no_check<\/span>/);
 		result.value.should.match(/hljs-keyword cast_ v1__/);
 		v2CastCount.should.equal(2);
 		result.value.should.match(/hljs-operator cast_ v3__/);
@@ -279,6 +281,18 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.not.match(/hljs-title function_ declaration__">LARGE_SIZE_LIMIT/);
 	});
 
+	it('should not treat typed constant values as implicit procedure types', () => {
+		const groupedValue = hljs.highlight('MASK0: u8 : (0b1111 << 4);', { language: 'jai' });
+		const declarationShapedValue = hljs.highlight('MASK1: u8 : (value: int);', { language: 'jai' });
+		const explicitProcType = hljs.highlight('Explicit_Proc_Type: Type : #type (value: int) -> int;', { language: 'jai' });
+
+		groupedValue.value.should.not.match(/hljs-type function_ declaration__/);
+		groupedValue.value.should.match(/hljs-number binary_/);
+		groupedValue.value.should.match(/hljs-operator shift_/);
+		declarationShapedValue.value.should.not.match(/hljs-type function_ declaration__/);
+		explicitProcType.value.should.match(/hljs-type function_ declaration__/);
+	});
+
 	it('should not treat parenthesized expressions as procedure declarations', () => {
 		const code = `check :: (left: s64, right: s64, oldsize: s64) {
 			if (left >= right) && (right >= (oldsize / 2)) {}
@@ -300,6 +314,20 @@ describe('Jai syntax highlighting', () => {
 			const operatorResult = hljs.highlight(`target ${operator} (value: s64) {}`, { language: 'jai' });
 			operatorResult.value.should.not.match(/hljs-type function_ declaration__/);
 		});
+	});
+
+	it('should not treat code after a trailing comment colon as a type', () => {
+		const code = `// File path functions:
+		assert(path_filename("/foo/bar/filename.ext") == "filename.ext");
+		assert(path_filename("/foo/bar/file.name.ext") == "file.name.ext");`;
+		const result = hljs.highlight(code, { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		(result.value.split('hljs-string').length - 1).should.equal(4);
+		(result.value.split('hljs-built_in stdLib_ Basic__">assert').length - 1).should.equal(2);
+		(result.value.split('hljs-built_in stdLib_ String__">path_filename').length - 1).should.equal(2);
+		result.value.should.not.match(/hljs-type"><span class="hljs-built_in stdLib_ Basic__">assert/);
+		result.value.should.not.match(/hljs-variable"><span class="hljs-built_in stdLib_ Basic__">assert/);
 	});
 
 	it('should close return scopes before trailing directives', () => {
@@ -372,6 +400,9 @@ describe('Jai syntax highlighting', () => {
 				coverageMarkupLines[index].should.match(/hljs-type function_ declaration__/);
 			}
 		});
+		const asmAddressLine = coverageSourceLines.findIndex(line => line.includes('mov.64 result, [source + 16]'));
+		asmAddressLine.should.be.aboveOrEqual(0);
+		coverageMarkupLines[asmAddressLine].should.match(/hljs-variable">source<\/span>[\s\S]*hljs-number integer_">16<\/span>/);
 		sources[0].should.match(/for values \{\s*total \+= it \+ it_index;/);
 		sources[0].should.match(/for :for_expansion values \{\s*mapped \+= it \+ it_index;/);
 		results.forEach(result => result.illegal.should.equal(false));

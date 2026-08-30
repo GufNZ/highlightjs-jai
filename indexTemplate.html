@@ -24,8 +24,11 @@
 					float: right;
 				}
 			}
-			& span {
+			& span:not(#stats) {
 				background: #FFFFFF80;
+			}
+			& #stats {
+				color: #AAA;
 			}
 		}
 
@@ -78,6 +81,7 @@
 				<option value="$">$</option>%
 			</optgroup>
 		</select>
+		<span id="stats"></span>
 		<div class="row">
 			<a id="prev" href="" title="Previous (p)">&#9664;</a>
 			<select id="file">^

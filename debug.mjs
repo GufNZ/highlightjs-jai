@@ -485,7 +485,7 @@ function debugInit(langName = 'jai', lang) {
 	const w = /** @type {any} */ (window);
 	w.highlight = (/** @type {HTMLElement} */node) => {
 		try {
-			console.time('hilight');
+			console.time('hilight');//TODO: move these into stuff that writes to #stats - keep setup time visible but grey if not new, and add the other times always.  MM:SS.ff is sufficient.
 			hljs.highlightElement(node);
 			console.timeEnd('hilight');
 
