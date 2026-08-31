@@ -448,17 +448,63 @@ function getClassPath(el) {
 	return classes.reverse().join('\n <- ');
 }
 
+/** @type {{ setup?: number, highlight?: number, debugInfo?: number }} */
+const timings = {};
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let applyDebugInfoTimeout;
+
+/** @param {number} milliseconds @returns {string} */
+function formatDuration(milliseconds) {
+	const totalHundredths = Math.round(milliseconds / 10);
+	const minutes = Math.floor(totalHundredths / 6000);
+	const seconds = Math.floor(totalHundredths / 100) % 60;
+	const hundredths = totalHundredths % 100;
+	return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(hundredths).padStart(2, '0')}`;
+}
+
+/** @param {boolean} [setupIsNew] */
+function renderTimings(setupIsNew = false) {
+	const stats = document.getElementById('stats');
+	if (!stats) {
+		return;
+	}
+
+
+	stats.replaceChildren();
+	[
+		['setup', timings.setup, !setupIsNew],
+		['highlight', timings.highlight, false],
+		['debug', timings.debugInfo, false]
+	].forEach(([label, duration, stale]) => {
+		if (typeof duration !== 'number') {
+			return;
+		}
+
+
+		const item = document.createElement('li');
+		item.className = stale ? 'stale' : '';
+		item.textContent = `${label} ${formatDuration(duration)}`;
+		stats.append(item);
+	});
+}
+
 /**
  * After hljs has rendered the page (we give it a generous 1 s window via `setTimeout`), walk every `<span>` and attach the hover handlers plus a `title` attribute showing the full scope path.
  * @returns {void}
  */
 function applyDebugInfo() {
-	setTimeout(() => [...document.getElementsByTagName('span')].forEach(span => {
-		span.setAttribute('title', getClassPath(span));
-		span.onmouseenter = hilightPath(true);
-		span.onmousemove = hilightPath(false);
-		span.onmouseleave = clearHilight;
-	}), 1000);
+	clearTimeout(applyDebugInfoTimeout);
+	applyDebugInfoTimeout = setTimeout(() => {
+		const start = performance.now();
+		[...document.getElementsByTagName('span')].forEach(span => {
+			span.setAttribute('title', getClassPath(span));
+			span.onmouseenter = hilightPath(true);
+			span.onmousemove = hilightPath(false);
+			span.onmouseleave = clearHilight;
+		});
+		timings.debugInfo = performance.now() - start;
+		renderTimings();
+	}, 1000);
 }
 
 /**
@@ -476,22 +522,22 @@ function debugInit(langName = 'jai', lang) {
 	}
 
 
-	console.time('setup');
+	const setupStart = performance.now();
 	hljs.debugMode();
 	hljs.unregisterLanguage(langName);
 	hljs.registerLanguage(langName, regexDebugPre(lang));
-	console.timeEnd('setup');
+	timings.setup = performance.now() - setupStart;
+	renderTimings(true);
 
 	const w = /** @type {any} */ (window);
 	w.highlight = (/** @type {HTMLElement} */node) => {
 		try {
-			console.time('hilight');//TODO: move these into stuff that writes to #stats - keep setup time visible but grey if not new, and add the other times always.  MM:SS.ff is sufficient.
+			const highlightStart = performance.now();
 			hljs.highlightElement(node);
-			console.timeEnd('hilight');
-
-			console.time('applyDebugInfo');
+			timings.highlight = performance.now() - highlightStart;
+			delete timings.debugInfo;
+			renderTimings();
 			applyDebugInfo();
-			console.timeEnd('applyDebugInfo');
 		} catch (e) {
 			alert(/** @type {Error} */(e).message);
 		}

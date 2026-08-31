@@ -1306,6 +1306,7 @@
 			'curl_header',
 			'CURLHcode',
 			'curl_ws_frame',
+			'curl_socket_t',
 		],
 		'variable.stdLib.Curl.constant': [
 			'LIBCURL_COPYRIGHT',
@@ -1537,6 +1538,13 @@
 			'CURLWS_RAW_MODE',
 			'curl_socket_t',
 			'CURLU',
+			'CURL_FORMAT_CURL_OFF_T',
+			'CURL_FORMAT_CURL_OFF_TU',
+			'CURL_PULL_SYS_TYPES_H',
+			'CURL_PULL_SYS_SOCKET_H',
+			'CURL_SOCKET_BAD',
+			'CURL_SOCKET_TIMEOUT',
+			'curl_socklen_t',
 		],
 		'variable.stdLib.Curl.programParam': [
 			'LINUX_USE_SYSTEM_LIBRARY',
@@ -1729,9 +1737,6 @@
 		],
 		'type.stdLib.Flat_Pool': [
 			'Flat_Pool',
-		],
-		'variable.stdLib.Flat_Pool.constant': [
-			'CAPS_VERSION_STRING',
 		],
 		'variable.stdLib.Flat_Pool.moduleParam': [
 			'DEFAULT_VIRTUAL_MEMORY_RESERVE',
@@ -9992,8 +9997,6 @@
 			'write_strings',
 			'__jai_runtime_init',
 			'__jai_runtime_fini',
-			'__instrumentation_first',
-			'__instrumentation_second',
 			'compile_time_debug_break',
 			'debug_break',
 			'one_time_init',
@@ -10002,9 +10005,6 @@
 		'type.stdLib.Runtime_Support': [
 			'Context_Base',
 			'Temporary_Storage',
-		],
-		'variable.stdLib.Runtime_Support': [
-			'synch_initted',
 		],
 		'variable.stdLib.Runtime_Support.constant': [
 			'OS_IS_UNIX',
@@ -13962,6 +13962,12 @@
 			'vkGetDisplayPlaneCapabilities2KHR',
 			'vkCreateWin32SurfaceKHR',
 			'vkGetPhysicalDeviceWin32PresentationSupportKHR',
+			'vkGetPhysicalDeviceQueueFamilyProperties2KHR',
+			'vkGetPhysicalDeviceSparseImageFormatProperties2KHR',
+			'vkEnumeratePhysicalDeviceGroupsKHR',
+			'vkGetImageSparseMemoryRequirements2KHR',
+			'vkGetPastPresentationTimingGOOGLE',
+			'vkGetQueueCheckpointDataNV',
 		],
 		'type.stdLib.Vulkan': [
 			'VkVersion',
@@ -25769,6 +25775,9 @@
 			'diff',
 			'rmsToneMappedError',
 			'histogram',
+			'OutputHandler_Destructor_Deleting',
+			'ErrorHandler_Destructor_Deleting',
+			'TaskDispatcher_Destructor_Deleting',
 		],
 		'type.stdLib.nvtt': [
 			'Format',

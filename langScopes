@@ -456,7 +456,6 @@ variable.stdLib.Default_Metaprogram.constant
 variable.stdLib.File
 variable.stdLib.File.constant
 variable.stdLib.File_Watcher.constant
-variable.stdLib.Flat_Pool.constant
 variable.stdLib.Flat_Pool.moduleParam
 variable.stdLib.Float16.moduleParam
 variable.stdLib.GL
@@ -509,7 +508,6 @@ variable.stdLib.Project_Generator
 variable.stdLib.Protocol_For_Memory_Visualization.constant
 variable.stdLib.Random.context
 variable.stdLib.Remap_Context.moduleParam
-variable.stdLib.Runtime_Support
 variable.stdLib.Runtime_Support.constant
 variable.stdLib.Runtime_Support.moduleParam
 variable.stdLib.Runtime_Support_Crash_Handler

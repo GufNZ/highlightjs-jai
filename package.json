@@ -4,7 +4,7 @@
 	"description": "Highlight.JS syntax definition for jai files.",
 	"main": "src/languages/jai.js",
 	"scripts": {
-		"compileAll": "ls *.jai | xargs -n 1 jai",
+		"compileAll": "ls *.jai | grep -v test.jai | xargs -n 1 jai",
 		"generateStdLib": "jai generateStdLib.jai && generateStdLib >stdLib.js",
 		"pregenerateGrammarCoverageMarkup": "jai test/grammarCoverage/grammar-coverage.jai",
 		"generateGrammarCoverageMarkup": "node generateGrammarCoverageMarkup.cjs",

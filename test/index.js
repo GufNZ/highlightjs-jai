@@ -17,6 +17,8 @@ describe('Jai syntax highlighting', () => {
 		const files = (await readdir(path.join(__dirname, 'markup')))
 			.filter(f => !f.includes('.expect.'));
 		const scenarios = files.map(f => f.replace(/\.txt$/, ''));
+		const markupHljs = hljs.newInstance();
+		markupHljs.registerLanguage('jai', hljsDefineJai);
 		scenarios.forEach(scenario => {
 			it(`should perform syntax highlighting on ${scenario}`, async () => {
 				const file = `${scenario}.txt`;
@@ -24,8 +26,6 @@ describe('Jai syntax highlighting', () => {
 				const expectFilePath = filePath.replace('.txt', '.expect.txt');
 				const code = await readFile(filePath, 'utf-8');
 				const expected = await readFile(expectFilePath, 'utf-8');
-				const markupHljs = hljs.newInstance();
-				markupHljs.registerLanguage('jai', hljsDefineJai);
 				const result = markupHljs.highlight(code, { language: 'jai' });
 				const actual = result.value;
 				actual.trim().should.eql(expected.trim(), file);
@@ -62,6 +62,31 @@ describe('Jai syntax highlighting', () => {
 		result.illegal.should.equal(false);
 		(result.value.split(conditionMarkup).length - 1).should.equal(2);
 		result.value.should.match(/hljs-property declaration_">field<\/span><span class="hljs-operator define_">:<\/span> <span class="hljs-type property_">/);
+	});
+
+	it('should close structs containing braceless #if fields', () => {
+		const code = `Thread :: struct {
+			#if LOAD_THREAD_GROUP worker_info: *Thread_Group.Worker_Info;
+			#if _STACK_TRACE stack_trace_sentinel: Stack_Trace_Node;
+			using specific: Thread_Os_Specific;
+		}
+		after: int;`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const activeScopes = [];
+		let scopesAtAfter;
+
+		for (const token of result.value.matchAll(/<span class="([^"]+)">|<\/span>|([^<]+)/g)) {
+			if (token[1]) {
+				activeScopes.push(token[1]);
+			} else if (token[0] === '</span>') {
+				activeScopes.pop();
+			} else if (token[2]?.includes('after')) {
+				scopesAtAfter = [...activeScopes];
+			}
+		}
+
+		result.illegal.should.equal(false);
+		scopesAtAfter.should.not.containEql('hljs-type struct_ declaration__');
 	});
 
 	it('should close returns lists before a proc body brace', () => {

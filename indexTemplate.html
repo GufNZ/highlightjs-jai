@@ -24,11 +24,25 @@
 					float: right;
 				}
 			}
-			& span:not(#stats) {
+			& span {
 				background: #FFFFFF80;
 			}
 			& #stats {
-				color: #AAA;
+				display: inline-flex;
+				gap: 8px;
+				margin: 0;
+				font-variant-numeric: tabular-nums;
+				white-space: nowrap;
+				color: #FFF;
+
+				& li {
+					display: inline;
+					list-style: none;
+				}
+
+				& .stale {
+					color: #888;
+				}
 			}
 		}
 
@@ -81,7 +95,7 @@
 				<option value="$">$</option>%
 			</optgroup>
 		</select>
-		<span id="stats"></span>
+		<ul id="stats"></ul>
 		<div class="row">
 			<a id="prev" href="" title="Previous (p)">&#9664;</a>
 			<select id="file">^

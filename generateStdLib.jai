@@ -286,6 +286,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 	inContext := false;
 	staticIfDepth := 0;
 	staticIfCaseDepth := 0;
+	publicBeforeStaticIf: [..]bool;
 	delimiters :: "/:#";
 	skipCount := 0;
 	usingActive := false;
@@ -324,6 +325,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 			while index < (staticIfDepth + staticIfCaseDepth) << 2 {
 				if starts_with(line, "#if") {
 					if !ends_with(line, ";") {
+						array_add(*publicBeforeStaticIf, public);	// push.
 						staticIfDepth += 1;
 					}
 
@@ -338,6 +340,8 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 					advance(*line);
 					line = eat_spaces(line);
 					if starts_with(line, "else") {
+						public = pop(*publicBeforeStaticIf);
+						array_add(*publicBeforeStaticIf, public);	// push.
 						nextLine = true;
 						break;
 					};
@@ -347,6 +351,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 						staticIfCaseDepth -= 1;
 					}
 					staticIfDepth -= 1;
+					public = pop(*publicBeforeStaticIf);
 					break;
 				} else if staticIfCaseDepth && starts_with(line, "case") {
 					advance(*line, find_index_from_left(line, ";") + 1);
@@ -392,6 +397,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 			if line[index] == #char "#" {
 				if starts_with(line, "#if") {
 					if !ends_with(line, ";") {
+						array_add(*publicBeforeStaticIf, public);
 						staticIfDepth += 1;
 					}
 					if ends_with(line, "== {") {
