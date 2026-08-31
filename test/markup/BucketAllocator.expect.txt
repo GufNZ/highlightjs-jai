@@ -233,7 +233,7 @@
 
 <span class="hljs-variable constant_ declaration__">MAX_SIZE</span> <span class="hljs-operator define_">:</span> <span class="hljs-type declaration_">BucketSize</span> <span class="hljs-operator define_">:</span> <span class="hljs-variable constant_">SIZES_CONFIG</span><span class="hljs-property">.count</span> <span class="hljs-operator math_">+</span> <span class="hljs-number integer_">3</span><span class="hljs-punctuation semicolon_">;</span>
 
-<span class="hljs-variable constant_ declaration__"><span class="hljs-variable stdLib_ Flat_Pool__ constant___">CAPS_VERSION_STRING</span></span> <span class="hljs-operator define_ constant__">::</span> <span class="hljs-string"><span class="hljs-punctuation quote_">&quot;</span>Bucket_Allocator v1.2<span class="hljs-punctuation quote_">&quot;</span></span><span class="hljs-punctuation semicolon_">;</span>
+<span class="hljs-variable constant_ declaration__">CAPS_VERSION_STRING</span> <span class="hljs-operator define_ constant__">::</span> <span class="hljs-string"><span class="hljs-punctuation quote_">&quot;</span>Bucket_Allocator v1.2<span class="hljs-punctuation quote_">&quot;</span></span><span class="hljs-punctuation semicolon_">;</span>
 
 <span class="hljs-title function_ declaration__">initBucket</span> <span class="hljs-operator define_ constant__">::</span> <span class="hljs-type function_ declaration__"><span class="hljs-_BalancedParens"><span class="hljs-punctuation paren_">(</span><span class="hljs-params"><span class="hljs-params declaration_">bucket</span><span class="hljs-operator define_">:</span> <span class="hljs-type params_"><span class="hljs-operator pointerTo_">*</span>BucketSet<span class="hljs-_BalancedParens"><span class="hljs-punctuation paren_">(</span><span class="hljs-operator bake_">$</span><span class="hljs-type baked_">S</span><span class="hljs-punctuation comma_">,</span> <span class="hljs-operator bake_">$</span><span class="hljs-type baked_">L</span><span class="hljs-punctuation paren_">)</span></span></span></span><span class="hljs-punctuation paren_">)</span></span></span> <span class="hljs-punctuation brace_">{</span>
 	<span class="hljs-keyword for_"><span class="hljs-keyword for_">for</span> <span class="hljs-punctuation forModifier_">&lt;</span> <span class="hljs-variable constant_">L</span> <span class="hljs-operator math_">-</span> <span class="hljs-number integer_">1</span><span class="hljs-operator range_">..</span><span class="hljs-number integer_">0</span> </span><span class="hljs-punctuation brace_">{</span>
@@ -494,4 +494,3 @@
 		<span class="hljs-punctuation brace_">}</span></span>
 	<span class="hljs-punctuation brace_">}</span></span></span>
 <span class="hljs-punctuation brace_">}</span>
-

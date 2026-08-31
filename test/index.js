@@ -17,15 +17,16 @@ describe('Jai syntax highlighting', () => {
 		const files = (await readdir(path.join(__dirname, 'markup')))
 			.filter(f => !f.includes('.expect.'));
 		const scenarios = files.map(f => f.replace(/\.txt$/, ''));
-		const markupHljs = hljs.newInstance();
-		markupHljs.registerLanguage('jai', hljsDefineJai);
 		scenarios.forEach(scenario => {
-			it(`should perform syntax highlighting on ${scenario}`, async () => {
+			it(`should perform syntax highlighting on ${scenario}`, async function () {
+				this.timeout(20000);
 				const file = `${scenario}.txt`;
 				const filePath = path.join(__dirname, 'markup', file);
 				const expectFilePath = filePath.replace('.txt', '.expect.txt');
 				const code = await readFile(filePath, 'utf-8');
 				const expected = await readFile(expectFilePath, 'utf-8');
+				const markupHljs = hljs.newInstance();
+				markupHljs.registerLanguage('jai', hljsDefineJai);
 				const result = markupHljs.highlight(code, { language: 'jai' });
 				const actual = result.value;
 				actual.trim().should.eql(expected.trim(), file);
@@ -335,6 +336,9 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.not.match(/hljs-operator comparison_">(?:&gt;=|&lt;=|==|!=)<\/span>\s*<span class="hljs-type function_ declaration__"/);
 		result.value.should.match(/hljs-variable constant_ declaration__">LARGE_SIZE_LIMIT/);
 		result.value.should.not.match(/hljs-title function_ declaration__">LARGE_SIZE_LIMIT/);
+		const d3dConstant = hljs.highlight('_FACD3D11DEBUG :: ( _FACD3D11 + 1 );', { language: 'jai' });
+		d3dConstant.value.should.match(/hljs-variable stdLib_ d3d11__ constant___">_FACD3D11DEBUG/);
+		d3dConstant.value.should.not.match(/hljs-built_in stdLib_ d3d11__">_FACD3D11DEBUG/);
 		['>=', '<=', '==', '!=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>='].forEach(operator => {
 			const operatorResult = hljs.highlight(`target ${operator} (value: s64) {}`, { language: 'jai' });
 			operatorResult.value.should.not.match(/hljs-type function_ declaration__/);

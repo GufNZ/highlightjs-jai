@@ -219,6 +219,61 @@ isPrimative :: (line: string) -> bool {
 	return false;
 }
 
+isProcValue :: (value: string) -> bool {
+	if !value || value[0] != #char "(" {
+		return false;
+	}
+
+
+	depth := 1;
+	hasContent := false;
+	hasTopLevelColon := false;
+	inString := false;
+	escaped := false;
+	index := 1;
+	while index < value.count {
+		char := value[index];
+		if inString {
+			if escaped {
+				escaped = false;
+			} else if char == #char "\\" {
+				escaped = true;
+			} else if char == #char "\"" {
+				inString = false;
+			}
+		} else if char == #char "\"" {
+			inString = true;
+			if depth == 1 {
+				hasContent = true;
+			}
+		} else if char == #char "(" {
+			depth += 1;
+			if depth == 2 {
+				hasContent = true;
+			}
+		} else if char == #char ")" {
+			depth -= 1;
+			if depth == 0 {
+				rest := advance(value, index + 1);
+				rest = eat_spaces(rest);
+				return !hasContent || hasTopLevelColon || starts_with(rest, "->") || starts_with(rest, "{") || starts_with(rest, "#");
+			}
+		} else if depth == 1 && !is_space(char) {
+			hasContent = true;
+			if char == #char ":" {
+				hasTopLevelColon = true;
+			}
+		}
+
+
+		index += 1;
+	}
+
+
+	// A declaration may continue on following lines; retain the old behavior when its first line only opened the parameter list.
+	return !hasContent || hasTopLevelColon;
+}
+
 mergeSpecials :: (mod: *Mod, entry: string) {
 	_, kind, namesStr := split_from_left(entry, #char "|");
 	for mod.special {
@@ -538,7 +593,7 @@ parseModule :: (path: string, name: string, mod: *Mod) -> bool {
 
 							advance(*line, index + 2);
 							line = eat_spaces(line);
-							isProc := line[0] == #char "(" || starts_with(line, "inline") || starts_with(line, "no_inline");
+							isProc := isProcValue(line) || starts_with(line, "inline") || starts_with(line, "no_inline");
 							if isProc {
 								if public && proc == "get_plugin" && name != "Program_Print" {
 									print("    <Skipping plugin %\n", name, to_standard_error=true);

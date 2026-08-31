@@ -448,18 +448,22 @@ function getClassPath(el) {
 	return classes.reverse().join('\n <- ');
 }
 
-/** @type {{ setup?: number, highlight?: number, debugInfo?: number }} */
-const timings = {};
+/** @type {{ setup?: number, highlight?: number, debugInfo?: number, lines: number }} */
+const timings = { lines: 0 };
 /** @type {ReturnType<typeof setTimeout> | undefined} */
 let applyDebugInfoTimeout;
 
-/** @param {number} milliseconds @returns {string} */
-function formatDuration(milliseconds) {
+/** Format a duration as a timestamp.
+ * @param {number} milliseconds
+ * @param {boolean} [long] @returns {string}
+ */
+function formatDuration(milliseconds, long = false) {
 	const totalHundredths = Math.round(milliseconds / 10);
 	const minutes = Math.floor(totalHundredths / 6000);
 	const seconds = Math.floor(totalHundredths / 100) % 60;
 	const hundredths = totalHundredths % 100;
-	return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(hundredths).padStart(2, '0')}`;
+	const rest = milliseconds - totalHundredths * 10;
+	return `${('' + minutes).padStart(2, '0')}:${('' + seconds).padStart(2, '0')}.${('' + hundredths).padStart(2, '0')}${long ? `${(rest / 1e3).toFixed(7).replace(/^0\./, '')}` : ''}`;
 }
 
 /** @param {boolean} [setupIsNew] */
@@ -483,6 +487,9 @@ function renderTimings(setupIsNew = false) {
 
 		const item = document.createElement('li');
 		item.className = stale ? 'stale' : '';
+		if (label != 'setup') {
+			item.setAttribute('title', `${(duration / timings.lines).toFixed(4)}ms/line (${timings.lines} line${timings.lines === 1 ? '' : 's'})`);
+		}
 		item.textContent = `${label} ${formatDuration(duration)}`;
 		stats.append(item);
 	});
@@ -505,6 +512,21 @@ function applyDebugInfo() {
 		timings.debugInfo = performance.now() - start;
 		renderTimings();
 	}, 1000);
+}
+
+/**
+ * Fast way to count the number of lines in a string.
+ * @param {string} text
+ * @returns {number} The number of lines in the string.
+ */
+function countLines(text) {
+	let lines = 1;
+	for (let i = 0; i < text.length; i++) {
+		if (text.charCodeAt(i) === 10) {	// '\n'
+			lines++;
+		}
+	}
+	return lines;
 }
 
 /**
@@ -532,6 +554,7 @@ function debugInit(langName = 'jai', lang) {
 	const w = /** @type {any} */ (window);
 	w.highlight = (/** @type {HTMLElement} */node) => {
 		try {
+			timings.lines = countLines(node.textContent ?? '');
 			const highlightStart = performance.now();
 			hljs.highlightElement(node);
 			timings.highlight = performance.now() - highlightStart;

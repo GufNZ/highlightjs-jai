@@ -132,7 +132,7 @@
 				? `#${encodeURIComponent(file)}`
 				: '';
 			if (window.location.hash !== nextHash) {
-				window.location.hash = nextHash;
+				history.replaceState(null, '', nextHash);	// Don't fire `onhashchange` event, since we already know the file is selected.
 			}
 		}
 

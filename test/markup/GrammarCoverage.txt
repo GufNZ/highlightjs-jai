@@ -1,5 +1,9 @@
 #!/usr/bin/env jai
 
+_FACD3D11 :: 0x87c;
+
+_FACD3D11DEBUG :: ( _FACD3D11 + 1 );
+
 // Original, distributable syntax fixture.  No source is copied from the Jai repository.
 // TODO: Exercise line-comment tags. @Fixme @Bug @Hack @Maybe @Question @Speed
 /* NOTE: Exercise a nested block comment. /* inner */ @Cleanup @Incomplete */

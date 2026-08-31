@@ -1,3 +1,7 @@
+_FACD3D11 :: 0x87c;
+
+_FACD3D11DEBUG :: ( _FACD3D11 + 1 );
+
 MASK0: u8 : (0b1111 << 4);
 Holder :: struct ($T: Type, $N: s64) {
 	array: [N] T;

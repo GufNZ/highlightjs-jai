@@ -1,5 +1,9 @@
 <span class="hljs-comment line_ shebang__">#!/usr/bin/env jai</span>
 
+<span class="hljs-variable constant_ declaration__"><span class="hljs-variable stdLib_ d3d11__ constant___">_FACD3D11</span></span> <span class="hljs-operator define_ constant__">::</span> <span class="hljs-number hex_"><span class="hljs-number hex_ prefix__">0x</span>87c</span><span class="hljs-punctuation semicolon_">;</span>
+
+<span class="hljs-variable constant_ declaration__"><span class="hljs-variable stdLib_ d3d11__ constant___">_FACD3D11DEBUG</span></span> <span class="hljs-operator define_ constant__">::</span> <span class="hljs-punctuation paren_">(</span> <span class="hljs-variable constant_">_FACD3D11</span> <span class="hljs-operator math_">+</span> <span class="hljs-number integer_">1</span> <span class="hljs-punctuation paren_">)</span><span class="hljs-punctuation semicolon_">;</span>
+
 <span class="hljs-comment line_">// Original, distributable syntax fixture.  No source is copied from the Jai repository.</span>
 <span class="hljs-comment line_">// <span class="hljs-doctag todo_">TODO</span>: Exercise line-comment tags. <span class="hljs-doctag reminder_">@Fixme</span> <span class="hljs-doctag reminder_">@Bug</span> <span class="hljs-doctag reminder_">@Hack</span> <span class="hljs-doctag reminder_">@Maybe</span> <span class="hljs-doctag reminder_">@Question</span> <span class="hljs-doctag reminder_">@Speed</span></span>
 <span class="hljs-comment block_">/* <span class="hljs-doctag note_">NOTE</span>: Exercise a nested block comment. <span class="hljs-comment block_">/* inner */</span> <span class="hljs-doctag reminder_">@Cleanup</span> <span class="hljs-doctag reminder_">@Incomplete</span> */</span>
