@@ -264,6 +264,15 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.match(/hljs-operator cast_ v3__/);
 	});
 
+	it('should highlight number prefixes case-insensitively', () => {
+		const result = hljs.highlight('lower := 0b10 + 0xCAFE + 0h3f80; upper := 0B10 + 0XCAFE + 0H3f80;', { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		['0b', '0B'].forEach(prefix => result.value.should.match(new RegExp(`hljs-number binary_ prefix__">${prefix}`)));
+		['0x', '0X'].forEach(prefix => result.value.should.match(new RegExp(`hljs-number hex_ prefix__">${prefix}`)));
+		['0h', '0H'].forEach(prefix => result.value.should.match(new RegExp(`hljs-number hexFloat_ prefix__">${prefix}`)));
+	});
+
 	it('should highlight deeply nested procedure and polymorphic type signatures', () => {
 		const code = `deep :: (
 			callback: (input: Wrapper(Map(string, Array(Array(int))))) -> (Nested(Result(float64))),
