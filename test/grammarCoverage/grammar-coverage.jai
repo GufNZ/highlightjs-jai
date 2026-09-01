@@ -285,7 +285,7 @@ exercise_asm :: (source: *u8) -> s64 {
 	Loaded_Directory :: #import,dir "synthetic-directory";
 	#load "synthetic-load.jai";
 
-	#insert -> int { return 1; }();
+	Inserted_Constant :: #insert -> string { return "1;"; }
 	modified_procedure :: (value: int) -> $Result
 	#modify {
 		Result = int;

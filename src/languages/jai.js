@@ -27042,19 +27042,14 @@ function jai(hljs) {
 				begin: [
 					/,/,
 					skipWSAndCommentsREFn(),
-					identifierREFn()
+					identifierREFn(),
+					`(?!${skipWSAndCommentsREFn()}:)`,	// Don't match `, nextArg:`
 				],
 				beginScope: {
 					1: 'punctuation.comma',
 					2: 'comment',
 					3: 'meta.directive.modifier'
-				},
-				'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
-					const rest = (match.input ?? '').slice((match.index ?? 0) + match[0].length);
-					if (/^(?:\s|\/\/[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)*:/.test(rest)) {
-						resp.ignoreMatch();
-					}
-				})
+				}
 			}
 		]
 	};
@@ -27853,7 +27848,14 @@ function jai(hljs) {
 	// rg -PUoNI --no-heading '(\s*+)(\w++)(?=\s*+::.*+\n(?:\1\s++.++\n)*+\1\}\s*+@PrintLike)' *|grep -o '^\w+]'
 	const PRINTLIKE = {
 		scope: 'title.function.printLike',
-		begin: /\b(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)\b/,
+		begin: [
+			/\.?/,
+			/\b(?:[st]?print|print_to_builder|log(?:_error)|report_(?:detail|parse_error)|curl_m(?:a|f|sn?|)printf|Text(?:(?:Color|Disabl|Wrapp)ed)?|(?:Label|Bullet|Log)Text|TreeNode(?:Ex)?|SetTooltip|error|warn)\b/
+		],
+		beginScope: {
+			1: 'operator.optional.dot',
+			2: 'title.function.printLike'
+		},
 		keywords: keywordsExceptStdLib,
 		contains: [
 			// Whole argument list: balanced `(...)`. When the matching outer `)` is consumed, `endsParent` closes PRINTLIKE so the scope only covers the one call - not everything through the next `;` (which would swallow sibling calls in e.g. `string.[tprint(...), tprint(...)]`).
@@ -27986,81 +27988,135 @@ function jai(hljs) {
 	};
 
 	const IF_DIRECTIVE = {
-		scope: 'meta',
 		relevance: 7,
-		begin: [
+		match: [
 			/#/,
 			/if\b/
 		],
-		beginScope: {
+		scope: {
 			1: 'operator.hash.directive',
 			2: 'meta.directive'
-		},
-		starts: {
-			keywords,
-			contains: [
-				{
-					begin: /\{/,
-					returnBegin: true,
-					end: /\{/,
-					returnEnd: true,
-					endsParent: true
-				},
-				..._COMMON_EXCEPT_DIRECTIVES
-			],
-			end: /(?=\{|;)/
 		}
 	};
 
-	// `#insert` directive. Two common forms:
-	//   1. `#insert some_expression;`  (expression-form, ends at `;`).
-	//   2. `#insert -> ReturnType { lambda body }` (compile-time lambda form, may or may not be followed by `();` for immediate invocation).
-	// The lambda body is real Jai code (locals, control flow, print calls, strings, etc.), so its `{...}` needs statement-level content - NOT the struct-field content of an enclosing struct declaration.
-	const INSERT_DIRECTIVE = {
-		scope: 'meta.directive.insert',
-		relevance: 7,
+	const RUN_DIRECTIVE = {
+		...DIRECTIVE,
 		begin: [
 			/#/,
-			/insert\b/,
+			/run\b/
 		],
 		beginScope: {
 			1: 'operator.hash.directive',
-			2: 'meta.directive.insert'
+			2: 'meta.directive.run'
 		},
+	};
+
+	const INSERT_DIRECTIVE_CODEBLOCK = balancedBrace(
+		[..._COMMON_EXCEPT_DIRECTIVES, IMPORT_DIRECTIVE, LOAD_DIRECTIVE, MODIFY_DIRECTIVE, DIRECTIVE, SEMICOLON],
+		{ endsParent: true }
+	);
+
+	const RETURNS_OPERATOR = /** @type {import('highlight.js').Mode} */ (
+		OPERATOR.variants.find(v => v.scope === 'operator.returns')
+	);
+
+	/* `#insert` directive.
+	#insert "string"
+	#insert expression
+	#insert #run generate()
+	#insert #run () -> string { return "generated();"; }
+	#insert -> Code { return #code generated(); }`;
+	The lambda body is real Jai code (locals, control flow, print calls, strings, etc.), so its `{...}` needs statement-level content - NOT the struct-field content of an enclosing struct declaration.
+	*/
+	const INSERT_DIRECTIVE = {
+		scope: 'meta.directive.insert',
+		relevance: 7,
 		keywords,
-		contains: [
-			...COMMENTS,
-			// Optional `-> ReturnType` return-type prefix before the lambda body.
-			{
-				begin: /->/,
-				returnBegin: true,
-				keywords,
+		end: /(?!)/,
+		variants: [
+			{	// #insert #run () -> Code|string { ... }
+				begin: [
+					/#/,
+					/insert\b/,
+					`(?=${skipWSAndCommentsREFn()}#run${skipWSAndCommentsREFn(0)}(?:,${skipWSAndCommentsREFn(0)}(?:host|stallable))*\\(${skipWSAndCommentsREFn(0)}\\)${skipWSAndCommentsREFn(0)}->)`
+				],
+				beginScope: {
+					1: 'operator.hash.directive',
+					2: 'meta.directive.insert'
+				},
 				contains: [
-					{ scope: 'operator.returns', begin: /->/ },
 					...COMMENTS,
+					RUN_DIRECTIVE,
 					{
-						scope: 'type',
-						begin: typeIdentifierREFn(),
-						returnBegin: true,
+						scope: 'params',
+						begin: /\(/,
+						end: /\)/,
+						contains: [
+							...COMMENTS,
+						]
+					},
+					RETURNS_OPERATOR,
+					{
+						match: /Code|string/,
 						keywords,
-						contains: [ALIGNMENT_WS],
-						end: /(?=\W)/
+						contains: [ALIGNMENT_WS]
+					},
+					INSERT_DIRECTIVE_CODEBLOCK
+				]
+			},
+			{	// #insert -> Code|string { ... }
+				begin: [
+					/#/,
+					/insert\b/,
+					`(?=${skipWSAndCommentsREFn()}->${skipWSAndCommentsREFn(0)}(?:Code|string))`,
+				],
+				beginScope: {
+					1: 'operator.hash.directive',
+					2: 'meta.directive.insert'
+				},
+				contains: [
+					...COMMENTS,
+					RETURNS_OPERATOR,
+					{
+						match: /Code|string/,
+						keywords,
+						contains: [ALIGNMENT_WS]
+					},
+					INSERT_DIRECTIVE_CODEBLOCK
+				]
+			},
+			{	// #insert [#run] expression
+				begin: [
+					/#/,
+					/insert\b/
+				],
+				beginScope: {
+					1: 'operator.hash.directive',
+					2: 'meta.directive.insert'
+				},
+				contains: [
+					...COMMENTS,
+					RUN_DIRECTIVE,
+					...CASTS.map(v => ({ ...v, endsParent: true })),
+					{
+						...STRING,
+						endsParent: true,
+					},
+					{
+						...HERESTRING,
+						endsParent: true,
+					},
+					{
+						...FUNCTION_CALL,
+						endsParent: true,
+					},
+					{
+						...VAR,
+						endsParent: true,
 					}
 				],
-				end: /(?=\{|;)/
-			},
-			// Lambda body - statement-level content. `endsParent: true` closes INSERT_DIRECTIVE as soon as the matching `}` is consumed, so any trailing `();`
-			//  (for immediate invocation) is left to the outer context to parse as a normal function call.
-			balancedBrace(
-				[..._COMMON_EXCEPT_DIRECTIVES, IMPORT_DIRECTIVE, LOAD_DIRECTIVE, MODIFY_DIRECTIVE, DIRECTIVE, SEMICOLON],
-				{ endsParent: true }
-			),
-			// Expression-form fallthrough content: `#insert value;`, `#insert #run foo();`, etc.
-			..._COMMON_EXCEPT_DIRECTIVES,
-			DIRECTIVE,
-		],
-		end: /;|(?<=\})/,
-		returnEnd: true
+			}
+		]
 	};
 
 	/** @type {import('highlight.js').Mode[]} */

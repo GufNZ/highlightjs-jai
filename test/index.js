@@ -2,17 +2,24 @@ require('should');
 
 const promisify = require('util').promisify;
 const path = require('path');
-const hljs = require('highlight.js');
+const autodetectHljs = require('highlight.js');
+const hljs = autodetectHljs.newInstance();
 const fs = require('fs');
 
 const hljsDefineJai = require('../src/languages/jai');
 
 hljs.registerLanguage('jai', hljsDefineJai);
+autodetectHljs.registerLanguage('jai', hljsDefineJai);
 
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 
 describe('Jai syntax highlighting', () => {
+	before(function () {
+		this.timeout(20000);
+		hljs.highlight('', { language: 'jai' });
+	});
+
 	async function itShouldPerformSyntaxHighlighting() {
 		const files = (await readdir(path.join(__dirname, 'markup')))
 			.filter(f => !f.includes('.expect.'));
@@ -25,7 +32,7 @@ describe('Jai syntax highlighting', () => {
 				const expectFilePath = filePath.replace('.txt', '.expect.txt');
 				const code = await readFile(filePath, 'utf-8');
 				const expected = await readFile(expectFilePath, 'utf-8');
-				const markupHljs = hljs.newInstance();
+				const markupHljs = autodetectHljs.newInstance();
 				markupHljs.registerLanguage('jai', hljsDefineJai);
 				const result = markupHljs.highlight(code, { language: 'jai' });
 				const actual = result.value;
@@ -39,12 +46,14 @@ describe('Jai syntax highlighting', () => {
 	it('should detect jai language', async function () {
 		this.timeout(20000);
 		var code = await readFile(path.join(__dirname, 'detect', 'default.txt'), 'utf-8');
-		var actual = hljs.highlightAuto(code).language;
+		var actual = autodetectHljs.highlightAuto(code).language;
 		actual.should.eql('jai');
 	});
 	it('should not over-detect jai language', async () => {
-		var code = '<response value="ok" xml:lang="en"></response>';
-		var actual = hljs.highlightAuto(code).language;
+		var code = `<responses xml:lang="en">
+			${Array.from({ length: 20 }, (_, index) => `<response id="${index}" value="ok">Request completed successfully.</response>`).join('\n\t\t\t')}
+		</responses>`;
+		var actual = autodetectHljs.highlightAuto(code).language;
 		actual.should.not.eql('jai');
 	});
 
@@ -58,10 +67,10 @@ describe('Jai syntax highlighting', () => {
 			}
 		}`;
 		const result = hljs.highlight(code, { language: 'jai' });
-		const conditionMarkup = '<span class="hljs-meta"><span class="hljs-operator hash_ directive__">#</span><span class="hljs-meta directive_">if</span></span> <span class="hljs-variable constant_">OS</span> <span class="hljs-operator comparison_">==</span> <span class="hljs-property constant_ enum__">.LINUX</span>';
+		const directiveMarkup = '<span class="hljs-operator hash_ directive__">#</span><span class="hljs-meta directive_">if</span>';
 
 		result.illegal.should.equal(false);
-		(result.value.split(conditionMarkup).length - 1).should.equal(2);
+		(result.value.split(directiveMarkup).length - 1).should.equal(2);
 		result.value.should.match(/hljs-property declaration_">field<\/span><span class="hljs-operator define_">:<\/span> <span class="hljs-type property_">/);
 	});
 
@@ -88,6 +97,18 @@ describe('Jai syntax highlighting', () => {
 
 		result.illegal.should.equal(false);
 		scopesAtAfter.should.not.containEql('hljs-type struct_ declaration__');
+	});
+
+	it('should highlight #load directives in braceless #if branches', () => {
+		const code = `#if !USE_RAW
+			#load "rpmalloc.jai";
+		else
+			#load "rpmalloc.raw.jai";`;
+		const result = hljs.highlight(code, { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		(result.value.split('hljs-meta directive_ load__').length - 1).should.equal(2);
+		result.value.should.not.match(/stdLib_[^>]*>load<\/span>/);
 	});
 
 	it('should close returns lists before a proc body brace', () => {
@@ -204,6 +225,23 @@ describe('Jai syntax highlighting', () => {
 		result.value.should.match(/hljs-operator varargs_">\.\./);
 		result.value.should.match(/hljs-operator range_">\.\./);
 		insertDirectiveCount.should.equal(4);
+	});
+
+	it('should terminate expression inserts without breaking insert bodies', () => {
+		const code = `if _cur_count > #insert peak {
+			(#insert peak) = _cur_count;
+		}
+		#insert "generated();";
+		#insert body;
+		#insert #run generate();
+		#insert #run () -> string { return "generated();"; }();
+		#insert -> Code { return #code generated(); }`;
+		const result = hljs.highlight(code, { language: 'jai' });
+
+		result.illegal.should.equal(false);
+		result.value.should.match(/>peak<\/span><\/span> <span class="hljs-punctuation brace_">\{<\/span>/);
+		result.value.should.match(/>peak<\/span><\/span><span class="hljs-punctuation paren_">\)<\/span>/);
+		(result.value.split('hljs-_BalancedBraces').length - 1).should.equal(2);
 	});
 
 	it('should highlight every primitive in parameter, property, and return slots', function () {

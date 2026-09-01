@@ -69,6 +69,36 @@
 			}
 		}
 
+		#loading {
+			display: none;
+			position: fixed;
+			inset: 0;
+			place-items: center;
+			pointer-events: none;
+			background-color: #4448;
+			z-index: 100;
+
+			&::before {
+				content: "";
+				width: 28px;
+				height: 28px;
+				border: 4px solid #888;
+				border-top-color: #FFF;
+				border-radius: 999px;
+				animation: loading-spin 0.7s linear infinite;
+			}
+
+			&.show {
+				display: grid;
+			}
+		}
+
+		@keyframes loading-spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
 		::selection {
 			color: #FF0;
 			background-color: #0F0;
@@ -87,6 +117,7 @@
 	</style>
 </head>
 <body>
+	<div id="loading" class="show"></div>
 	<div class="menu">
 		<span>Theme:</span>
 		<select id="theme">
@@ -157,6 +188,10 @@
 			return true;
 		}
 
+		setLoading = (isLoading) => {
+			document.getElementById("loading").classList.toggle("show", isLoading);
+		};
+
 		function applyFile() {
 			const file = fileSel.value;
 			const prev = document.getElementById("prev");
@@ -170,16 +205,32 @@
 
 			document.title = `Jai for highlight.js - ${file}`;
 			updateFileHash(file);
+			setLoading(true);
+			const codeEl = document.getElementById("code");
+			codeEl.removeAttribute("data-highlighted");
+			codeEl.textContent = "";
 
 			fetch(file)
 				.then(response => response.text())
-				.then(text => {
-					const codeEl = document.getElementById("code");
-					codeEl.textContent = text;
-					codeEl.removeAttribute("data-highlighted");
-					highlight(codeEl);
-				})
-				.catch(alert);
+				.then(
+					text => requestAnimationFrame(
+						() => setTimeout(
+							() => {
+								codeEl.textContent = text;
+								try {
+									highlight(codeEl);
+								} finally {
+									setLoading(false);
+								}
+							},
+							0
+						)
+					)
+				)
+				.catch(error => {
+					setLoading(false);
+					alert(error);
+				});
 		}
 
 		fileSel.onchange = applyFile;

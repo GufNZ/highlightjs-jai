@@ -109,6 +109,7 @@ function matchNext(m) {
 }
 
 /** @typedef {RegExp & { matchValue: boolean }} MatchRegExp */
+/** @typedef {RegExp & { _orig?: RegExp | string }} AnnotatedRegExp */
 
 /** @type {Set<unknown>} */
 const seen = new Set();
@@ -370,23 +371,36 @@ function regexDebugPre(lang) {
 			return value;
 		}
 
-
-		let re = value;
-		if (typeof(re) !== 'string') {
-			re = re.source;
-		}
+		const original = value instanceof RegExp
+			? /** @type {AnnotatedRegExp} */ (value)._orig ?? value
+			: value;
+		const re = typeof(original) === 'string' ? original : original?.source;
 
 		if (re === undefined) {
 			console.error('undefined regex at', namePath, value);
 			debugger;
+			return value;
 		}
 
 		let i = 0;
 		errors += validateAtomics(re, namePath.reduce((s, p) => `${s}\n${'  '.repeat(i++)}${p}`, ''));
 
-		re = parentInsert + `(?!\n'${name}')` + re;
+		const annotated = /** @type {AnnotatedRegExp} */ (
+			new RegExp(parentInsert + `(?!\n'${name}')` + re)
+		);
+		if (
+			value instanceof RegExp
+			&& /** @type {AnnotatedRegExp} */ (value)._orig !== undefined
+			&& value.source === annotated.source
+			&& value.flags === annotated.flags
+		) {
+			return value;
+		}
 
-		return re;
+
+		Object.defineProperty(annotated, '_orig', { value: original });
+
+		return annotated;
 	});
 
 	if (errors) {
