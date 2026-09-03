@@ -239,7 +239,7 @@
 		const prev = document.getElementById("prev");
 		prev.onclick = (e) => {
 			e.preventDefault();
-			if (e.target.href) {
+			if (e.currentTarget.getAttribute("href")) {
 				fileSel.selectedIndex--;
 				applyFile();
 			}
@@ -247,7 +247,7 @@
 		const next = document.getElementById("next")
 		next.onclick = (e) => {
 			e.preventDefault();
-			if (e.target.href) {
+			if (e.currentTarget.getAttribute("href")) {
 				fileSel.selectedIndex++;
 				applyFile();
 			}
