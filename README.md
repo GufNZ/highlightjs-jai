@@ -1,18 +1,19 @@
 # highlightjs-jai
 
-//TODO: test with normal theme, e.g. GitHub dark.
-
 Jai language definition for `highlight.js`, as used in Discord etc.
 
 ## Usage
 
-Simply include the Highlight.js library in your webpage or Node app, then load this module.
+Install the package alongside Highlight.js:
+
+```bash
+npm install highlight.js highlightjs-jai
+```
 
 ### Static website or simple usage
 
-Simply load the module after loading Highlight.js.
-You'll use the minified version found in the `dist` directory.
-This module is just a CDN build of the language, so it will register itself as the Javascript is loaded.
+Load the browser bundle after Highlight.js.
+The bundle registers Jai automatically.
 
 ```html
 <script type="text/javascript" src="/path/to/highlight.min.js"></script>
@@ -32,14 +33,22 @@ This module is just a CDN build of the language, so it will register itself as t
 
 ### With Node or another build system
 
-If you're using Node/Webpack/Rollup/Browserify, etc, simply require the language module, then register it with `highlight.js`.
+CommonJS:
 
 ```javascript
-var hljs = require('highlightjs');
-var hljsJai = require('highlightjs-jai');
+const hljs = require('highlight.js');
+const jai = require('highlightjs-jai');
 
-hljs.registerLanguage("jai", hljsJai);
-hljs.highlightAll();
+hljs.registerLanguage('jai', jai);
+```
+
+ES modules:
+
+```javascript
+import hljs from 'highlight.js';
+import jai from 'highlightjs-jai';
+
+hljs.registerLanguage('jai', jai);
 ```
 
 ### React
@@ -52,7 +61,7 @@ import hljs from 'highlight.js'
 
 import 'highlight.js/scss/darcula.scss' // Your favourite theme.
 
-import jai from './jai'
+import jai from 'highlightjs-jai'
 
 hljs.registerLanguage('jai', jai);
 
@@ -79,7 +88,16 @@ export default Highlighter;
 
 ## Theme
 
-There is included an example theme.  It's mostly designed for testing the matching, but it's built using separate structural CSS and config vars, so for best results when making a custom theme for jai, copy the [jaiEverything.gss](dist/styles/jaiEverything.css) and just alter the set of vars at the top, noting that you don't need to set all of them - the structural part has sane fallbacks.
+An example theme is included.
+It is mostly designed for testing the matching, but it uses separate structural CSS and configuration variables.
+To make a custom Jai theme, copy [jaiEverything.css](dist/styles/jaiEverything.css) and alter the variables at the top.
+You only need to set the variables you want to override; the structural rules provide fallbacks.
+
+With a bundler, the theme can also be imported from the package:
+
+```javascript
+import 'highlightjs-jai/styles/jaiEverything.css';
+```
 
 See also the [css-class-reference](css-class-reference.md).
 
@@ -88,7 +106,7 @@ There are a few spots where we currently don't differentiate between line commen
 
 ## License
 
-Highlight.js is released under the MIT License.
+This grammar is released under the MIT License.
 See [LICENSE][1] file for details.
 
 ### Author & Maintainer
@@ -100,4 +118,4 @@ J.Chris Findlay <j.chris.findlay@gmail.com>
 - The official site for the Highlight.js library is <https://highlightjs.org/>.
 - The Highlight.js GitHub project: <https://github.com/highlightjs/highlight.js>.
 
-[1]: https://github.com/GufNZ/highlightjs-jai/blob/master/LICENSE
+[1]: https://github.com/highlightjs/highlightjs-jai/blob/main/LICENSE

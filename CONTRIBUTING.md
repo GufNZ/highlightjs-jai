@@ -7,7 +7,7 @@ We recommend volta or nvm to manage multiple active Node versions.
 
 Start by cloning the source from GitHub:
 
-    $ git clone https://github.com/GufNZ/highlightjs-jai.git
+    $ git clone https://github.com/highlightjs/highlightjs-jai.git
 
 Next, install the dependencies using `npm`:
 
@@ -21,25 +21,8 @@ To execute the tests, open a terminal and type:
 
 ## Build the distribution
 
-To generate the `dist` file, we need to clone the [highlight.js](https://github.com/highlightjs/highlight.js) main repository:
+Build the CommonJS, ES module, and browser distributions from this repository:
 
-    $ git clone https://github.com/highlightjs/highlight.js
-    $ cd highlight.js
+    $ npm run build
 
-Then, install the dependencies:
-
-    $ npm i
-
-Create an `extra` directory and clone the [highlightjs-jai](https://github.com/GufNZ/highlightjs-jai) repository in it:
-
-    $ mkdir extra
-    $ cd extra
-    $ git clone https://github.com/GufNZ/highlightjs-jai
-    $ cd ..
-
-Now we are ready to generate the `dist` file.
-Open a terminal and type:
-
-    $ node --stack-size=65500 ./tools/build.js -t cdn
-
-The generated file will be available in both `build/languages/jai.min.js` and `extra/highlightjs-jai/dist/jai.min.js`.
+The generated files are written to `dist/` and should be committed.

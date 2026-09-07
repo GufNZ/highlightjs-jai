@@ -1,8 +1,7 @@
 /*
 Language: jai
 Author: J.Chris Findlay <j.chris.findlay@gmail.com>
-Description: highlightjs language definition for jai files
-Category: config
+Description: highlightjs language definition for jai files.
 */
 // @ts-check
 

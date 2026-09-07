@@ -1,8 +1,27 @@
 {
 	"name": "highlightjs-jai",
-	"version": "1.0",
-	"description": "Highlight.JS syntax definition for jai files.",
-	"main": "src/languages/jai.js",
+	"version": "1.0.0",
+	"description": "Highlight.js syntax definition for Jai files.",
+	"main": "dist/jai.cjs",
+	"module": "dist/jai.es.js",
+	"exports": {
+		".": {
+			"import": "./dist/jai.es.js",
+			"require": "./dist/jai.cjs"
+		},
+		"./dist/jai.es.min.js": "./dist/jai.es.min.js",
+		"./dist/jai.min.js": "./dist/jai.min.js",
+		"./styles/jaiEverything.css": "./dist/styles/jaiEverything.css"
+	},
+	"files": [
+		"src",
+		"dist"
+	],
+	"sideEffects": [
+		"./dist/jai.js",
+		"./dist/jai.min.js",
+		"./dist/styles/*.css"
+	],
 	"scripts": {
 		"compileAll": "ls *.jai | grep -v test.jai | xargs -n 1 jai",
 		"generateStdLib": "jai generateStdLib.jai && generateStdLib >stdLib.js",
@@ -13,7 +32,7 @@
 		"dumpLangScopes": "node dumpScopes.mjs >langScopes",
 		"checkCssReference": "jai checkRef.jai && checkRef >check",
 		"checks": "npm run dumpLangScopes && npm run checkCssReference",
-		"build": "cp src/styles/jaiEverything.css dist/styles/ && cd ../highlight.js && npm run build-cdn",
+		"build": "rollup -c && cp src/styles/jaiEverything.css dist/styles/",
 		"browserTest": "node browserTest.mjs",
 		"profile": "node -e \"require('fs').mkdirSync('profiles',{recursive:true})\" && node --cpu-prof --cpu-prof-dir=./profiles --cpu-prof-interval=100 profileTarget.cjs",
 		"profileLoop": "node profileTargetLoop.cjs",
@@ -28,7 +47,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/GufNZ/highlightjs-jai.git"
+		"url": "https://github.com/highlightjs/highlightjs-jai.git"
 	},
 	"keywords": [
 		"jai",
@@ -39,18 +58,20 @@
 	"author": "J.Chris Findlay <j.chris.findlay@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/highlightjs-jai/issues"
+		"url": "https://github.com/highlightjs/highlightjs-jai/issues"
 	},
-	"homepage": "https://github.com/highlightjs-jai",
+	"homepage": "https://github.com/highlightjs/highlightjs-jai#readme",
+	"peerDependencies": {
+		"highlight.js": "^11.11.0"
+	},
 	"devDependencies": {
+		"@rollup/plugin-commonjs": "^29.0.0",
+		"@rollup/plugin-terser": "^1.0.0",
 		"@types/node": "^26.0.1",
 		"highlight.js": "^11.11.1",
 		"mocha": "^11.7.4",
+		"rollup": "^4.0.2",
 		"should": "^13.2.3",
 		"typescript": "^6.0.3"
-	},
-	"dependencies": {
-		"minimist": ">=1.2.8",
-		"mkdirp": "^3.0.1"
 	}
 }
