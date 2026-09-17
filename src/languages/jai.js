@@ -26712,7 +26712,7 @@ function jai(hljs) {
 	const STRING_ESCAPE = {
 		scope: 'char.escape',
 		relevance: 0,
-		begin: /\\(?:[0tenr%\\"]|d\d{3}|x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})/
+		begin: /\\(?:[0tenr%\\"]|d(?:\d{1,2}|[01]\d{2}|2[0-4]\d|25[0-5])(?!\d)|x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})/
 	};
 
 	const STRING = {

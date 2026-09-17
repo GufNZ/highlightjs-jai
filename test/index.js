@@ -57,6 +57,21 @@ describe('Jai syntax highlighting', () => {
 		actual.should.not.eql('jai');
 	});
 
+	it('should highlight decimal byte escapes from 0 through 255', () => {
+		const code = String.raw`"\d0 \d00 \d000 \d9 \d09 \d099 \d10 \d99 \d100 \d199 \d200 \d249 \d250 \d255 \d256 \d999 \d1234"`;
+		const result = hljs.highlight(code, { language: 'jai' });
+		const decimalEscapes = Array.from(
+			result.value.matchAll(/<span class="hljs-char escape_">(\\d\d+)<\/span>/g),
+			match => match[1]
+		);
+
+		result.illegal.should.equal(false);
+		decimalEscapes.should.eql([
+			'\\d0', '\\d00', '\\d000', '\\d9', '\\d09', '\\d099', '\\d10',
+			'\\d99', '\\d100', '\\d199', '\\d200', '\\d249', '\\d250', '\\d255'
+		]);
+	});
+
 	it('should highlight #if conditions consistently inside records', () => {
 		const code = `#if OS == .LINUX {
 			global_value := 1;
