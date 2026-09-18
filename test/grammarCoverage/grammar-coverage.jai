@@ -58,6 +58,12 @@ Generic_Record :: struct (T: Type, count: int = 2) {
 	values: [count] T;
 }
 
+Typed_Constant_Record :: struct {
+	SIMPLE: int : 1;
+	POLYMORPHIC: Generic_Record(Generic_Record(int, 2), 2) : .{};
+	defaulted: int = 2;
+}
+
 Plain_Union :: union {
 	integer: s64;
 	real: float64;
@@ -116,6 +122,11 @@ optional_bake :: ($$amount: int) -> int {
 
 generic_identity :: (value: $T) -> T {
 	return value;
+}
+
+generic_record_identity :: (value: Generic_Record($T, 2)) -> Generic_Record(T, 2) {
+	copy: Generic_Record(T, 2) = value;
+	return copy;
 }
 
 repeat_value :: (value: $T, $count: int) -> [count] T {

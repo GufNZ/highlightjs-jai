@@ -1,7 +1,7 @@
 .language-jai {
 	/* Any var prefix can have the following suffixes; i.e if the prefix is `default` then all these are valid: */
 	--default-fg: #FFF;
-	--default-bg: #000;
+	/*--default-bg: #000;		-- need to turn this of for herestring JAI support - moved to the page styles for `code.language-jai`. */
 	--default-style: normal;
 	--default-weight: bold;
 	--default-decoration: none;

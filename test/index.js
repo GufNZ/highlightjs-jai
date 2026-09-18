@@ -296,6 +296,11 @@ describe('Jai syntax highlighting', () => {
 		const code = `message :: #string DONE
 			Hello from Jai.
 			DONE
+			embedded :: #string JAI_CODE
+			embedded_proc :: () {
+				embedded_value: s64 = 1;
+			}
+			JAI_CODE
 			main :: () {
 				a := xx value;
 				auto_unchecked := xx,no_check value;
@@ -310,6 +315,8 @@ describe('Jai syntax highlighting', () => {
 
 		result.value.should.match(/hljs-string here_/);
 		result.value.should.match(/hljs-meta stringTerminator_">DONE/);
+		result.value.should.match(/<span class="language-jai">[\s\S]*hljs-title function_ declaration__">embedded_proc/);
+		result.value.should.match(/hljs-meta stringTerminator_ JAI__">JAI_CODE/);
 		result.value.should.match(/hljs-keyword cast_ v1__ auto___/);
 		result.value.should.match(/hljs-keyword cast_ v1__ auto___"><span class="hljs-keyword cast_">xx<\/span><span class="hljs-punctuation comma_">,<\/span><span class="hljs-meta directive_ modifier__">no_check<\/span>/);
 		result.value.should.match(/hljs-keyword cast_ v1__/);
@@ -494,6 +501,21 @@ describe('Jai syntax highlighting', () => {
 		const asmAddressLine = coverageSourceLines.findIndex(line => line.includes('mov.64 result, [source + 16]'));
 		asmAddressLine.should.be.aboveOrEqual(0);
 		coverageMarkupLines[asmAddressLine].should.match(/hljs-variable">source<\/span>[\s\S]*hljs-number integer_">16<\/span>/);
+		const genericRecordParamLine = coverageSourceLines.findIndex(line => line.includes('generic_record_identity ::'));
+		genericRecordParamLine.should.be.aboveOrEqual(0);
+		coverageMarkupLines[genericRecordParamLine].should.match(/hljs-type params_">Generic_Record[\s\S]*hljs-operator bake_">\$<\/span><span class="hljs-type baked_">T/);
+		const genericRecordLocalLine = coverageSourceLines.findIndex(line => line.includes('copy: Generic_Record(T, 2)'));
+		genericRecordLocalLine.should.be.aboveOrEqual(0);
+		coverageMarkupLines[genericRecordLocalLine].should.match(/hljs-variable declaration_">copy[\s\S]*hljs-type">Generic_Record[\s\S]*hljs-_BalancedParens/);
+		const simpleTypedConstantLine = coverageSourceLines.findIndex(line => line.includes('SIMPLE: int : 1'));
+		simpleTypedConstantLine.should.be.aboveOrEqual(0);
+		coverageMarkupLines[simpleTypedConstantLine].should.match(/hljs-property constant_ declaration__">SIMPLE[\s\S]*hljs-property constant_ value__">[\s\S]*hljs-number integer_">1/);
+		const polymorphicTypedConstantLine = coverageSourceLines.findIndex(line => line.includes('POLYMORPHIC: Generic_Record'));
+		polymorphicTypedConstantLine.should.be.aboveOrEqual(0);
+		coverageMarkupLines[polymorphicTypedConstantLine].should.match(/hljs-property constant_ declaration__">POLYMORPHIC[\s\S]*hljs-type property_">Generic_Record[\s\S]*hljs-property constant_ value__/);
+		const defaultedPropertyLine = coverageSourceLines.findIndex(line => line.includes('defaulted: int = 2'));
+		defaultedPropertyLine.should.be.aboveOrEqual(0);
+		coverageMarkupLines[defaultedPropertyLine].should.match(/hljs-property declaration_">defaulted[\s\S]*hljs-property default_">[\s\S]*hljs-number integer_">2/);
 		sources[0].should.match(/for values \{\s*total \+= it \+ it_index;/);
 		sources[0].should.match(/for :for_expansion values \{\s*mapped \+= it \+ it_index;/);
 		results.forEach(result => result.illegal.should.equal(false));
