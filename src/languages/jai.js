@@ -26727,6 +26727,71 @@ function jai(hljs) {
 		endScope: { 1: 'punctuation.quote' }
 	};
 
+	const HERESTRING_JAI = {
+		scope: 'string.here',
+		relevance: 5,
+		begin: `(?=#string(?=\\s|\\/[\\/*]|,)${skipWSAndCommentsREFn()}(?:,${skipWSAndCommentsREFn(0)}cr(?=\\s|\\/[\\/*])${skipWSAndCommentsREFn(0)})?(JAI\\w*)[ \\t]*\\r?\\n)`,
+		contains: [
+			{
+				scope: 'operator.hash.directive',
+				begin: /#/
+			},
+			{
+				scope: 'meta.directive',
+				begin: /string/
+			},
+			...COMMENTS,
+			{
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					/\bcr\b/
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				}
+			},
+			{
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					/\\%/
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				}
+			}
+		],
+		end: `(?=\\w+${skipWSAndCommentsREFn(undefined, true)}\\r?\\n)`,
+		starts: {
+			contains: [
+				{
+					scope: 'string.here',
+					subLanguage: 'jai',
+					begin: [
+						/JAI\w*/,
+						/[ \t]*\r?\n/
+					],
+					beginScope: {
+						1: 'meta.stringTerminator.JAI'
+					},
+					'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((m, resp) => { resp.data.end = m[1]; }),
+					end: /^\s*(\w+)\b/,
+					endScope: 'meta.stringTerminator.JAI',
+					'on:end': /** @type {import('highlight.js').ModeCallback} */ ((m, resp) => {
+						if (m[1] !== resp.data.end) {
+							resp.ignoreMatch();
+						}
+					})
+				}
+			]
+		}
+	};
+
 	const HERESTRING = {
 		scope: 'string.here',
 		relevance: 5,
@@ -26746,6 +26811,18 @@ function jai(hljs) {
 					/,/,
 					skipWSAndCommentsREFn(),
 					/\bcr\b/
+				],
+				beginScope: {
+					1: 'punctuation.comma',
+					2: 'comment',
+					3: 'meta.directive.modifier'
+				}
+			},
+			{
+				begin: [
+					/,/,
+					skipWSAndCommentsREFn(),
+					/\\%/
 				],
 				beginScope: {
 					1: 'punctuation.comma',
@@ -26831,7 +26908,7 @@ function jai(hljs) {
 		end: /(?=\W)/
 	};
 
-	const VAR_TYPE = {//FIXME: polymorph
+	const VAR_TYPE = {
 		$name: 'Var/Param Type',
 		relevance: 0,
 		// Zero-width begin: variable-length lookbehind for a single `:` optionally followed by whitespace/comments, then a lookahead peeks the type expression.
@@ -26840,7 +26917,7 @@ function jai(hljs) {
 		// The WS/comments class here is a hand-rolled *non-atomic* equivalent of `skipWSAndCommentsREFn()`: that helper emits the `(?=(X))\N` atomic idiom, which fails inside a variable-length lookbehind because lookbehinds are evaluated right-to-left in ECMAScript - `\N` gets processed before its group `(X)` is captured, so the backref matches empty and the idiom collapses.
 		// Peek: type expression must start with a pointer `*`, an array-prefix `[`, or a (non-declaration-keyword) identifier.
 		// Excludes the struct/union/enum keyword family so STRUCT_TYPE_DECLARATION and ENUM_TYPE_DECLARATION can take them as a richer type expression; also excludes `cast`/`xx` so CAST modes claim them at the value-side of a typed constant (`foo : T : cast(...)` / `foo : T : xx value`) without VAR_TYPE stealing the `(` from CAST v1's terminator-carrying balancedParen.
-		begin: `(?<=[^:]:(?:\\s|//[^\\n]*\\n|/\\*[\\s\\S]*?\\*/)*)(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?|cast|xx)\\b)${identifierREFn()})`,//FIXME: polymorph tail...
+		begin: `(?<=[^:]:(?:\\s|//[^\\n]*\\n|/\\*[\\s\\S]*?\\*/)*)(?=\\*|\\[|(?!(?:struct|union|enum(?:_flags)?|cast|xx)\\b)${identifierREFn()})`,
 		'on:begin': /** @type {import('highlight.js').ModeCallback} */ ((match, resp) => {
 			if (!variableDeclarationContextRE.test((match.input ?? '').slice(0, match.index ?? 0))) {
 				resp.isMatchIgnored = true;
@@ -26893,7 +26970,7 @@ function jai(hljs) {
 		end: /(?=[^\s\w\*\[.])/
 	};
 
-	const TYPE = {//FIXME: polymorph
+	const TYPE = {
 		scope: 'type',
 		relevance: 0,
 		// Consume any pointer-prefix `*`s in `begin` so they get their own sub-scope;
@@ -26944,7 +27021,7 @@ function jai(hljs) {
 			begin: /\$(?=[_A-Z])/,
 			starts: {
 				scope: 'type.baked',
-				begin: typeIdentifierREFn(),	//NOTE: can't be a polymorph, but //FIXME: that a type can contain a baked polymorphic param...
+				begin: typeIdentifierREFn(),
 				returnBegin: true,
 				contains: [ALIGNMENT_WS],
 				end: /(?=\W)/
@@ -27148,13 +27225,13 @@ function jai(hljs) {
 		returnEnd: true
 	};
 
-	const TYPE_DECLARATION = {//FIXME: polymorph
+	const TYPE_DECLARATION = {
 		scope: 'type.declaration',
 		relevance: 0,
 		begin: `${typeIdentifierREFn()}(?=(?:${skipWSAndCommentsREFn(0)},${skipWSAndCommentsREFn(0)}${identifierREFn(0)})*${skipWSAndCommentsREFn(0)}:)`,	//NOTE: can't be a polymorph on that side of the =.
 		returnBegin: true,
 		keywords,
-		contains: [//FIXME: polymorph tail...
+		contains: [
 			ALIGNMENT_WS,
 			...COMMENTS
 		],
@@ -27760,7 +27837,7 @@ function jai(hljs) {
 								begin: [
 									/\?/,
 									skipWSAndCommentsREFn(),
-									typeIdentifierREFn(),//FIXME: polymorph; starts trick...
+									typeIdentifierREFn(), //NOTE: Polymorphic asm size clues such as `?T` are claimed by the preceding constant clue rule; distinguishing them requires semantic information.
 								],
 								beginScope: {
 									1: 'operator.asm.size.clue',
@@ -27871,6 +27948,15 @@ function jai(hljs) {
 						]
 					},
 					{
+						...HERESTRING_JAI,
+						contains: [
+							{
+								scope: 'subst',
+								begin: /%\d*/
+							}
+						]
+					},
+					{
 						...HERESTRING,
 						contains: [
 							{
@@ -27892,6 +27978,7 @@ function jai(hljs) {
 		PRINTLIKE,
 		..._COMMON_EXCEPT_STRING,
 		STRING,
+		HERESTRING_JAI,
 		HERESTRING
 	];
 
@@ -28099,6 +28186,10 @@ function jai(hljs) {
 					...CASTS.map(v => ({ ...v, endsParent: true })),
 					{
 						...STRING,
+						endsParent: true,
+					},
+					{
+						...HERESTRING_JAI,
 						endsParent: true,
 					},
 					{
@@ -28354,7 +28445,7 @@ function jai(hljs) {
 		if (includeConsts) {
 			/** @type {import('highlight.js').Mode[]} */ (result.contains).unshift({
 				scope: `${kind}.constant.declaration`,
-				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}(?:${typeIdentifierREFn(0)}${skipWSAndCommentsREFn(0)})?:${skipWSAndCommentsREFn(0)}:)`,//FIXME: polymorph
+				begin: `${identifierREFn()}(?=${skipWSAndCommentsREFn(0)}(?:::|:${skipWSAndCommentsREFn(0)}(?:[^\\r\\n:=;{,()]|${nestedBalancedParensREFn(3)})+${skipWSAndCommentsREFn(0)}:(?!=)))`,
 				returnBegin: true,
 				keywords: keywordsExceptStdLib,
 				contains: [ALIGNMENT_WS],
@@ -28386,9 +28477,19 @@ function jai(hljs) {
 			);
 			const contains = /** @type {import('highlight.js').Mode[]} */ (result.contains);
 			const c = /** @type {import('highlight.js').Mode[]} */ (/** @type {any} */ (contains[contains.length - 1]).contains);
-			const d = /** @type {any} */ (c[c.length - 1]).contains[2];
-			d.begin = /:/;
-			d.contains[0] = DEFINE_CONSTANT;
+			const typeContents = /** @type {import('highlight.js').Mode[]} */ (/** @type {any} */ (c[c.length - 1]).contains);
+			const defaultHandler = /** @type {any} */ (typeContents[2]);
+			typeContents.splice(2, 0, {
+				...defaultHandler,
+				begin: /:/,
+				contains: [
+					DEFINE_CONSTANT,
+					{
+						...defaultHandler.contains[1],
+						scope: `${kind}.constant.value`
+					}
+				]
+			});
 		}
 
 		return result;

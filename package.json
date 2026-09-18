@@ -1,6 +1,6 @@
 {
 	"name": "highlightjs-jai",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"description": "Highlight.js syntax definition for Jai files.",
 	"main": "dist/jai.cjs",
 	"module": "dist/jai.es.js",
@@ -33,6 +33,7 @@
 		"checkCssReference": "jai checkRef.jai && checkRef >check",
 		"checks": "npm run dumpLangScopes && npm run checkCssReference",
 		"build": "rollup -c && cp src/styles/jaiEverything.css dist/styles/",
+		"npm-publish": "npm login && npm run build && npm test && npm publish",
 		"browserTest": "node browserTest.mjs",
 		"profile": "node -e \"require('fs').mkdirSync('profiles',{recursive:true})\" && node --cpu-prof --cpu-prof-dir=./profiles --cpu-prof-interval=100 profileTarget.cjs",
 		"profileLoop": "node profileTargetLoop.cjs",
@@ -47,7 +48,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/highlightjs/highlightjs-jai.git"
+		"url": "git+https://github.com/highlightjs/highlightjs-jai.git"
 	},
 	"keywords": [
 		"jai",
